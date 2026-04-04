@@ -40,6 +40,9 @@ class WorkerRegister(BaseModel):
         return v
 
 
+class WorkerLogin(BaseModel):
+    phone: str = Field(..., description="10–15 digit mobile number")
+
 # ── Response ──────────────────────────────────────────────────────────────────
 class WorkerOut(BaseModel):
     id: int

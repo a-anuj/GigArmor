@@ -86,8 +86,8 @@ def process_trigger_event(
         trust_score = calculate_trust_score(worker.id, worker.trust_baseline_score)
         status      = get_claim_status(trust_score)
 
-        # For demo: 100% payout (₹1,200) on approve/hold, ₹0 on blocked
-        payout = 1200.0 if status != "Blocked" else 0.0
+        # Use actual enrolled coverage amount
+        payout = policy.coverage_amount if status != "Blocked" else 0.0
 
         claim = Claim(
             policy_id=policy.id,

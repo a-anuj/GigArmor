@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.worker import Worker
 from app.models.zone import Zone
-from app.schemas.worker import WorkerRegister, WorkerOut, WorkerListOut, ZoneOut
+from app.schemas.worker import WorkerRegister, WorkerLogin, WorkerOut, WorkerListOut, ZoneOut
 
 router = APIRouter(prefix="/api/v1/workers", tags=["Workers"])
 
@@ -74,6 +74,21 @@ def register_worker(data: WorkerRegister, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(worker)
 
+    return _worker_to_schema(worker)
+
+@router.post(
+    "/login",
+    response_model=WorkerOut,
+    summary="Login a gig worker",
+)
+def login_worker(data: WorkerLogin, db: Session = Depends(get_db)):
+    """Authenticates worker by phone number for the demo."""
+    worker = db.query(Worker).filter(Worker.phone == data.phone).first()
+    if not worker:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Worker not found. Please register first.",
+        )
     return _worker_to_schema(worker)
 
 
