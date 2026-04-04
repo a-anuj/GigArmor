@@ -25,7 +25,6 @@ from app.services.premium_engine import (
     calculate_premium,
     get_consecutive_quiet_weeks,
     QUIET_WEEKS_THRESHOLD,
-    COVERAGE_AMOUNT,
 )
 
 router = APIRouter(prefix="/api/v1/policies", tags=["Policies"])
@@ -150,14 +149,14 @@ def enroll_policy(data: PolicyEnroll, db: Session = Depends(get_db)):
         start_date=now,
         end_date=now + timedelta(days=7),
         premium_amount=quote["premium"],
-        coverage_amount=COVERAGE_AMOUNT,
+        coverage_amount=quote["coverage_amount"],
         status="Active",
     )
     db.add(policy)
     db.commit()
     db.refresh(policy)
 
-    message_parts = [f"✅ Policy #{policy.id} created. Coverage: ₹{COVERAGE_AMOUNT:.0f}."]
+    message_parts = [f"✅ Policy #{policy.id} created. Coverage: ₹{quote['coverage_amount']:.0f}."]
     if quote["shield_credits_applied"]:
         message_parts.append(
             f"🛡️ Shield Credits discount applied: -₹{quote['discount_amount']:.0f}"

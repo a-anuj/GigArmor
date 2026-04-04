@@ -129,6 +129,8 @@ def calculate_premium(
     raw_premium           = R_BASE * base_risk_multiplier * m_weather * m_social * H_EXPECTED * m_coldstart
     premium_before_disc   = max(PREMIUM_FLOOR, min(PREMIUM_CEILING, raw_premium))
 
+    coverage_amount = base_risk_multiplier * 1000.0
+
     # Shield Credits discount (only if not in cold-start period)
     discount_amount   = 0.0
     credits_applied   = False
@@ -152,7 +154,7 @@ def calculate_premium(
         "weather_condition":      weather_condition,
         "social_condition":       social_condition,
         "cold_start_active":      cold_start,
-        "coverage_amount":        COVERAGE_AMOUNT,
+        "coverage_amount":        coverage_amount,
         "shield_credits_applied": credits_applied,
         "discount_amount":        round(discount_amount, 2),
     }
