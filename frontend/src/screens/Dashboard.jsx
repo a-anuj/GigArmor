@@ -94,7 +94,7 @@ export default function Dashboard() {
     const handleSimulateDemo = async () => {
         setEnrolling(true);
         try {
-            const res = await simulateTrigger({ zone_id: profile?.zone?.id ?? 1, event_type: 'Rain', severity: 'High' });
+            const res = await simulateTrigger({ zone_id: profile?.zone_id ?? 1, event_type: 'Rain', severity: 'High' });
             if (res.data.claims_generated === 0) {
                 setEnrollMsg('Trigger fired, but no active policy. Please Enroll first!');
                 setEnrollSuccess(false);
