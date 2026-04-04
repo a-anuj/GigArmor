@@ -68,6 +68,11 @@ def process_trigger_event(
         .all()
     )
 
+    all_active_policies = db.query(Policy).filter(Policy.status == "Active").all()
+    print(f"DEBUG: Found {len(all_active_policies)} total active policies in DB.")
+    for p in all_active_policies:
+        print(f"DEBUG: Policy {p.id} for worker {p.worker_id} in zone {p.worker.zone_id}. Expected Zone: {zone_id}")
+
     logger.info(
         f"[Trigger #{trigger.id}] {len(active_policies)} active policies found in Zone {zone_id}"
     )

@@ -1,16 +1,6 @@
 import { useEffect, useState } from 'react';
-import { getPlatformStats, getTriggers, simulateTrigger, listWorkers } from '../api';
+import { getPlatformStats, getTriggers, simulateTrigger, listWorkers, getZones } from '../api';
 import './AdminDashboard.css';
-
-const ZONES = [
-    { id: 1, name: 'Koramangala', pincode: '560034', risk: 1.2 },
-    { id: 2, name: 'Indiranagar', pincode: '560038', risk: 1.0 },
-    { id: 3, name: 'Whitefield', pincode: '560066', risk: 1.5 },
-    { id: 4, name: 'HSR Layout', pincode: '560102', risk: 0.9 },
-    { id: 5, name: 'Marathahalli', pincode: '560037', risk: 1.3 },
-    { id: 6, name: 'Electronic City', pincode: '560100', risk: 1.4 },
-    { id: 7, name: 'JP Nagar', pincode: '560078', risk: 1.1 },
-];
 
 const SEVERITIES = ['Moderate', 'High', 'Critical'];
 const EVENT_TYPES = ['Rain', 'AQI', 'Outage', 'Social', 'Heat'];
@@ -33,6 +23,7 @@ export default function AdminDashboard() {
     const [stats, setStats] = useState(null);
     const [triggers, setTriggers] = useState([]);
     const [workers, setWorkers] = useState([]);
+    const [zones, setZones] = useState([]);
     const [simZone, setSimZone] = useState(1);
     const [simType, setSimType] = useState('Rain');
     const [simSev, setSimSev] = useState('Moderate');
@@ -41,11 +32,12 @@ export default function AdminDashboard() {
     const [lastRefresh, setLastRefresh] = useState(new Date());
 
     const load = () => {
-        Promise.all([getPlatformStats(), getTriggers(), listWorkers()])
-            .then(([s, t, w]) => {
+        Promise.all([getPlatformStats(), getTriggers(), listWorkers(), getZones()])
+            .then(([s, t, w, z]) => {
                 setStats(s.data);
                 setTriggers(t.data.slice(0, 10));
                 setWorkers(w.data.workers || []);
+                setZones(z.data || []);
                 setLastRefresh(new Date());
             })
             .catch(() => { });
@@ -57,7 +49,7 @@ export default function AdminDashboard() {
         setSimLoading(true);
         setSimResult(null);
         try {
-            const r = await simulateTrigger({ zone_id: parseInt(simZone), event_type: simType, severity: simSev });
+            const r = await simulateTrigger({ zone_id: parseInt(simZone) || (zones[0]?.id ?? 1), event_type: simType, severity: simSev });
             setSimResult(r.data);
             load(); // Refresh stats
         } catch (e) {
@@ -119,14 +111,15 @@ export default function AdminDashboard() {
                         <div className="admin-col">
                             {/* Zone Risk Map */}
                             <div className="admin-card">
-                                <div className="card-title">📍 Zone Risk Map — Bengaluru</div>
+                                <div className="card-title">📍 Zone Risk Map</div>
                                 <div className="zone-grid-admin">
-                                    {ZONES.map(z => {
+                                    {(zones || []).map(z => {
+                                        const zRisk = z.base_risk_multiplier ?? 1.0;
                                         const matched = triggers.filter(t => t.zone_id === z.id);
                                         return (
-                                            <div className="zone-tile" key={z.id} style={{ borderColor: `${riskColor(z.risk)}44` }}>
+                                            <div className="zone-tile" key={z.id} style={{ borderColor: `${riskColor(zRisk)}44` }}>
                                                 <div className="zone-tile-name">{z.name}</div>
-                                                <div className="zone-tile-risk" style={{ color: riskColor(z.risk) }}>{riskLabel(z.risk)}</div>
+                                                <div className="zone-tile-risk" style={{ color: riskColor(zRisk) }}>{riskLabel(zRisk)}</div>
                                                 <div className="zone-tile-pin">{z.pincode}</div>
                                                 {matched.length > 0 && <div className="zone-tile-alert">⚡ {matched.length} trigger(s)</div>}
                                             </div>
@@ -177,7 +170,7 @@ export default function AdminDashboard() {
                                     <div className="sim-row">
                                         <label>Zone</label>
                                         <select value={simZone} onChange={e => setSimZone(e.target.value)}>
-                                            {ZONES.map(z => <option key={z.id} value={z.id}>{z.name}</option>)}
+                                            {(zones || []).map(z => <option key={z.id} value={z.id}>{z.name}</option>)}
                                         </select>
                                     </div>
                                     <div className="sim-row">
@@ -210,7 +203,7 @@ export default function AdminDashboard() {
                                     <div className="sim-result">
                                         <div className="sim-result-title">✅ Trigger Fired — {simResult.zone_name}</div>
                                         <div className="sim-result-grid">
-                                            <span>Claims processed</span><strong>{simResult.claims_processed ?? 0}</strong>
+                                            <span>Claims processed</span><strong>{simResult.claims_generated ?? 0}</strong>
                                             <span>Auto-approved</span><strong style={{ color: '#4ade80' }}>{simResult.auto_approved ?? 0}</strong>
                                             <span>Soft-held</span><strong style={{ color: '#fbbf24' }}>{simResult.soft_hold ?? 0}</strong>
                                             <span>Blocked</span><strong style={{ color: '#f87171' }}>{simResult.blocked ?? 0}</strong>
