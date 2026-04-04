@@ -5,39 +5,63 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 24px;
+    gap: 20px;
     background:
-        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(111, 63, 255, 0.18) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(255, 215, 0, 0.08) 0%, transparent 55%),
-        #0a0620;
+        radial-gradient(ellipse 70% 50% at 50% 0%, rgba(255, 191, 0, 0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 80% 90%, rgba(255, 191, 0, 0.04) 0%, transparent 55%),
+        #0a0a0a;
     padding: 32px 16px;
 }
 
-/* ── Top label ──────────────────────────────────────────────────────── */
+/* ── Top label + lang toggle row ─────────────────────────────────────── */
+.app-top-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
 .app-label {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-family: 'Syne', sans-serif;
-    font-size: 1.1rem;
+    gap: 8px;
+    font-family: var(--font-display);
+    font-size: 1rem;
     font-weight: 700;
     color: var(--on-surface);
-    letter-spacing: 0.02em;
-}
-
-.shield-icon {
-    font-size: 1.4rem;
+    letter-spacing: 0.01em;
 }
 
 .app-label-sub {
-    font-family: 'Work Sans', sans-serif;
     font-weight: 500;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: var(--on-surface-muted);
     padding: 2px 10px;
     background: var(--surface-container);
     border-radius: var(--radius-full);
     border: 1px solid var(--outline-variant);
+}
+
+.lang-toggle {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--on-surface-muted);
+    background: var(--surface-container);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-full);
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.lang-toggle:hover {
+    color: var(--primary);
+    border-color: rgba(255, 191, 0, 0.4);
+    background: var(--primary-container);
 }
 
 /* ── Phone Frame ─────────────────────────────────────────────────────── */
@@ -47,21 +71,21 @@
     height: 844px;
     background: var(--surface);
     border-radius: 48px;
-    border: 2px solid rgba(255, 215, 0, 0.25);
+    border: 1.5px solid rgba(255, 191, 0, 0.2);
     box-shadow:
-        0 0 0 8px rgba(255, 215, 0, 0.06),
-        0 40px 80px rgba(0, 0, 0, 0.6),
-        0 0 60px rgba(111, 63, 255, 0.15);
+        0 0 0 8px rgba(255, 191, 0, 0.04),
+        0 40px 80px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(255, 255, 255, 0.03);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    animation: fadeUp 0.5s ease both;
+    animation: fadeUp 0.45s ease both;
 }
 
 .phone-notch {
     flex-shrink: 0;
-    width: 126px;
-    height: 34px;
+    width: 120px;
+    height: 32px;
     background: #000;
     border-radius: 0 0 20px 20px;
     margin: 0 auto;
@@ -76,9 +100,7 @@
     scroll-behavior: smooth;
 }
 
-.phone-screen::-webkit-scrollbar {
-    display: none;
-}
+.phone-screen::-webkit-scrollbar { display: none; }
 
 .phone-home-bar {
     flex-shrink: 0;
@@ -92,25 +114,29 @@
     content: '';
     width: 120px;
     height: 4px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 2px;
 }
 
 /* ── Admin pill ──────────────────────────────────────────────────────── */
 .admin-pill {
-    font-family: 'Work Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-body);
     font-weight: 600;
-    font-size: 0.85rem;
-    color: var(--primary);
-    background: rgba(255, 215, 0, 0.08);
-    border: 1px solid rgba(255, 215, 0, 0.25);
+    font-size: 0.8rem;
+    color: var(--on-surface-muted);
+    background: var(--surface-container);
+    border: 1px solid var(--outline);
     border-radius: var(--radius-full);
-    padding: 8px 20px;
+    padding: 7px 18px;
     text-decoration: none;
-    transition: background 0.2s, box-shadow 0.2s;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
 }
 
 .admin-pill:hover {
-    background: rgba(255, 215, 0, 0.16);
-    box-shadow: var(--glow-gold);
+    color: var(--primary);
+    border-color: rgba(255, 191, 0, 0.3);
+    background: var(--primary-container);
 }

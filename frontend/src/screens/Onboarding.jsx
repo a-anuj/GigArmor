@@ -1,10 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ShieldCheck, MapPin, BarChart3, AlertTriangle, CheckCircle2, ChevronRight, ArrowLeft } from 'lucide-react';
 import { getZones, registerWorker, loginWorker } from '../api';
 import { useWorker } from '../context/WorkerContext';
 import './Onboarding.css';
 
-const STEPS = ['Profile', 'Zone', 'UPI'];
+const STEPS = ['Platform', 'Profile', 'Zone', 'UPI'];
+
+const PLATFORMS = [
+    { id: 'zepto',          name: 'Zepto',            color: '#8B5CF6' },
+    { id: 'blinkit',        name: 'Blinkit',          color: '#FFCC00' },
+    { id: 'swiggy_instamart', name: 'Swiggy Instamart', color: '#FC8019' },
+];
 
 export default function Onboarding() {
     const [step, setStep] = useState(0);
@@ -13,8 +20,17 @@ export default function Onboarding() {
     const [loginPhone, setLoginPhone] = useState('');
     const [loginError, setLoginError] = useState('');
     const [loadingLogin, setLoadingLogin] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [form, setForm] = useState({
+        platform: '', name: '', phone: '', zone_id: '', upi_id: '',
+    });
     const { saveWorker } = useWorker();
     const nav = useNavigate();
+
+    useEffect(() => {
+        getZones().then(r => setZones(r.data)).catch(() => { });
+    }, []);
 
     const handleLogin = async () => {
         setLoginError('');
@@ -30,57 +46,17 @@ export default function Onboarding() {
         }
     };
 
-    if (isLogin) {
-        return (
-            <div className="onboard-screen">
-                <div className="onboard-header">
-                    <div className="brand-logo">🛡️ GigArmor</div>
-                    <h2 className="section-title">Login</h2>
-                    <p className="brand-sub">Welcome back securely</p>
-                </div>
-                <div className="form-section">
-                    <div className="field-group">
-                        <label>Mobile Number</label>
-                        <input
-                            className="field-input"
-                            type="tel"
-                            value={loginPhone}
-                            onChange={e => setLoginPhone(e.target.value.replace(/\D/g, ''))}
-                            placeholder="9876543210"
-                        />
-                    </div>
-                    {loginError && <div className="form-error">⚠ {loginError}</div>}
-                    <button className="btn-primary" onClick={handleLogin} disabled={loadingLogin}>
-                        {loadingLogin ? 'Verifying...' : 'Login securely'}
-                    </button>
-                    <button className="btn-ghost" onClick={() => setIsLogin(false)}>
-                        Don't have an account? Register
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [form, setForm] = useState({
-        name: '', phone: '', zone_id: '', upi_id: '',
-    });
-
-    useEffect(() => {
-        getZones().then(r => setZones(r.data)).catch(() => { });
-    }, []);
-
     const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
     const next = () => {
         setError('');
-        if (step === 0) {
+        if (step === 0 && !form.platform) return setError('Select your delivery platform');
+        if (step === 1) {
             if (!form.name.trim()) return setError('Name is required');
             if (!/^[6-9]\d{9}$/.test(form.phone)) return setError('Enter a valid 10-digit Indian mobile number');
         }
-        if (step === 1 && !form.zone_id) return setError('Select your dark store zone');
-        if (step < 2) return setStep(s => s + 1);
+        if (step === 2 && !form.zone_id) return setError('Select your dark store zone');
+        if (step < 3) return setStep(s => s + 1);
         // Final step
         if (!form.upi_id.trim()) return setError('UPI ID is required');
         handleSubmit();
@@ -96,7 +72,7 @@ export default function Onboarding() {
                 zone_id: parseInt(form.zone_id),
                 upi_id: form.upi_id.trim(),
             });
-            saveWorker(data);
+            saveWorker({ ...data, platform: form.platform });
             nav('/dashboard');
         } catch (e) {
             setError(e.response?.data?.detail || 'Registration failed. Try a different phone number.');
@@ -107,28 +83,92 @@ export default function Onboarding() {
 
     const selectedZone = zones.find(z => z.id === parseInt(form.zone_id));
 
+    if (isLogin) {
+        return (
+            <div className="onboard-screen">
+                <div className="onboard-header">
+                    <div className="brand-logo">
+                        <ShieldCheck size={28} color="var(--primary)" strokeWidth={2.5} />
+                        <span>GigArmor</span>
+                    </div>
+                    <h2 className="section-title">Sign In</h2>
+                    <p className="brand-sub">Welcome back. Enter your registered number.</p>
+                </div>
+                <div className="form-section">
+                    <div className="field-group">
+                        <label>Mobile Number</label>
+                        <input
+                            className="field-input"
+                            type="tel"
+                            value={loginPhone}
+                            onChange={e => setLoginPhone(e.target.value.replace(/\D/g, ''))}
+                            placeholder="9876543210"
+                        />
+                    </div>
+                    {loginError && (
+                        <div className="form-error">
+                            <AlertTriangle size={14} />
+                            {loginError}
+                        </div>
+                    )}
+                    <button className="btn-primary" onClick={handleLogin} disabled={loadingLogin}>
+                        {loadingLogin ? <span className="spinner" /> : 'Login Securely'}
+                    </button>
+                    <button className="btn-ghost" onClick={() => setIsLogin(false)}>
+                        No account? Register here
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="onboard-screen">
             {/* Header */}
             <div className="onboard-header">
-                <div className="brand-logo">🛡️ GigArmor</div>
+                <div className="brand-logo">
+                    <ShieldCheck size={26} color="var(--primary)" strokeWidth={2.5} />
+                    <span>GigArmor</span>
+                </div>
                 <div className="brand-tagline">Protect Your Income</div>
-                <p className="brand-sub">Join the fleet. Deploy your professional shield and start earning with security.</p>
+                <p className="brand-sub">Parametric income insurance built for delivery workers.</p>
             </div>
 
             {/* Step indicator */}
             <div className="step-dots">
                 {STEPS.map((s, i) => (
                     <div key={s} className={`step-dot${i === step ? ' active' : i < step ? ' done' : ''}`}>
-                        {i < step ? '✓' : i + 1}
+                        {i < step ? <CheckCircle2 size={13} strokeWidth={2.5} /> : i + 1}
                         <span className="step-label">{s}</span>
                     </div>
                 ))}
                 <div className="step-line" style={{ width: `${(step / (STEPS.length - 1)) * 100}%` }} />
             </div>
 
-            {/* Step 0 — Profile */}
+            {/* Step 0 — Platform */}
             {step === 0 && (
+                <div className="form-section fade-up">
+                    <h2 className="section-title">Select Your Platform</h2>
+                    <p className="section-hint">Your platform determines your zone availability and premium base rate.</p>
+                    <div className="platform-grid">
+                        {PLATFORMS.map(p => (
+                            <button
+                                key={p.id}
+                                className={`platform-card${form.platform === p.id ? ' selected' : ''}`}
+                                style={{ '--platform-color': p.color }}
+                                onClick={() => set('platform', p.id)}
+                            >
+                                <span className="platform-dot" style={{ background: p.color }} />
+                                {p.name}
+                                {form.platform === p.id && <CheckCircle2 size={14} className="platform-check" />}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Step 1 — Profile */}
+            {step === 1 && (
                 <div className="form-section fade-up">
                     <h2 className="section-title">Personal Details</h2>
                     <div className="field-group">
@@ -157,15 +197,15 @@ export default function Onboarding() {
                 </div>
             )}
 
-            {/* Step 1 — Zone */}
-            {step === 1 && (
+            {/* Step 2 — Zone */}
+            {step === 2 && (
                 <div className="form-section fade-up">
                     <h2 className="section-title">Select Your Dark Store Zone</h2>
                     <p className="section-hint">Coverage is hyperlocal to your zone's 2.5 km radius.</p>
                     <div className="zone-grid">
                         {zones.map(z => {
                             const risk = z.base_risk_multiplier <= 1.0 ? 'LOW' : z.base_risk_multiplier <= 1.2 ? 'MED' : 'HIGH';
-                            const riskColor = { LOW: '#4ade80', MED: '#fbbf24', HIGH: '#f87171' }[risk];
+                            const riskColor = { LOW: '#22c55e', MED: '#f59e0b', HIGH: '#ef4444' }[risk];
                             return (
                                 <div
                                     key={z.id}
@@ -174,8 +214,13 @@ export default function Onboarding() {
                                 >
                                     <div className="zone-name">{z.name}</div>
                                     <div className="zone-meta">
-                                        <span className="zone-pin">📍 {z.pincode}</span>
-                                        <span className="zone-risk" style={{ color: riskColor }}>● {risk}</span>
+                                        <span className="zone-pin">
+                                            <MapPin size={10} /> {z.pincode}
+                                        </span>
+                                        <span className="zone-risk" style={{ color: riskColor }}>
+                                            <span className="risk-dot-sm" style={{ background: riskColor }} />
+                                            {risk}
+                                        </span>
                                     </div>
                                 </div>
                             );
@@ -183,17 +228,18 @@ export default function Onboarding() {
                     </div>
                     {selectedZone && (
                         <div className="zone-premium-preview">
-                            📊 Est. premium multiplier: <strong>{selectedZone.base_risk_multiplier}×</strong>
+                            <BarChart3 size={13} />
+                            Est. risk multiplier: <strong>{selectedZone.base_risk_multiplier}×</strong>
                         </div>
                     )}
                 </div>
             )}
 
-            {/* Step 2 — UPI */}
-            {step === 2 && (
+            {/* Step 3 — UPI */}
+            {step === 3 && (
                 <div className="form-section fade-up">
                     <h2 className="section-title">UPI Payment Setup</h2>
-                    <p className="section-hint">Used for daily instant earnings settlement. Payouts arrive in &lt;60 seconds.</p>
+                    <p className="section-hint">Payouts arrive in under 60 seconds, automatically.</p>
                     <div className="field-group">
                         <label>UPI ID</label>
                         <input
@@ -204,28 +250,45 @@ export default function Onboarding() {
                         />
                     </div>
                     <div className="agreement-box">
-                        <span className="check-icon">✓</span>
+                        <CheckCircle2 size={16} className="check-icon" />
                         I agree to the <strong>Service Armor Agreement</strong> and consent to automated earnings verification.
                     </div>
                 </div>
             )}
 
             {/* Error */}
-            {error && <div className="form-error">⚠ {error}</div>}
+            {error && (
+                <div className="form-error">
+                    <AlertTriangle size={14} />
+                    {error}
+                </div>
+            )}
 
             {/* CTA */}
             <div className="onboard-cta">
                 {step > 0 && (
                     <button className="btn-ghost" onClick={() => { setError(''); setStep(s => s - 1); }}>
-                        ← Back
+                        <ArrowLeft size={16} /> Back
                     </button>
                 )}
                 <button className="btn-primary" onClick={next} disabled={loading}>
-                    {loading ? <span className="spinner" /> : step < 2 ? 'Continue →' : 'Activate Shield 🛡️'}
+                    {loading
+                        ? <span className="spinner" />
+                        : step < 3
+                            ? <><span>Continue</span><ChevronRight size={16} /></>
+                            : <><ShieldCheck size={16} /><span>Activate Shield</span></>
+                    }
                 </button>
             </div>
 
-            <div className="onboard-footer">Powered by GigArmor Infrastructure · Guidewire DEVTrails 2026</div>
+            <div className="onboard-footer">
+                {!isLogin && (
+                    <button className="footer-login-link" onClick={() => setIsLogin(true)}>
+                        Already registered? Sign In
+                    </button>
+                )}
+                <div>Powered by GigArmor · Guidewire DEVTrails 2026</div>
+            </div>
         </div>
     );
 }

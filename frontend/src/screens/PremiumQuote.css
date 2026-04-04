@@ -4,7 +4,7 @@
     flex-direction: column;
     background: var(--surface);
     padding: 16px 18px 28px;
-    gap: 16px;
+    gap: 14px;
 }
 
 .quote-header {
@@ -35,7 +35,7 @@
 }
 
 .quote-title {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-size: 1rem;
     font-weight: 700;
     color: var(--on-surface);
@@ -51,35 +51,71 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 24px 0 8px;
-    gap: 8px;
+    padding: 20px 0 8px;
+    gap: 6px;
+}
+
+.premium-floor-ceil {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--on-surface-muted);
+    background: var(--surface-container);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-full);
+    padding: 3px 10px;
+    letter-spacing: 0.02em;
+    margin-bottom: 4px;
 }
 
 .premium-amount {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-size: 3.5rem;
     font-weight: 800;
     color: var(--primary);
     letter-spacing: -0.04em;
-    text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    text-shadow: 0 0 30px rgba(255, 191, 0, 0.3);
+    line-height: 1;
 }
 
-.shield-tag {
+.premium-period {
     font-size: 0.72rem;
+    color: var(--on-surface-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.premium-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 4px;
+}
+
+.premium-tag {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    padding: 4px 10px;
+    border: 1px solid;
+}
+
+.premium-tag.discount {
     color: var(--secondary);
-    background: rgba(235, 191, 138, 0.1);
-    border: 1px solid rgba(235, 191, 138, 0.25);
-    border-radius: var(--radius-full);
-    padding: 4px 12px;
+    border-color: rgba(212, 160, 23, 0.3);
+    background: rgba(212, 160, 23, 0.08);
 }
 
-.coldstart-tag {
-    font-size: 0.72rem;
+.premium-tag.warning {
     color: var(--info);
-    background: rgba(96, 165, 250, 0.1);
-    border: 1px solid rgba(96, 165, 250, 0.25);
-    border-radius: var(--radius-full);
-    padding: 4px 12px;
+    border-color: rgba(96, 165, 250, 0.3);
+    background: rgba(96, 165, 250, 0.08);
 }
 
 /* Multipliers */
@@ -99,6 +135,12 @@
     color: var(--on-surface-muted);
     text-transform: uppercase;
     letter-spacing: 0.08em;
+}
+
+.mult-card-formula {
+    font-size: 0.72rem;
+    color: var(--on-surface-muted);
+    font-style: italic;
     margin-bottom: 4px;
 }
 
@@ -119,7 +161,7 @@
 }
 
 .mult-row.total .mult-val {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-size: 1.1rem;
     font-weight: 800;
     color: var(--primary);
@@ -176,12 +218,22 @@
     color: var(--on-surface-variant);
 }
 
+.cov-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .cov-row strong {
     color: var(--on-surface);
     font-weight: 700;
 }
 
 .risk-map-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     font-size: 0.7rem;
     color: var(--on-surface-muted);
     text-align: center;
@@ -195,25 +247,25 @@
 .enroll-cta {
     margin-top: auto;
     width: 100%;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dim) 100%);
+    background: var(--primary);
     color: var(--primary-on);
     border: none;
     border-radius: var(--radius-full);
     padding: 15px;
-    font-family: 'Work Sans', sans-serif;
-    font-size: 0.95rem;
+    font-family: var(--font-body);
+    font-size: 0.92rem;
     font-weight: 700;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    transition: opacity 0.2s, box-shadow 0.2s;
+    transition: background 0.2s, box-shadow 0.2s;
 }
 
 .enroll-cta:hover:not(:disabled) {
-    opacity: 0.9;
-    box-shadow: var(--glow-gold);
+    background: var(--primary-dim);
+    box-shadow: var(--primary-glow);
 }
 
 .enroll-cta:disabled {

@@ -7,6 +7,7 @@
     gap: 14px;
 }
 
+/* ── Top bar ─────────────────────────────────────────────────────────── */
 .claims-topbar {
     display: flex;
     align-items: center;
@@ -14,26 +15,32 @@
 }
 
 .claims-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 800;
     color: var(--on-surface);
+    letter-spacing: -0.01em;
 }
 
 .zero-touch-badge {
-    font-size: 0.65rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.62rem;
     font-weight: 700;
     letter-spacing: 0.08em;
+    text-transform: uppercase;
     color: var(--primary);
-    background: rgba(255, 215, 0, 0.1);
-    border: 1px solid rgba(255, 215, 0, 0.25);
+    background: var(--primary-container);
+    border: 1px solid rgba(255, 191, 0, 0.2);
     padding: 3px 10px;
     border-radius: var(--radius-full);
 }
 
+/* ── Summary ─────────────────────────────────────────────────────────── */
 .claims-summary {
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
 .sum-box {
@@ -46,20 +53,21 @@
 }
 
 .sum-val {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-size: 1rem;
     font-weight: 700;
     color: var(--on-surface);
 }
 
 .sum-key {
-    font-size: 0.58rem;
+    font-size: 0.56rem;
     color: var(--on-surface-muted);
     margin-top: 3px;
     text-transform: uppercase;
     letter-spacing: 0.06em;
 }
 
+/* ── Filter chips ────────────────────────────────────────────────────── */
 .filter-chips {
     display: flex;
     gap: 6px;
@@ -69,28 +77,29 @@
 .chip {
     background: var(--surface-highest);
     color: var(--on-surface-muted);
-    border: 1px solid var(--outline-variant);
+    border: 1px solid var(--outline);
     border-radius: var(--radius-full);
     padding: 5px 12px;
-    font-family: 'Work Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 0.7rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.18s;
     white-space: nowrap;
 }
 
 .chip:hover {
-    border-color: var(--primary);
-    color: var(--primary);
+    border-color: rgba(255, 191, 0, 0.4);
+    color: var(--on-surface);
 }
 
 .chip.active {
-    background: rgba(255, 215, 0, 0.12);
-    border-color: var(--primary);
+    background: var(--primary-container);
+    border-color: rgba(255, 191, 0, 0.4);
     color: var(--primary);
 }
 
+/* ── Claim cards ─────────────────────────────────────────────────────── */
 .claims-feed {
     display: flex;
     flex-direction: column;
@@ -98,24 +107,53 @@
 }
 
 .claim-card {
-    background: var(--surface-container);
     border: 1px solid var(--outline-variant);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     padding: 14px;
     display: flex;
     flex-direction: column;
     gap: 10px;
     animation: fadeUp 0.3s ease var(--delay, 0s) both;
+    transition: border-color 0.2s;
 }
 
+/* ── Status banner ───────────────────────────────────────────────────── */
+.claim-status-banner {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.claim-status-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.claim-status-sublabel {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--on-surface-muted);
+    margin-left: 2px;
+}
+
+/* ── Card top ────────────────────────────────────────────────────────── */
 .claim-card-top {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.event-icon {
-    font-size: 1.6rem;
+.event-icon-wrap {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-sm);
     flex-shrink: 0;
 }
 
@@ -136,41 +174,43 @@
 }
 
 .claim-card-amount {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.1rem;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
     font-weight: 800;
 }
 
+/* ── Card bottom ─────────────────────────────────────────────────────── */
 .claim-card-bot {
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 6px;
-}
-
-.claim-status-pill {
-    font-size: 0.65rem;
-    font-weight: 700;
-    border: 1px solid;
-    border-radius: var(--radius-full);
-    padding: 3px 8px;
-    letter-spacing: 0.04em;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 8px;
 }
 
 .claim-ts {
-    font-size: 0.65rem;
+    font-size: 0.64rem;
     color: var(--on-surface-muted);
 }
 
-.upi-fired {
-    font-size: 0.7rem;
-    color: var(--success);
-    background: rgba(74, 222, 128, 0.08);
-    border-radius: var(--radius-sm);
-    padding: 5px 8px;
+.appeal-note {
+    font-size: 0.64rem;
+    color: var(--on-surface-muted);
+    font-style: italic;
 }
 
+.upi-fired {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.65rem;
+    color: var(--success);
+    font-weight: 600;
+}
+
+/* ── Trust bar ───────────────────────────────────────────────────────── */
 .trust-bar-wrap {
     display: flex;
     align-items: center;
@@ -178,9 +218,11 @@
 }
 
 .trust-bar-label {
-    font-size: 0.62rem;
+    font-size: 0.6rem;
     color: var(--on-surface-muted);
     flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 .trust-bar {
@@ -198,7 +240,7 @@
 }
 
 .trust-val {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 700;
     color: var(--on-surface-variant);
     flex-shrink: 0;
