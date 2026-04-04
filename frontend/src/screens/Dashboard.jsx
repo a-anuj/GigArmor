@@ -94,9 +94,14 @@ export default function Dashboard() {
     const handleSimulateDemo = async () => {
         setEnrolling(true);
         try {
-            await simulateTrigger({ zone_id: profile?.zone?.id ?? 1, event_type: 'Rain', severity: 'High' });
-            setEnrollMsg('Trigger fired — claim processing...');
-            setEnrollSuccess(true);
+            const res = await simulateTrigger({ zone_id: profile?.zone?.id ?? 1, event_type: 'Rain', severity: 'High' });
+            if (res.data.claims_generated === 0) {
+                setEnrollMsg('Trigger fired, but no active policy. Please Enroll first!');
+                setEnrollSuccess(false);
+            } else {
+                setEnrollMsg('Trigger fired — claim processing...');
+                setEnrollSuccess(true);
+            }
             const c = await getWorkerClaims(worker.id);
             setClaims(c.data.claims || []);
             setTimeout(() => setEnrollMsg(''), 4000);
