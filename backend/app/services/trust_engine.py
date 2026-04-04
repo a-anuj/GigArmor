@@ -60,7 +60,7 @@ def calculate_trust_score(worker_id: int, baseline_score: float = 75.0) -> float
 
     logger.info(
         f"Trust score for worker={worker_id}: {score:.2f} "
-        f"(stochastic={stochastic:.2f}, baseline={baseline_score})"
+        f"(raw={raw:.2f}, baseline={baseline_score})"
     )
     return score
 
