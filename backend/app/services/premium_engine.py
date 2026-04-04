@@ -1,5 +1,5 @@
 """
-GigArmor — Dynamic Premium Calculation Engine (Phase 3)
+HustleHalt — Dynamic Premium Calculation Engine (Phase 3)
 
 Formula:
   Premium = max(19, min(99, R_base × M_weather × M_social × H_expected × M_coldstart))
