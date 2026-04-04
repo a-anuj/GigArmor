@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+    ShieldCheck, ArrowLeft, Package, Zap, CalendarDays,
+    Award, Radio, BadgeInfo, Tag
+} from 'lucide-react';
 import { getPremiumQuote, enrollPolicy } from '../api';
 import { useWorker } from '../context/WorkerContext';
 import './PremiumQuote.css';
@@ -11,6 +15,7 @@ export default function PremiumQuote() {
     const [loading, setLoading] = useState(true);
     const [enrolling, setEnrolling] = useState(false);
     const [msg, setMsg] = useState('');
+    const [msgSuccess, setMsgSuccess] = useState(false);
     const [error, setError] = useState('');
 
     useEffect(() => {
@@ -26,22 +31,31 @@ export default function PremiumQuote() {
         setMsg('');
         try {
             await enrollPolicy(worker.id);
-            setMsg('✅ Policy enrolled! You are covered for this week.');
+            setMsg('Policy enrolled — you are covered for this week.');
+            setMsgSuccess(true);
         } catch (e) {
             setMsg(e.response?.data?.detail || 'Enrollment failed.');
+            setMsgSuccess(false);
         } finally {
             setEnrolling(false);
         }
     };
 
     if (!worker) return null;
-    if (loading) return <div className="screen-loading"><div className="pulse-ring" /><span>Loading quote…</span></div>;
+    if (loading) return (
+        <div className="screen-loading">
+            <div className="pulse-ring" />
+            <span>Loading quote…</span>
+        </div>
+    );
 
     return (
         <div className="quote-screen">
             {/* Header */}
             <div className="quote-header">
-                <button className="back-btn" onClick={() => nav('/dashboard')}>←</button>
+                <button className="back-btn" onClick={() => nav('/dashboard')}>
+                    <ArrowLeft size={18} />
+                </button>
                 <div>
                     <div className="quote-title">Premium for Next Week</div>
                     <div className="quote-sub">{quote?.zone_name}</div>
@@ -54,18 +68,34 @@ export default function PremiumQuote() {
                 <>
                     {/* Big premium number */}
                     <div className="premium-hero">
+                        <div className="premium-floor-ceil">
+                            <Tag size={12} />
+                            Floor ₹19 · Ceiling ₹99 /week
+                        </div>
                         <div className="premium-amount">₹{quote?.premium ?? '—'}</div>
-                        {quote?.shield_credits_applied && (
-                            <div className="shield-tag">🛡️ Shield Discount Applied · Loyalty Tier 3</div>
-                        )}
-                        {quote?.cold_start_active && (
-                            <div className="coldstart-tag">🆕 Cold-Start Period (1.2× multiplier)</div>
-                        )}
+                        <div className="premium-period">per week</div>
+                        <div className="premium-tags">
+                            {quote?.shield_credits_applied && (
+                                <span className="premium-tag discount">
+                                    <Award size={12} />
+                                    Shield Discount · Tier 3
+                                </span>
+                            )}
+                            {quote?.cold_start_active && (
+                                <span className="premium-tag warning">
+                                    <BadgeInfo size={12} />
+                                    Cold-Start Period
+                                </span>
+                            )}
+                        </div>
                     </div>
 
-                    {/* Multipliers breakdown */}
+                    {/* AI Breakdown */}
                     <div className="multipliers-card">
-                        <div className="mult-card-title">Risk Multipliers</div>
+                        <div className="mult-card-title">AI Breakdown</div>
+                        <div className="mult-card-formula">
+                            Base Rate × Weather Risk × Social Risk
+                        </div>
                         <div className="mult-row">
                             <span className="mult-label">Base Risk</span>
                             <span className="mult-val">1.0×</span>
@@ -99,35 +129,37 @@ export default function PremiumQuote() {
 
                     {/* Coverage info */}
                     <div className="coverage-info-card">
-                        <div className="cov-row">
-                            <span>📦 Coverage Amount</span>
-                            <strong>₹{quote?.coverage_amount ?? 1200}</strong>
-                        </div>
-                        <div className="cov-row">
-                            <span>⚡ Payout Time</span>
-                            <strong>≤ 60 seconds</strong>
-                        </div>
-                        <div className="cov-row">
-                            <span>📅 Period</span>
-                            <strong>7 days</strong>
-                        </div>
-                        <div className="cov-row">
-                            <span>🏆 Quiet Weeks</span>
-                            <strong>{quote?.consecutive_quiet_weeks ?? 0} week(s)</strong>
-                        </div>
+                        {[
+                            { Icon: Package,      label: 'Coverage Amount',  value: `₹${quote?.coverage_amount ?? 1200}` },
+                            { Icon: Zap,          label: 'Payout Time',      value: '≤ 60 seconds' },
+                            { Icon: CalendarDays, label: 'Period',           value: '7 days' },
+                            { Icon: Award,        label: 'Quiet Weeks',      value: `${quote?.consecutive_quiet_weeks ?? 0} week(s)` },
+                        ].map(({ Icon, label, value }) => (
+                            <div key={label} className="cov-row">
+                                <span className="cov-label">
+                                    <Icon size={14} />
+                                    {label}
+                                </span>
+                                <strong>{value}</strong>
+                            </div>
+                        ))}
                     </div>
 
-                    {/* Dynamic Risk Map label */}
+                    {/* Live feed label */}
                     <div className="risk-map-label">
-                        📡 Dynamic Risk Map · Live Feed · Updated now
+                        <Radio size={13} />
+                        Dynamic Risk Map · Live Feed · Updated now
                     </div>
 
                     {/* Enroll CTA */}
                     {msg ? (
-                        <div className={`enroll-result ${msg.startsWith('✅') ? 'success' : 'error'}`}>{msg}</div>
+                        <div className={`enroll-result ${msgSuccess ? 'success' : 'error'}`}>{msg}</div>
                     ) : (
                         <button className="enroll-cta" onClick={handleEnroll} disabled={enrolling}>
-                            {enrolling ? <span className="spinner" /> : "🛡️ Activate This Week's Coverage"}
+                            {enrolling
+                                ? <span className="spinner" />
+                                : <><ShieldCheck size={18} /> Activate This Week's Coverage</>
+                            }
                         </button>
                     )}
                 </>

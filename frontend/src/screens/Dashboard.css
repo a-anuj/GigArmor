@@ -4,37 +4,42 @@
     flex-direction: column;
     background: var(--surface);
     padding: 16px 18px 24px;
-    gap: 16px;
+    gap: 14px;
 }
 
+/* ── Top bar ─────────────────────────────────────────────────────────── */
 .dash-topbar {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
+    padding-top: 4px;
 }
 
 .dash-welcome {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: var(--on-surface-muted);
     font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 
 .dash-name {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.3rem;
-    font-weight: 700;
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 800;
     color: var(--on-surface);
+    letter-spacing: -0.02em;
+    margin-top: 2px;
 }
 
 .logout-btn {
-    background: var(--surface-highest);
-    border: 1px solid var(--outline-variant);
+    background: var(--surface-high);
+    border: 1px solid var(--outline);
     border-radius: var(--radius-full);
     color: var(--on-surface-muted);
     width: 34px;
     height: 34px;
     cursor: pointer;
-    font-size: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -42,73 +47,203 @@
 }
 
 .logout-btn:hover {
-    color: var(--on-surface);
-    border-color: var(--outline);
+    color: var(--error);
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.08);
 }
 
-/* Policy card */
+/* ── Zone banner ─────────────────────────────────────────────────────── */
+.zone-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface-container);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+}
+
+.zone-banner-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.zone-banner-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--on-surface);
+}
+
+.zone-risk-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    border: 1px solid;
+    border-radius: var(--radius-full);
+    padding: 3px 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* ── Live Conditions card ────────────────────────────────────────────── */
+.weather-card {
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.08) 0%, rgba(96, 165, 250, 0.03) 100%);
+    border: 1px solid rgba(96, 165, 250, 0.15);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    animation: fadeUp 0.4s ease both;
+}
+
+.weather-card-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--on-surface-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 14px;
+}
+
+.live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+    margin-left: 2px;
+    animation: pulse-live 2s ease-in-out infinite;
+}
+
+.live-label {
+    font-size: 0.58rem;
+    font-weight: 700;
+    color: #22c55e;
+    letter-spacing: 0.1em;
+}
+
+@keyframes pulse-live {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}
+
+.weather-metrics {
+    display: flex;
+    gap: 0;
+    justify-content: space-around;
+}
+
+.weather-metric {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    padding: 4px 0;
+}
+
+.weather-metric + .weather-metric {
+    border-left: 1px solid var(--outline-variant);
+}
+
+.metric-val {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--on-surface);
+    line-height: 1;
+}
+
+.metric-key {
+    font-size: 0.6rem;
+    color: var(--on-surface-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ── Policy card ─────────────────────────────────────────────────────── */
 .policy-card {
-    background: linear-gradient(135deg, #1e1550 0%, #2a1a5e 60%, #1a1240 100%);
-    border: 1.5px solid rgba(255, 215, 0, 0.25);
+    background: linear-gradient(135deg, #1c1c1c 0%, #252525 60%, #1a1a1a 100%);
+    border: 1.5px solid rgba(255, 191, 0, 0.25);
     border-radius: var(--radius-lg);
     padding: 18px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), var(--glow-gold);
-    animation: pulse-glow 4s ease-in-out infinite;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), var(--primary-glow);
+    animation: pulse-glow 5s ease-in-out infinite;
 }
 
 .policy-card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 }
 
 .policy-label {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     font-weight: 700;
     color: var(--primary);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
 }
 
-.shield-glow {
-    font-size: 1.5rem;
-    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+.shield-glow-icon {
+    filter: drop-shadow(0 0 8px rgba(255, 191, 0, 0.6));
 }
 
 .policy-coverage-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .coverage-label {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     color: var(--on-surface-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 .coverage-amount {
-    font-family: 'Syne', sans-serif;
-    font-size: 2.2rem;
+    font-family: var(--font-display);
+    font-size: 2.4rem;
     font-weight: 800;
     color: var(--primary);
-    letter-spacing: -0.03em;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin-top: 2px;
 }
 
 .risk-pill {
-    font-size: 0.68rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.65rem;
     font-weight: 700;
     border: 1.5px solid;
     border-radius: var(--radius-full);
-    padding: 4px 10px;
-    letter-spacing: 0.06em;
+    padding: 5px 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.risk-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
 }
 
 .shield-credits-tag {
+    display: flex;
+    align-items: center;
+    gap: 5px;
     font-size: 0.72rem;
     color: var(--secondary);
-    margin-bottom: 14px;
+    margin-bottom: 16px;
 }
 
 .policy-actions {
@@ -118,12 +253,16 @@
 
 .action-btn {
     flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     background: var(--surface-highest);
     color: var(--on-surface-variant);
-    border: 1px solid var(--outline-variant);
+    border: 1px solid var(--outline);
     border-radius: var(--radius-full);
     padding: 10px;
-    font-family: 'Work Sans', sans-serif;
+    font-family: var(--font-body);
     font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
@@ -136,14 +275,15 @@
 }
 
 .action-btn.primary {
-    background: linear-gradient(135deg, var(--primary), var(--primary-dim));
+    background: var(--primary);
     color: var(--primary-on);
     border: none;
+    font-weight: 700;
 }
 
 .action-btn.primary:hover {
-    opacity: 0.9;
-    box-shadow: var(--glow-gold);
+    background: var(--primary-dim);
+    box-shadow: var(--primary-glow);
 }
 
 .action-btn:disabled {
@@ -153,23 +293,34 @@
 
 .enroll-msg {
     margin-top: 10px;
-    font-size: 0.76rem;
-    color: var(--success);
-    background: rgba(74, 222, 128, 0.1);
+    font-size: 0.75rem;
     border-radius: var(--radius-sm);
-    padding: 8px 10px;
+    padding: 8px 12px;
+    font-weight: 500;
 }
 
+.enroll-msg.success {
+    color: var(--success);
+    background: var(--success-bg);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.enroll-msg.error {
+    color: var(--error);
+    background: var(--error-bg);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* ── Wallet card ─────────────────────────────────────────────────────── */
 .wallet-card {
-    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.05) 100%);
-    padding: 24px;
-    border-radius: 16px;
-    margin-bottom: 24px;
+    background: linear-gradient(135deg, rgba(255, 191, 0, 0.1) 0%, rgba(255, 191, 0, 0.04) 100%);
+    border: 1px solid rgba(255, 191, 0, 0.2);
+    border-radius: var(--radius-lg);
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    border: 1px solid rgba(255, 215, 0, 0.3);
-    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.1);
+    gap: 10px;
+    box-shadow: 0 4px 20px rgba(255, 191, 0, 0.06);
 }
 
 .wallet-header {
@@ -179,93 +330,129 @@
 }
 
 .wallet-title {
-    font-size: 14px;
+    font-size: 0.68rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #FFD700;
+    letter-spacing: 0.1em;
+    color: var(--primary);
 }
 
 .trust-badge {
-    font-size: 11px;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 4px 8px;
-    border-radius: 12px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    border: 1px solid;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.trust-badge.verified {
+    color: var(--success);
+    border-color: rgba(34, 197, 94, 0.3);
+    background: var(--success-bg);
+}
+
+.trust-badge.cold {
+    color: var(--info);
+    border-color: rgba(96, 165, 250, 0.3);
+    background: var(--info-bg);
 }
 
 .wallet-balance {
-    font-size: 36px;
-    font-weight: 700;
-    color: #FFD700;
     font-family: var(--font-display);
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: -0.04em;
     line-height: 1;
 }
 
 .wallet-subtext {
-    font-size: 13px;
-    color: var(--text-200);
+    font-size: 0.72rem;
+    color: var(--on-surface-muted);
 }
 
 .wallet-actions {
     display: flex;
-    gap: 12px;
-    margin-top: 8px;
+    gap: 10px;
+    margin-top: 4px;
 }
 
 .wallet-btn {
     flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     padding: 10px;
-    border-radius: 8px;
-    font-size: 13px;
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: 0.78rem;
     font-weight: 600;
     cursor: pointer;
     border: none;
-    transition: all 0.2s ease;
+    transition: all 0.2s;
 }
 
 .withdraw-btn {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--surface-highest);
+    color: var(--on-surface-variant);
+    border: 1px solid var(--outline) !important;
 }
 
 .withdraw-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--outline-variant) !important;
+    color: var(--on-surface);
 }
 
 .demo-trigger-btn {
-    background: #FFD700;
-    color: #000;
+    background: var(--primary);
+    color: var(--primary-on);
+    font-weight: 700;
 }
 
-.demo-trigger-btn:hover {
-    background: #ffe44d;
-    transform: scale(1.02);
+.demo-trigger-btn:hover:not(:disabled) {
+    background: var(--primary-dim);
+    box-shadow: var(--primary-glow);
 }
 
-/* Claims */
+.demo-trigger-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ── Claims section ───────────────────────────────────────────────────── */
 .section-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 700;
     color: var(--on-surface);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 
 .zero-touch-tag {
-    font-size: 0.65rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.62rem;
     color: var(--primary);
-    background: rgba(255, 215, 0, 0.1);
-    border: 1px solid rgba(255, 215, 0, 0.2);
+    background: var(--primary-container);
+    border: 1px solid rgba(255, 191, 0, 0.2);
     padding: 2px 8px;
     border-radius: var(--radius-full);
-    font-weight: 600;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 
 .claims-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
 }
 
 .claim-row {
@@ -279,9 +466,7 @@
     animation: fadeUp 0.3s ease both;
 }
 
-.claim-left {
-    flex: 1;
-}
+.claim-left { flex: 1; }
 
 .claim-type {
     font-size: 0.8rem;
@@ -295,84 +480,36 @@
     margin-top: 3px;
 }
 
-.claim-right {
-    text-align: right;
-}
+.claim-right { text-align: right; }
 
 .claim-amt {
-    font-family: 'Syne', sans-serif;
+    font-family: var(--font-display);
     font-size: 1rem;
     font-weight: 700;
     color: var(--on-surface);
 }
 
-.status-badge {
-    display: inline-block;
-    font-size: 0.62rem;
-    font-weight: 700;
-    border: 1px solid;
-    border-radius: var(--radius-full);
-    padding: 2px 7px;
-    margin-top: 4px;
-    letter-spacing: 0.04em;
-}
-
-/* Empty */
-.empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    padding: 24px;
-    text-align: center;
-    background: var(--surface-container);
-    border-radius: var(--radius-md);
-    border: 1px dashed var(--outline);
-    color: var(--on-surface-muted);
-    font-size: 0.78rem;
-}
-
-.empty-icon {
-    font-size: 2rem;
-}
-
-/* Loading */
-.screen-loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    gap: 16px;
-    color: var(--on-surface-muted);
-    font-size: 0.85rem;
-}
-
-.pulse-ring {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 3px solid var(--outline);
-    border-top-color: var(--primary);
-    animation: spin 0.8s linear infinite;
-}
-
-/* Quick actions */
+/* ── Quick actions ───────────────────────────────────────────────────── */
 .quick-actions {
     display: flex;
     gap: 10px;
     margin-top: auto;
+    padding-top: 4px;
 }
 
 .quick-btn {
     flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     background: var(--surface-container);
     color: var(--on-surface-variant);
-    border: 1px solid var(--outline-variant);
+    border: 1px solid var(--outline);
     border-radius: var(--radius-full);
     padding: 11px;
-    font-family: 'Work Sans', sans-serif;
-    font-size: 0.82rem;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
@@ -380,5 +517,12 @@
 
 .quick-btn:hover {
     color: var(--primary);
-    border-color: var(--primary);
+    border-color: rgba(255, 191, 0, 0.4);
+    background: var(--primary-container);
+}
+
+/* ── Spinner (dark variant) ──────────────────────────────────────────── */
+.spinner.dark {
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-top-color: var(--primary-on);
 }
