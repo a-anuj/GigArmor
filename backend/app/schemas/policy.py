@@ -1,5 +1,5 @@
 """
-GigArmor — Policy Pydantic Schemas (Request & Response)
+HustleHalt — Policy Pydantic Schemas (Request & Response)
 """
 from datetime import datetime
 from typing import Optional

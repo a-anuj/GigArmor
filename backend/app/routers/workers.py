@@ -1,5 +1,5 @@
 """
-GigArmor — Workers Router (Phase 2)
+HustleHalt — Workers Router (Phase 2)
 
 Endpoints:
   POST /api/v1/workers/register  — Onboard a new gig worker
@@ -38,7 +38,7 @@ def list_zones(db: Session = Depends(get_db)):
 )
 def register_worker(data: WorkerRegister, db: Session = Depends(get_db)):
     """
-    Onboards a new gig worker onto GigArmor.
+    Onboards a new gig worker onto HustleHalt.
 
     **Cold-Start Logic**: Workers enrolled for ≤14 days receive a M_coldstart = 1.2
     premium multiplier (higher risk, no behavioural baseline). This is automatically

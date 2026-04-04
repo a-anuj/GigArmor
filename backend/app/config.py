@@ -1,5 +1,5 @@
 """
-GigArmor — Application Configuration
+HustleHalt — Application Configuration
 Reads settings from environment variables / .env file.
 """
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -15,14 +15,14 @@ class Settings(BaseSettings):
 
     # ── Database ─────────────────────────────────────────
     # Default: SQLite (zero-config for hackathon demos)
-    DATABASE_URL: str = "sqlite:///./gigarmor.db"
+    DATABASE_URL: str = "sqlite:///./hustlehalt.db"
 
     # ── Redis (optional, falls back to in-process tasks) ─
     REDIS_URL: str = "redis://localhost:6379/0"
 
     # ── App ───────────────────────────────────────────────
     APP_ENV: str = "development"
-    SECRET_KEY: str = "gigarmor-dev-secret-key"
+    SECRET_KEY: str = "hustlehalt-dev-secret-key"
     DEBUG: bool = True
 
     # ── UPI Mock Webhook ─────────────────────────────────

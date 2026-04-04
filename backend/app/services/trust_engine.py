@@ -1,5 +1,5 @@
 """
-GigArmor — Trust Score Engine (Phase 5, Fraud Check)
+HustleHalt — Trust Score Engine (Phase 5, Fraud Check)
 
 Generates a trust score (0–100) per potential claim.
 For demo: heavily weighted towards 75+ to simulate the typical legitimate worker.

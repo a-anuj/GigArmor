@@ -1,5 +1,5 @@
 """
-GigArmor — Worker Model
+HustleHalt — Worker Model
 Represents a gig economy delivery worker enrolled on the platform.
 """
 from datetime import datetime

@@ -1,5 +1,5 @@
 """
-GigArmor — Zone (Dark Store) Model
+HustleHalt — Zone (Dark Store) Model
 Represents a geographic delivery zone / dark store.
 """
 from sqlalchemy import Column, Integer, String, Float

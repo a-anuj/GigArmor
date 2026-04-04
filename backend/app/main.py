@@ -1,5 +1,5 @@
 """
-GigArmor — FastAPI Application Entry Point
+HustleHalt — FastAPI Application Entry Point
 Protect Your Worker | Guidewire DEVTrails Hackathon
 """
 from contextlib import asynccontextmanager
@@ -52,7 +52,7 @@ async def lifespan(app: FastAPI):
 
 # ── FastAPI App ───────────────────────────────────────────────────────────────
 app = FastAPI(
-    title="GigArmor API",
+    title="HustleHalt API",
     description=(
         "**AI-powered parametric income insurance for gig economy workers.**\n\n"
         "Zero-touch claims, dynamic pricing, and instant UPI payouts. "
@@ -89,7 +89,7 @@ app.include_router(admin.router)
 @app.get("/", tags=["Health"], summary="Service Info")
 def root():
     return {
-        "service": "GigArmor API",
+        "service": "HustleHalt API",
         "version": "1.0.0",
         "status": "online",
         "tagline": "Protect Your Worker — Zero-Touch Parametric Insurance",

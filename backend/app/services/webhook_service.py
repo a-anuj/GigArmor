@@ -1,5 +1,5 @@
 """
-GigArmor — Mock UPI Payout Webhook Service (Phase 5)
+HustleHalt — Mock UPI Payout Webhook Service (Phase 5)
 
 In production: calls Razorpay / PhonePe / PayU payout API.
 For demo: logs the payout and returns a mock success response.
@@ -18,14 +18,14 @@ def fire_upi_webhook(upi_id: str, amount: float, claim_id: int) -> dict:
     In production, replace the body with an actual httpx POST call to
     the payment gateway's disbursement endpoint.
     """
-    reference_id = f"GIGARMOR-CLM-{claim_id}-{int(datetime.utcnow().timestamp())}"
+    reference_id = f"HUSTLEHALT-CLM-{claim_id}-{int(datetime.utcnow().timestamp())}"
 
     payload = {
         "upi_id":       upi_id,
         "amount":       amount,
         "currency":     "INR",
         "reference_id": reference_id,
-        "description":  "GigArmor Parametric Insurance Payout — Zero Touch",
+        "description":  "HustleHalt Parametric Insurance Payout — Zero Touch",
         "initiated_at": datetime.utcnow().isoformat() + "Z",
     }
 
@@ -36,7 +36,7 @@ def fire_upi_webhook(upi_id: str, amount: float, claim_id: int) -> dict:
 
     return {
         "status":         "SUCCESS",
-        "gateway":        "GigArmor-MockPay",
+        "gateway":        "HustleHalt-MockPay",
         "transaction_id": reference_id,
         "upi_id":         upi_id,
         "amount":         amount,

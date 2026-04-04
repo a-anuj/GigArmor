@@ -1,5 +1,5 @@
 """
-GigArmor — Claims Router (Phase 5)
+HustleHalt — Claims Router (Phase 5)
 
 Endpoints:
   GET /api/v1/claims/worker/{worker_id}  — Worker polls for their claim status

@@ -1,5 +1,5 @@
 """
-GigArmor — Policy Model
+HustleHalt — Policy Model
 Represents a weekly parametric income insurance policy for a worker.
 """
 from datetime import datetime

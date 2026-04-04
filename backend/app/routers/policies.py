@@ -1,5 +1,5 @@
 """
-GigArmor — Policies Router (Phase 3 & 4)
+HustleHalt — Policies Router (Phase 3 & 4)
 
 Endpoints:
   GET  /api/v1/policies/quote/{worker_id}  — Dynamic premium quote

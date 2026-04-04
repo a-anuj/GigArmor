@@ -1,5 +1,5 @@
 """
-GigArmor — Trigger Processing Service (Phase 5)
+HustleHalt — Trigger Processing Service (Phase 5)
 
 Orchestrates the Zero-Touch claim lifecycle when a parametric event fires:
 1. Create a TriggerEvent record

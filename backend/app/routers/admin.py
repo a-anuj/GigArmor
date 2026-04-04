@@ -1,5 +1,5 @@
 """
-GigArmor — Admin Router (Phase 5)
+HustleHalt — Admin Router (Phase 5)
 
 Endpoints:
   POST /api/v1/admin/simulate-trigger — Force-fire a parametric trigger for demo
@@ -121,7 +121,7 @@ def platform_stats(db: Session = Depends(get_db)):
     blocked_count   = db.query(Claim).filter(Claim.status == "Blocked").count()
 
     return {
-        "platform": "GigArmor",
+        "platform": "HustleHalt",
         "workers": {
             "total":  total_workers,
             "active": active_workers,

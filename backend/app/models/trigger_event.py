@@ -1,5 +1,5 @@
 """
-GigArmor — TriggerEvent Model
+HustleHalt — TriggerEvent Model
 Records a parametric trigger event in a zone (e.g. heavy rain, AQI spike).
 """
 from datetime import datetime

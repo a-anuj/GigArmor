@@ -1,13 +1,13 @@
-# GigArmor Backend API
+# HustleHalt Backend API
 
 > **AI-powered parametric income insurance for gig economy workers.**  
 > Built for the **Guidewire DEVTrails Hackathon** — Theme: *Protect Your Worker*
 
 ---
 
-## What is GigArmor?
+## What is HustleHalt?
 
-GigArmor provides **zero-touch parametric insurance** for gig delivery workers (Zomato, Swiggy, Blinkit, etc.).  
+HustleHalt provides **zero-touch parametric insurance** for gig delivery workers (Zomato, Swiggy, Blinkit, etc.).  
 When a qualifying environmental event occurs in a worker's zone — extreme rain, bad AQI, platform outage, social disruption, or heat wave — **claims are generated automatically and money is credited to the worker's UPI ID without them having to do anything.**
 
 ---
@@ -15,7 +15,7 @@ When a qualifying environmental event occurs in a worker's zone — extreme rain
 ## Architecture
 
 ```
-GigArmor/backend/
+HustleHalt/backend/
 ├── app/
 │   ├── main.py                   # FastAPI app, lifespan, CORS, router registration
 │   ├── config.py                 # Pydantic-settings (reads from .env)
@@ -74,7 +74,7 @@ GigArmor/backend/
 
 ### 1. Clone & navigate
 ```bash
-cd GigArmor/backend
+cd HustleHalt/backend
 ```
 
 ### 2. Create virtual environment
@@ -104,7 +104,7 @@ cp .env.example .env
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-The server auto-creates the SQLite database (`gigarmor.db`) and seeds **7 Bengaluru dark store zones** on first startup.
+The server auto-creates the SQLite database (`hustlehalt.db`) and seeds **7 Bengaluru dark store zones** on first startup.
 
 ### 6. Open the interactive API docs
 ```
@@ -367,7 +367,7 @@ Run these in order via Swagger UI at `http://localhost:8000/docs`:
 Change one line in `.env`:
 
 ```env
-DATABASE_URL=postgresql://gigarmor:secret@localhost:5432/gigarmor_db
+DATABASE_URL=postgresql://hustlehalt:secret@localhost:5432/hustlehalt_db
 ```
 
 Install PostgreSQL driver:
@@ -383,10 +383,10 @@ Then restart the server. All tables are created automatically on startup.
 
 | Variable | Default | Description |
 |---|---|---|
-| `DATABASE_URL` | `sqlite:///./gigarmor.db` | Database connection string |
+| `DATABASE_URL` | `sqlite:///./hustlehalt.db` | Database connection string |
 | `REDIS_URL` | `redis://localhost:6379/0` | Redis URL (reserved for production) |
 | `APP_ENV` | `development` | Environment name |
-| `SECRET_KEY` | `gigarmor-dev-secret-key` | Change in production |
+| `SECRET_KEY` | `hustlehalt-dev-secret-key` | Change in production |
 | `DEBUG` | `true` | Enables SQLAlchemy query logging |
 | `UPI_WEBHOOK_URL` | *(mock)* | Real UPI gateway URL in production |
 | `UPI_API_KEY` | *(mock)* | Real UPI gateway API key |

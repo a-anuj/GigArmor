@@ -1,5 +1,5 @@
 """
-GigArmor — Trigger / Admin Pydantic Schemas
+HustleHalt — Trigger / Admin Pydantic Schemas
 """
 from typing import Literal
 

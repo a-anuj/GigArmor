@@ -1,5 +1,5 @@
 """
-GigArmor — Claim Pydantic Schemas (Response only — no worker-facing submit)
+HustleHalt — Claim Pydantic Schemas (Response only — no worker-facing submit)
 """
 from datetime import datetime
 from typing import Optional

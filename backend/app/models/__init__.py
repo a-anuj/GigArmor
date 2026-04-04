@@ -1,5 +1,5 @@
 """
-GigArmor Models Package
+HustleHalt Models Package
 Import all models here so SQLAlchemy's metadata is aware of them
 before Base.metadata.create_all() is called.
 """

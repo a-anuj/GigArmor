@@ -1,5 +1,5 @@
 """
-GigArmor — Database Layer
+HustleHalt — Database Layer
 SQLAlchemy synchronous engine. Defaults to SQLite for zero-config demos.
 Switch to PostgreSQL by setting DATABASE_URL in .env.
 """

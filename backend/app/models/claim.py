@@ -1,5 +1,5 @@
 """
-GigArmor — Claim Model
+HustleHalt — Claim Model
 Auto-generated server-side when a parametric trigger fires. Workers never
 file claims manually — this is the "Zero-Touch" experience.
 """
