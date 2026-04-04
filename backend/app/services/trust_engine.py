@@ -22,24 +22,40 @@ _HOLD_PROB: float    = 0.20   # cumulative: 0.90
 _BASELINE_WEIGHT: float = 0.30  # How strongly baseline influences final score
 
 
+# ── Layer 1: Device Sensor Signals ──────────────────────────────────────────────
+def _layer1_device_signals() -> float:
+    """Mock: Accelerometer, Cell tower ID cross-check, Battery drain rate."""
+    # 95% of the time, sensors validate successfully
+    return random.uniform(0.85, 1.0) if random.random() < 0.95 else random.uniform(0.1, 0.4)
+
+# ── Layer 2: Behavioral & Platform Signals ────────────────────────────────────
+def _layer2_behavior_signals(baseline_score: float) -> float:
+    """Mock: Platform delivery activity drop, historical behavioral baseline, cross-zone claim ratio."""
+    stochastic_component = random.uniform(0.75, 1.0) if random.random() < 0.90 else random.uniform(0.3, 0.6)
+    
+    # Isolation Forest simulated blend: 70% stochastic + 30% historical baseline
+    return (stochastic_component * 100 * (1 - _BASELINE_WEIGHT)) + (baseline_score * _BASELINE_WEIGHT)
+
+# ── Layer 3: Network Graph Signals ────────────────────────────────────────────
+def _layer3_network_graph() -> float:
+    """Mock: Temporal burst detection, shared device fingerprint graph, referral network topology."""
+    # 98% of the time, no syndicate patterns detected
+    return random.uniform(0.90, 1.0) if random.random() < 0.98 else random.uniform(0.2, 0.5)
+
+
 def calculate_trust_score(worker_id: int, baseline_score: float = 75.0) -> float:
     """
-    Compute a trust score for a potential claim.
-
-    Blends a stochastic component (simulating live data signals) with the
-    worker's stored trust_baseline_score as a Bayesian prior.
+    Compute a multi-layer trust score for a potential claim.
+    Incorporates:
+     1. Device-level signals (motion patterns)
+     2. Behavioral profiling & Platform signals (baseline_score)
+     3. Network-level validation & temporal burst analysis
     """
-    roll = random.random()
+    layer1_trust = _layer1_device_signals()
+    layer2_trust = _layer2_behavior_signals(baseline_score)
+    layer3_trust = _layer3_network_graph()
 
-    if roll < _APPROVE_PROB:
-        stochastic = random.uniform(75.0, 100.0)
-    elif roll < _APPROVE_PROB + _HOLD_PROB:
-        stochastic = random.uniform(40.0, 74.9)
-    else:
-        stochastic = random.uniform(0.0, 39.9)
-
-    # Blend: 70% stochastic + 30% historical baseline
-    raw = stochastic * (1 - _BASELINE_WEIGHT) + baseline_score * _BASELINE_WEIGHT
+    raw = layer2_trust * layer1_trust * layer3_trust
     score = round(min(100.0, max(0.0, raw)), 2)
 
     logger.info(

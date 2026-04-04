@@ -114,6 +114,7 @@ def calculate_premium(
     base_risk_multiplier: float,
     enrollment_date: datetime,
     shield_credits: bool = False,
+    booked_shift_ratio: float = 1.0,
 ) -> dict:
     """
     Compute the weekly parametric premium for a worker.
@@ -125,8 +126,12 @@ def calculate_premium(
 
     cold_start   = is_cold_start(enrollment_date)
     m_coldstart  = COLD_START_MULTIPLIER if cold_start else 1.0
+    
+    # H_expected calculation for Shift-Linked Micro-Policy
+    h_expected = H_EXPECTED * booked_shift_ratio
 
-    raw_premium           = R_BASE * base_risk_multiplier * m_weather * m_social * H_EXPECTED * m_coldstart
+    # Exact Implementation of the README Formula
+    raw_premium           = R_BASE * m_weather * m_social * h_expected * m_coldstart
     premium_before_disc   = max(PREMIUM_FLOOR, min(PREMIUM_CEILING, raw_premium))
 
     coverage_amount = base_risk_multiplier * 1000.0
@@ -135,6 +140,7 @@ def calculate_premium(
     discount_amount   = 0.0
     credits_applied   = False
     if shield_credits and not cold_start:
+        # Micro-rollover logic limits max shield credit
         discount_amount = min(premium_before_disc * SHIELD_DISCOUNT_PCT, SHIELD_DISCOUNT_CAP)
         premium_before_disc = max(PREMIUM_FLOOR, premium_before_disc - discount_amount)
         credits_applied = True
@@ -146,7 +152,7 @@ def calculate_premium(
         "m_weather":              round(m_weather, 4),
         "m_social":               round(m_social, 4),
         "m_coldstart":            m_coldstart,
-        "h_expected":             H_EXPECTED,
+        "h_expected":             round(h_expected, 4),
         "base_risk_multiplier":   base_risk_multiplier,
         "raw_premium":            round(raw_premium, 2),
         "premium_before_discount": round(premium_before_disc + discount_amount, 2),
