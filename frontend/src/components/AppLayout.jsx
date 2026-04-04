@@ -31,7 +31,7 @@ export default function AppLayout() {
             {/* Desktop header row */}
             <div className="app-top-row">
                 <div className="app-label">
-                    <ShieldCheck size={20} color="var(--primary)" strokeWidth={2.5} />
+                    <img src="/logo.png" alt="Logo" style={{ height: '24px', marginRight: '6px' }} />
                     <span>HustleHalt</span>
                     <span className="app-label-sub">Worker App Demo</span>
                 </div>

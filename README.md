@@ -1,4 +1,6 @@
-# HustleHalt 🛡️
+<p align="center"><img src="./logo.png" width="150" alt="HustleHalt Logo" /></p>
+
+# HustleHalt
 
 ### AI-Powered Parametric Income Insurance for India's Gig Economy
 
@@ -682,5 +684,4 @@ HustleHalt is not a feature addition to existing insurance. It is a new product 
 ---
 
 _HustleHalt — DEVTrails 2026 · Team Axiom-45 · Amrita Vishwa Vidyapeetham_
-_Repository: github.com/a-anuj/HustleHalt_
-_Demo video: [link]_
+_Repository: github.com/a-anuj/GigArmor_
