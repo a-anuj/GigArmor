@@ -1,0 +1,49 @@
+.bottom-nav {
+    flex-shrink: 0;
+    display: flex;
+    background: rgba(57, 52, 90, 0.80);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 215, 0, 0.12);
+    padding: 8px 0 4px;
+}
+
+.bottom-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px 0;
+    transition: opacity 0.2s;
+}
+
+.bottom-tab:hover {
+    opacity: 0.85;
+}
+
+.tab-icon {
+    font-size: 1.3rem;
+    line-height: 1;
+}
+
+.tab-label {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--on-surface-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+}
+
+.bottom-tab.active .tab-label {
+    color: var(--primary);
+}
+
+.bottom-tab.active .tab-icon {
+    filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
+}

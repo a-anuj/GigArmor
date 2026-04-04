@@ -1,0 +1,145 @@
+/* ── GigArmor Design System — Violet & Gold ─────────────────────────── */
+:root {
+  /* Surfaces (deep indigo-violet) */
+  --surface: #130d32;
+  --surface-container: #1f1a3e;
+  --surface-high: #2a254a;
+  --surface-highest: #353055;
+  --surface-low: #1b163a;
+  --surface-lowest: #0e082c;
+  --surface-bright: #39345a;
+
+  /* Primary — Gold/Peach accent */
+  --primary: #FFD700;
+  --primary-dim: #FFC107;
+  --primary-on: #1a1000;
+  --primary-container: #f1aa9b;
+
+  /* Secondary */
+  --secondary: #ebbf8a;
+  --secondary-container: #5f4117;
+
+  /* Tertiary */
+  --tertiary: #d9d1ff;
+  --tertiary-container: #4b4570;
+
+  /* Text */
+  --on-surface: #e5deff;
+  --on-surface-variant: #c9c0f3;
+  --on-surface-muted: #9b93c0;
+  --outline: #52436e;
+  --outline-variant: rgba(82, 67, 110, 0.3);
+
+  /* Status */
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --error: #f87171;
+  --info: #60a5fa;
+
+  /* Fonts */
+  --font-display: 'Google Sans', sans-serif;
+  --font-body: 'Google Sans', sans-serif;
+
+  /* Spacing */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-inset: inset 4px 4px 10px rgba(0, 0, 0, 0.5), inset -2px -2px 8px rgba(255, 255, 255, 0.04);
+  --shadow-float: 0 24px 48px rgba(0, 0, 0, 0.4), 0 8px 16px rgba(0, 0, 0, 0.3);
+  --glow-gold: 0 0 20px rgba(255, 215, 0, 0.25), 0 0 40px rgba(255, 215, 0, 0.1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  background: #0a0620;
+  color: var(--on-surface);
+  font-family: var(--font-body);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  height: 100%;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--outline);
+  border-radius: 2px;
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: var(--glow-gold);
+  }
+
+  50% {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 0 60px rgba(255, 215, 0, 0.15);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.fade-up {
+  animation: fadeUp 0.4s ease both;
+}
