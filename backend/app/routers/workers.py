@@ -131,6 +131,12 @@ def _worker_to_schema(worker: Worker) -> dict:
         "phone":                worker.phone,
         "upi_id":               worker.upi_id,
         "zone_id":              worker.zone_id,
+        "zone": {
+            "id": worker.zone.id,
+            "name": worker.zone.name,
+            "pincode": worker.zone.pincode,
+            "base_risk_multiplier": worker.zone.base_risk_multiplier,
+        } if worker.zone else None,
         "status":               worker.status,
         "trust_baseline_score": worker.trust_baseline_score,
         "enrollment_date":      worker.enrollment_date,

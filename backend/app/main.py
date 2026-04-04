@@ -24,6 +24,7 @@ _SEED_ZONES = [
     {"id": 5, "name": "Marathahalli Hub",          "pincode": "560037", "base_risk_multiplier": 1.3},
     {"id": 6, "name": "Electronic City Store",     "pincode": "560100", "base_risk_multiplier": 1.4},
     {"id": 7, "name": "JP Nagar Dark Store",       "pincode": "560078", "base_risk_multiplier": 1.1},
+    {"id": 8, "name": "Coimbatore RS Puram",       "pincode": "641002", "base_risk_multiplier": 1.1},
 ]
 
 
