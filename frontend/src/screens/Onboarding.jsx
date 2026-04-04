@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, MapPin, BarChart3, AlertTriangle, CheckCircle2, ChevronRight, ArrowLeft } from 'lucide-react';
-import { getZones, registerWorker, loginWorker } from '../api';
+import { getZones, registerWorker, loginWorker, fetchWeather } from '../api';
+import { useGeolocation } from '../hooks/useGeolocation';
+import { getNearestZoneName } from '../utils/zoneMapping';
 import { useWorker } from '../context/WorkerContext';
 import './Onboarding.css';
 
@@ -25,12 +27,30 @@ export default function Onboarding() {
     const [form, setForm] = useState({
         platform: '', name: '', phone: '', zone_id: '', upi_id: '',
     });
+    const [nearestZoneId, setNearestZoneId] = useState(null);
+    const [weather, setWeather] = useState(null);
+    const [detecting, setDetecting] = useState(false);
+    
     const { saveWorker } = useWorker();
     const nav = useNavigate();
+    const { coords, loading: geoLoading, error: geoError } = useGeolocation();
 
     useEffect(() => {
         getZones().then(r => setZones(r.data)).catch(() => { });
     }, []);
+
+    useEffect(() => {
+        if (coords && zones.length > 0) {
+            const zName = getNearestZoneName(coords);
+            // Default to zone 1 if exact match fails
+            const zMatch = zones.find(zz => zz.name === zName) || zones[0];
+            if (zMatch) {
+                set('zone_id', String(zMatch.id));
+                setNearestZoneId(zMatch.id);
+            }
+            fetchWeather(coords.lat, coords.lon).then(setWeather);
+        }
+    }, [coords, zones]);
 
     const handleLogin = async () => {
         setLoginError('');
@@ -89,7 +109,7 @@ export default function Onboarding() {
                 <div className="onboard-header">
                     <div className="brand-logo">
                         <ShieldCheck size={28} color="var(--primary)" strokeWidth={2.5} />
-                        <span>GigArmor</span>
+                        <span>HustleHalt</span>
                     </div>
                     <h2 className="section-title">Sign In</h2>
                     <p className="brand-sub">Welcome back. Enter your registered number.</p>
@@ -128,7 +148,7 @@ export default function Onboarding() {
             <div className="onboard-header">
                 <div className="brand-logo">
                     <ShieldCheck size={26} color="var(--primary)" strokeWidth={2.5} />
-                    <span>GigArmor</span>
+                    <span>HustleHalt</span>
                 </div>
                 <div className="brand-tagline">Protect Your Income</div>
                 <p className="brand-sub">Parametric income insurance built for delivery workers.</p>
@@ -197,39 +217,51 @@ export default function Onboarding() {
                 </div>
             )}
 
-            {/* Step 2 — Zone */}
+            {/* Step 2 — Zone & Weather Premium */}
             {step === 2 && (
                 <div className="form-section fade-up">
-                    <h2 className="section-title">Select Your Dark Store Zone</h2>
-                    <p className="section-hint">Coverage is hyperlocal to your zone's 2.5 km radius.</p>
-                    <div className="zone-grid">
-                        {zones.map(z => {
-                            const risk = z.base_risk_multiplier <= 1.0 ? 'LOW' : z.base_risk_multiplier <= 1.2 ? 'MED' : 'HIGH';
-                            const riskColor = { LOW: '#22c55e', MED: '#f59e0b', HIGH: '#ef4444' }[risk];
-                            return (
-                                <div
-                                    key={z.id}
-                                    className={`zone-card${form.zone_id === String(z.id) ? ' selected' : ''}`}
-                                    onClick={() => set('zone_id', String(z.id))}
-                                >
-                                    <div className="zone-name">{z.name}</div>
-                                    <div className="zone-meta">
+                    <h2 className="section-title">Location & Coverage</h2>
+                    <p className="section-hint">We detect your nearest dark store to calculate live dynamic premiums.</p>
+                    
+                    {geoLoading ? (
+                        <div className="zone-grid" style={{ display: 'flex', gap: 6, alignItems: 'center', padding: 12 }}>
+                            <span className="spinner dark"></span> <span style={{fontSize: '0.8rem', color: 'var(--on-surface-muted)'}}>Detecting location...</span>
+                        </div>
+                    ) : (
+                        <div className="zone-grid" style={{ gridTemplateColumns: '1fr' }}>
+                            {selectedZone && (
+                                <div className="zone-card selected" style={{ cursor: 'default' }}>
+                                    <div style={{ fontSize: '0.65rem', textTransform: 'uppercase', color: 'var(--primary)', fontWeight: 700, marginBottom: 4 }}>Nearest Auto-Detected Zone</div>
+                                    <div className="zone-name" style={{ fontSize: '1rem' }}>{selectedZone.name}</div>
+                                    <div className="zone-meta" style={{ flexDirection: 'row', gap: 12, marginTop: 6 }}>
                                         <span className="zone-pin">
-                                            <MapPin size={10} /> {z.pincode}
-                                        </span>
-                                        <span className="zone-risk" style={{ color: riskColor }}>
-                                            <span className="risk-dot-sm" style={{ background: riskColor }} />
-                                            {risk}
+                                            <MapPin size={12} /> {selectedZone.pincode}
                                         </span>
                                     </div>
+                                    {geoError && <div style={{ fontSize: '0.65rem', color: 'var(--error)', marginTop: 8 }}>{geoError}</div>}
                                 </div>
-                            );
-                        })}
-                    </div>
-                    {selectedZone && (
-                        <div className="zone-premium-preview">
-                            <BarChart3 size={13} />
-                            Est. risk multiplier: <strong>{selectedZone.base_risk_multiplier}×</strong>
+                            )}
+                        </div>
+                    )}
+                    
+                    {selectedZone && weather && (
+                        <div className="zone-premium-preview" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 8, marginTop: 4 }}>
+                            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                <BarChart3 size={14} color="var(--primary)" />
+                                <strong>Live Premium Calculation</strong>
+                            </div>
+                            <div style={{ fontSize: '0.75rem', width: '100%', display: 'flex', justifyContent: 'space-between' }}>
+                                <span>Base Risk Multiplier:</span> <span>{selectedZone.base_risk_multiplier}×</span>
+                            </div>
+                            <div style={{ fontSize: '0.75rem', width: '100%', display: 'flex', justifyContent: 'space-between' }}>
+                                <span>Weather Risk (Rain: {weather.rain_mm}mm):</span>
+                                <span style={{ color: weather.rain_mm >= 2 ? 'var(--warning)' : 'inherit' }}>
+                                    {weather.rain_mm >= 5 ? '1.5×' : weather.rain_mm >= 2 ? '1.2×' : '1.0×'}
+                                </span>
+                            </div>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--on-surface-muted)', marginTop: 4, fontStyle: 'italic' }}>
+                                Real-time adjustments apply continuously.
+                            </div>
                         </div>
                     )}
                 </div>
@@ -287,7 +319,7 @@ export default function Onboarding() {
                         Already registered? Sign In
                     </button>
                 )}
-                <div>Powered by GigArmor · Guidewire DEVTrails 2026</div>
+                <div>Powered by HustleHalt · Guidewire DEVTrails 2026</div>
             </div>
         </div>
     );

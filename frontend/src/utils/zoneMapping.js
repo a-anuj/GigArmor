@@ -1,28 +1,22 @@
 /**
  * zoneMapping.js
- * Maps user GPS coordinates to the nearest GigArmor Dark Store Zone.
+ * Maps user GPS coordinates to the nearest HustleHalt Dark Store Zone.
  * Uses Haversine distance (in km) to find the closest centroid.
  */
 
 // Static zone centroids — extend as backend zones grow
 const ZONE_CENTROIDS = [
-    { id: 1,  name: 'Zone 1 — Koramangala',  lat: 12.9352, lon: 77.6245 },
-    { id: 2,  name: 'Zone 2 — Indiranagar',   lat: 12.9784, lon: 77.6408 },
-    { id: 3,  name: 'Zone 3 — HSR Layout',    lat: 12.9116, lon: 77.6389 },
-    { id: 4,  name: 'Zone 4 — Whitefield',    lat: 12.9698, lon: 77.7500 },
-    { id: 5,  name: 'Zone 5 — Marathahalli',  lat: 12.9591, lon: 77.6972 },
-    { id: 6,  name: 'Zone 6 — Electronic City', lat: 12.8399, lon: 77.6770 },
-    { id: 7,  name: 'Zone 7 — JP Nagar',      lat: 12.8993, lon: 77.5900 },
-    { id: 8,  name: 'Zone 8 — Jayanagar',     lat: 12.9299, lon: 77.5820 },
-    { id: 9,  name: 'Zone 9 — BTM Layout',    lat: 12.9165, lon: 77.6101 },
-    { id: 10, name: 'Zone 10 — Bommanahalli', lat: 12.8985, lon: 77.6408 },
-    { id: 11, name: 'Zone 11 — Bellandur',    lat: 12.9357, lon: 77.6855 },
-    { id: 12, name: 'Zone 12 — Banashankari', lat: 12.9250, lon: 77.5460 },
-    { id: 13, name: 'Zone 13 — T. Dasarahalli', lat: 13.0550, lon: 77.5142 },
-    { id: 14, name: 'Zone 14 — Velachery',    lat: 12.9776, lon: 80.2209 },
+    { id: 1, name: 'Koramangala Dark Store',  lat: 12.9352, lon: 77.6245 },
+    { id: 2, name: 'Indiranagar Hub',          lat: 12.9784, lon: 77.6408 },
+    { id: 3, name: 'Whitefield Spoke',          lat: 12.9698, lon: 77.7500 },
+    { id: 4, name: 'HSR Layout Store',          lat: 12.9116, lon: 77.6389 },
+    { id: 5, name: 'Marathahalli Hub',          lat: 12.9591, lon: 77.6972 },
+    { id: 6, name: 'Electronic City Store',     lat: 12.8399, lon: 77.6770 },
+    { id: 7, name: 'JP Nagar Dark Store',       lat: 12.8993, lon: 77.5900 },
+    { id: 8, name: 'Coimbatore RS Puram',       lat: 11.0045, lon: 76.9616 },
 ];
 
-const DEFAULT_ZONE = 'Zone 14 — Velachery';
+const DEFAULT_ZONE = 'Indiranagar Hub';
 
 /**
  * Haversine distance between two GPS points (km).

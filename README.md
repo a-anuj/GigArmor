@@ -1,4 +1,4 @@
-# GigArmor 🛡️
+# HustleHalt 🛡️
 
 ### AI-Powered Parametric Income Insurance for India's Gig Economy
 
@@ -15,7 +15,7 @@
 
 1. [The Problem We Are Solving](#1-the-problem-we-are-solving)
 2. [Why Q-Commerce Delivery Partners](#2-why-q-commerce-delivery-partners)
-3. [Our Solution — GigArmor](#3-our-solution--gigarmor)
+3. [Our Solution — HustleHalt](#3-our-solution--hustlehalt)
 4. [End-to-End Working Solution](#4-end-to-end-working-solution)
 5. [Weekly AI Premium Calculation Model](#5-weekly-ai-premium-calculation-model)
 6. [Parametric Trigger System](#6-parametric-trigger-system)
@@ -56,7 +56,7 @@ Currently, **zero formal income protection products exist for gig workers agains
 
 When disruptions occur, workers absorb 100% of the financial loss. A 3-hour rain event can cost Rajan — a Blinkit rider in Velachery — ₹400 in lost wages with no recourse.
 
-**GigArmor changes this.**
+**HustleHalt changes this.**
 
 ---
 
@@ -72,17 +72,17 @@ We chose **Grocery & Q-Commerce (Zepto/Blinkit)** as our specific persona for th
 
 ---
 
-## 3. Our Solution — GigArmor
+## 3. Our Solution — HustleHalt
 
-GigArmor is a **fully automated parametric income insurance platform** built specifically for Q-commerce delivery partners. It operates on three non-negotiable principles:
+HustleHalt is a **fully automated parametric income insurance platform** built specifically for Q-commerce delivery partners. It operates on three non-negotiable principles:
 
-**1. Zero-touch claims.** A worker in a rainstorm should never have to open an app, fill a form, or take a photo to receive a payout. GigArmor monitors disruption conditions continuously and triggers payouts automatically when pre-defined thresholds are crossed in the worker's specific zone.
+**1. Zero-touch claims.** A worker in a rainstorm should never have to open an app, fill a form, or take a photo to receive a payout. HustleHalt monitors disruption conditions continuously and triggers payouts automatically when pre-defined thresholds are crossed in the worker's specific zone.
 
 **2. Hyperlocal precision.** Coverage is scoped to the 2.5km delivery radius of the dark store the worker is registered to — not to the city, not to the district. Zone 14 (Velachery dark store #BLK-082) has its own risk score, its own weather threshold monitoring, and its own claim event log.
 
 **3. Weekly financial alignment.** Premiums are calculated and charged every Monday. Payouts are processed within 60 seconds of trigger confirmation. Everything operates on a 7-day cycle that matches the worker's actual earnings rhythm.
 
-### What GigArmor Covers
+### What HustleHalt Covers
 
 | Covered                                             | Not Covered                           |
 | --------------------------------------------------- | ------------------------------------- |
@@ -203,7 +203,7 @@ The model is retrained weekly using the previous week's trigger events and verif
 
 ## 6. Parametric Trigger System
 
-GigArmor monitors 5 parametric events. Payouts are triggered **automatically** — no worker action required.
+HustleHalt monitors 5 parametric events. Payouts are triggered **automatically** — no worker action required.
 
 ### Trigger 1 — Extreme Rainfall
 
@@ -251,7 +251,7 @@ GigArmor monitors 5 parametric events. Payouts are triggered **automatically** �
 
 > **Context:** A coordinated fraud syndicate of 500 delivery workers exploited a beta parametric insurance platform using GPS-spoofing applications. Organizing via Telegram groups, they faked presence in weather-disrupted zones and triggered mass false payouts that drained the liquidity pool.
 >
-> **GigArmor's response:** GPS location is treated as one of many signals — not the authoritative one. We verify _evidence of disruption impact_, not just _presence coordinates_.
+> **HustleHalt's response:** GPS location is treated as one of many signals — not the authoritative one. We verify _evidence of disruption impact_, not just _presence coordinates_.
 
 ### 7.1 The Core Principle
 
@@ -269,7 +269,7 @@ These are the hardest signals to fake at scale because they require the fraudste
   - Active outdoor: slow, irregular movement consistent with navigating a flooded road on a 2-wheeler
   - Stationary outdoor: near-zero movement but with high-frequency micro-vibrations consistent with rain striking a handheld device
 - A fraudster lying at home shows a flat, ultra-low variance signature consistent with a device resting on a surface
-- We use a lightweight on-device motion classifier (pre-trained TensorFlow Lite model, <200KB) deployed silently within the GigArmor SDK. The classifier outputs one of: `active-outdoor`, `stationary-outdoor`, `stationary-indoor`. The `stationary-indoor` classification is a strong fraud signal.
+- We use a lightweight on-device motion classifier (pre-trained TensorFlow Lite model, <200KB) deployed silently within the HustleHalt SDK. The classifier outputs one of: `active-outdoor`, `stationary-outdoor`, `stationary-indoor`. The `stationary-indoor` classification is a strong fraud signal.
 
 **Cell tower ID cross-check**
 
@@ -373,7 +373,7 @@ The wrong burden at the worst possible moment destroys trust and causes churn. O
 
 **Risk:** This behavior is actuarially adverse (high selection bias) but is legally and ethically valid. Blocking it would be unjust. Ignoring it would bankrupt the pool.
 
-**GigArmor's approach — Cold Start Surcharge:**
+**HustleHalt's approach — Cold Start Surcharge:**
 
 - All new enrollments (including re-enrollments after a lapse of >8 weeks) trigger a `M_coldstart = 1.2×` multiplier applied to the premium formula for the **first 2 weeks only**.
 - This slightly higher premium for the first 2 weeks is the actuarial cost of operating without behavioral baseline data.
@@ -387,7 +387,7 @@ The wrong burden at the worst possible moment destroys trust and causes churn. O
 
 **Risk:** The re-verification fails not because of fraud but because of network loss, and the claim is incorrectly routed to the admin queue, delaying payout.
 
-**GigArmor's approach:**
+**HustleHalt's approach:**
 
 - Network dropout is tracked as a distinct event type, not a fraud signal. A connectivity loss during a confirmed active weather event is actually consistent with genuine outdoor exposure in poor conditions.
 - If re-verification is blocked by network loss (defined as: no telemetry received for >90 minutes AND weather event confirmed as ongoing), the system extends the soft hold window by 2 additional hours rather than routing to admin.
@@ -400,7 +400,7 @@ The wrong burden at the worst possible moment destroys trust and causes churn. O
 
 **Risk:** Rajan has a genuine income loss claim but his policy is zone-scoped to Zone 14. Zone 9 did not trigger.
 
-**GigArmor's approach — Dynamic Zone Coverage:**
+**HustleHalt's approach — Dynamic Zone Coverage:**
 
 - Workers who log into the platform app at a different dark store are automatically covered under that zone's insurance for the duration of the session.
 - Platform mock API integration tracks "active dark store session" — whichever dark store dispatched the worker's last order determines their active zone for insurance purposes.
@@ -413,7 +413,7 @@ The wrong burden at the worst possible moment destroys trust and causes churn. O
 
 **Risk:** Double-counting — should the worker receive 100% (rain) + 75% (bandh) = 175% of weekly coverage?
 
-**GigArmor's approach:**
+**HustleHalt's approach:**
 
 - Weekly coverage is capped at **100% of the declared weekly sum insured** regardless of how many triggers fire.
 - When multiple triggers overlap, the system applies the highest-value trigger as the primary payout and discards lower-value overlapping triggers in the same time window (defined as any 6-hour block).
@@ -425,7 +425,7 @@ The wrong burden at the worst possible moment destroys trust and causes churn. O
 
 **Risk:** False trigger fires, legitimate-looking payouts go out for a non-event.
 
-**GigArmor's approach — Cross-validation before payout:**
+**HustleHalt's approach — Cross-validation before payout:**
 
 - Platform outage trigger (T3) requires corroboration from at least one secondary signal before it fires:
   - Weather API confirms no weather event that would independently halt operations, OR
@@ -438,7 +438,7 @@ The wrong burden at the worst possible moment destroys trust and causes churn. O
 
 **Risk:** The fraud model cannot score the claim accurately without historical data.
 
-**GigArmor's approach:**
+**HustleHalt's approach:**
 
 - New workers (< 2 completed weeks) have their claims evaluated using **zone-level aggregate behavior** as a proxy baseline rather than individual baseline. The claim is scored against the average behavior of all workers in their zone cohort.
 - Their `M_coldstart = 1.2×` premium already prices in the additional actuarial risk of operating without baseline data.
@@ -482,7 +482,7 @@ Standard weather APIs are highly reliable. Social disruptions (curfews, bandhs) 
 - Integration with the Zepto/Blinkit shift API allows workers who book only specific days (e.g., Saturday + Sunday) to pay premiums calculated only for those days.
 - The formula becomes: `Premium_weekly = (R_base × M_weather × M_social × H_booked_days × M_coldstart)` where `H_booked_days` reflects only the days with confirmed shift bookings.
 - A weekend-only worker who books 16 hours (2 days × 8hr) pays proportionally less than a full-week worker.
-- This makes GigArmor viable for part-time workers and students — a segment that full-week pricing would exclude.
+- This makes HustleHalt viable for part-time workers and students — a segment that full-week pricing would exclude.
 
 ### 9.4 Tamil and Hindi Localization
 
@@ -544,7 +544,7 @@ Standard weather APIs are highly reliable. Social disruptions (curfews, bandhs) 
                     └────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────┐
-│                    GIGARMOR CORE PLATFORM                       │
+│                    HUSTLEHALT CORE PLATFORM                       │
 │         Node.js + Express · PostgreSQL · Redis · BullMQ         │
 │  Onboarding · Policy Management · Claims Ledger · Payout Queue  │
 └───────────────────────┬───────────────────────────────┬─────────┘
@@ -620,7 +620,7 @@ Standard weather APIs are highly reliable. Social disruptions (curfews, bandhs) 
 
 ## 13. Liquidity Pool & Financial Model
 
-GigArmor maintains a disciplined reserve policy to ensure payout obligations can always be met.
+HustleHalt maintains a disciplined reserve policy to ensure payout obligations can always be met.
 
 ### Reserve Policy
 
@@ -667,7 +667,7 @@ GigArmor maintains a disciplined reserve policy to ensure payout obligations can
 
 ## 15. Conclusion
 
-GigArmor addresses a genuine market failure: 12 million gig workers in India have no income safety net against the uncontrollable external events that regularly cost them 20–30% of their monthly earnings. Our solution is differentiated in four ways that matter:
+HustleHalt addresses a genuine market failure: 12 million gig workers in India have no income safety net against the uncontrollable external events that regularly cost them 20–30% of their monthly earnings. Our solution is differentiated in four ways that matter:
 
 **Hyperlocal intelligence** over citywide averages. Zone 14 in Velachery has its own risk score, its own triggers, and its own payout events — independent of what is happening 5km away.
 
@@ -677,10 +677,10 @@ GigArmor addresses a genuine market failure: 12 million gig workers in India hav
 
 **Worker-first financial design** over actuarial convenience. Weekly premiums, micro-rollovers, shift-linked coverage, cold-start surcharges instead of blocks, language localization, and false-positive compensation — every design decision is made with the worker's financial and psychological reality as the primary constraint.
 
-GigArmor is not a feature addition to existing insurance. It is a new product category — parametric income insurance designed from the ground up for the gig economy's unique structure.
+HustleHalt is not a feature addition to existing insurance. It is a new product category — parametric income insurance designed from the ground up for the gig economy's unique structure.
 
 ---
 
-_GigArmor — DEVTrails 2026 · Team Axiom-45 · Amrita Vishwa Vidyapeetham_
-_Repository: github.com/a-anuj/GigArmor_
+_HustleHalt — DEVTrails 2026 · Team Axiom-45 · Amrita Vishwa Vidyapeetham_
+_Repository: github.com/a-anuj/HustleHalt_
 _Demo video: [link]_

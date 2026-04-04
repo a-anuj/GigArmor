@@ -1,1 +1,0 @@
-# GigArmor Backend Application

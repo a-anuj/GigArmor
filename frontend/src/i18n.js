@@ -12,7 +12,7 @@ i18n
       ta: { translation: ta },
       hi: { translation: hi },
     },
-    lng: localStorage.getItem('gigarmor_lang') || 'en',
+    lng: localStorage.getItem('hustlehalt_lang') || 'en',
     fallbackLng: 'en',
     interpolation: { escapeValue: false },
   });
