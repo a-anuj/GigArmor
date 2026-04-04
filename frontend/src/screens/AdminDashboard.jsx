@@ -71,7 +71,10 @@ export default function AdminDashboard() {
         <div className="admin-shell">
             {/* Sidebar */}
             <aside className="admin-sidebar">
-                <div className="admin-brand">🛡️ HustleHalt</div>
+                <div className="admin-brand">
+                    <img src="/logo.png" alt="Logo" style={{ height: '24px', marginRight: '8px' }} />
+                    HustleHalt
+                </div>
                 <nav className="admin-nav">
                     {['Dashboard', 'Risk Analysis', 'Policy Engine', 'System Logs'].map(l => (
                         <div key={l} className={`admin-nav-item${l === 'Dashboard' ? ' active' : ''}`}>{l}</div>

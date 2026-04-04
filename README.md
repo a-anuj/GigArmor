@@ -1,4 +1,6 @@
-# HustleHalt 🛡️
+<p align="center"><img src="./logo.png" width="150" alt="HustleHalt Logo" /></p>
+
+# HustleHalt
 
 ### AI-Powered Parametric Income Insurance for India's Gig Economy
 
