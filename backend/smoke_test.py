@@ -1,4 +1,4 @@
-"""Quick smoke test for GigArmor API — runs against http://127.0.0.1:8000"""
+"""Quick smoke test for HustleHalt API — runs against http://127.0.0.1:8000"""
 import urllib.request
 import json
 import sys
@@ -26,7 +26,7 @@ def post(path, data):
 errors = []
 
 print("=" * 50)
-print("  GigArmor API — End-to-End Smoke Test")
+print("  HustleHalt API — End-to-End Smoke Test")
 print("=" * 50)
 
 try:

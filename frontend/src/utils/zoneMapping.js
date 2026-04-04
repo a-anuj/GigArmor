@@ -1,6 +1,6 @@
 /**
  * zoneMapping.js
- * Maps user GPS coordinates to the nearest GigArmor Dark Store Zone.
+ * Maps user GPS coordinates to the nearest HustleHalt Dark Store Zone.
  * Uses Haversine distance (in km) to find the closest centroid.
  */
 

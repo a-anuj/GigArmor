@@ -109,7 +109,7 @@ export default function Onboarding() {
                 <div className="onboard-header">
                     <div className="brand-logo">
                         <ShieldCheck size={28} color="var(--primary)" strokeWidth={2.5} />
-                        <span>GigArmor</span>
+                        <span>HustleHalt</span>
                     </div>
                     <h2 className="section-title">Sign In</h2>
                     <p className="brand-sub">Welcome back. Enter your registered number.</p>
@@ -148,7 +148,7 @@ export default function Onboarding() {
             <div className="onboard-header">
                 <div className="brand-logo">
                     <ShieldCheck size={26} color="var(--primary)" strokeWidth={2.5} />
-                    <span>GigArmor</span>
+                    <span>HustleHalt</span>
                 </div>
                 <div className="brand-tagline">Protect Your Income</div>
                 <p className="brand-sub">Parametric income insurance built for delivery workers.</p>
@@ -319,7 +319,7 @@ export default function Onboarding() {
                         Already registered? Sign In
                     </button>
                 )}
-                <div>Powered by GigArmor · Guidewire DEVTrails 2026</div>
+                <div>Powered by HustleHalt · Guidewire DEVTrails 2026</div>
             </div>
         </div>
     );

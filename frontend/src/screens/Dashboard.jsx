@@ -226,7 +226,7 @@ export default function Dashboard() {
             {/* Wallet */}
             <div className="wallet-card">
                 <div className="wallet-header">
-                    <span className="wallet-title">GigArmor Wallet</span>
+                    <span className="wallet-title">HustleHalt Wallet</span>
                     <span className={`trust-badge ${worker.cold_start_active ? 'cold' : 'verified'}`}>
                         {worker.cold_start_active ? 'Cold Start' : 'Verified'}
                     </span>
