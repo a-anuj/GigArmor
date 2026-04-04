@@ -94,11 +94,11 @@ export default function PremiumQuote() {
                     <div className="multipliers-card">
                         <div className="mult-card-title">AI Breakdown</div>
                         <div className="mult-card-formula">
-                            Base Rate × Weather Risk × Social Risk
+                            Base × Weather × Social × Shift Ratio
                         </div>
                         <div className="mult-row">
-                            <span className="mult-label">Base Risk</span>
-                            <span className="mult-val">1.0×</span>
+                            <span className="mult-label">Base Rate</span>
+                            <span className="mult-val">₹{quote?.r_base ?? 5}</span>
                         </div>
                         <div className="mult-row">
                             <span className="mult-label">Weather Alert</span>
@@ -107,6 +107,10 @@ export default function PremiumQuote() {
                         <div className="mult-row">
                             <span className="mult-label">Social Events</span>
                             <span className="mult-val">{quote?.m_social ?? '—'}×</span>
+                        </div>
+                        <div className="mult-row">
+                            <span className="mult-label">Shift Ratio</span>
+                            <span className="mult-val">{quote?.h_expected ?? '1.0'}×</span>
                         </div>
                         {quote?.cold_start_active && (
                             <div className="mult-row">
@@ -130,10 +134,10 @@ export default function PremiumQuote() {
                     {/* Coverage info */}
                     <div className="coverage-info-card">
                         {[
-                            { Icon: Package,      label: 'Coverage Amount',  value: `₹${quote?.coverage_amount ?? 1200}` },
-                            { Icon: Zap,          label: 'Payout Time',      value: '≤ 60 seconds' },
-                            { Icon: CalendarDays, label: 'Period',           value: '7 days' },
-                            { Icon: Award,        label: 'Quiet Weeks',      value: `${quote?.consecutive_quiet_weeks ?? 0} week(s)` },
+                            { Icon: Package, label: 'Coverage Amount', value: `₹${quote?.coverage_amount ?? 1200}` },
+                            { Icon: Zap, label: 'Payout Time', value: '≤ 60 seconds' },
+                            { Icon: CalendarDays, label: 'Period', value: '7 days' },
+                            { Icon: Award, label: 'Quiet Weeks', value: `${quote?.consecutive_quiet_weeks ?? 0} week(s)` },
                         ].map(({ Icon, label, value }) => (
                             <div key={label} className="cov-row">
                                 <span className="cov-label">
