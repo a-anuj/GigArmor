@@ -21,7 +21,7 @@ export default function AppLayout() {
         const idx = langs.indexOf(i18n.language);
         const next = langs[(idx + 1) % langs.length];
         i18n.changeLanguage(next);
-        localStorage.setItem('gigarmor_lang', next);
+        localStorage.setItem('hustlehalt_lang', next);
     };
 
     const currentLang = LANGUAGES.find(l => l.code === i18n.language) ?? LANGUAGES[0];
@@ -32,7 +32,7 @@ export default function AppLayout() {
             <div className="app-top-row">
                 <div className="app-label">
                     <ShieldCheck size={20} color="var(--primary)" strokeWidth={2.5} />
-                    <span>GigArmor</span>
+                    <span>HustleHalt</span>
                     <span className="app-label-sub">Worker App Demo</span>
                 </div>
                 <button className="lang-toggle" onClick={cycleLang} title="Switch language">
