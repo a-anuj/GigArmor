@@ -1,0 +1,206 @@
+/* ── HustleHalt Design System — Industrial Warmth (Dark + Amber) ─────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* ── Surfaces (charcoal industrial) ── */
+  --surface:           #121212;
+  --surface-container: #1e1e1e;
+  --surface-high:      #2a2a2a;
+  --surface-highest:   #333333;
+  --surface-low:       #181818;
+  --surface-lowest:    #0d0d0d;
+  --surface-bright:    #3a3a3a;
+
+  /* ── Primary — Amber Accent ── */
+  --primary:           #FFBF00;
+  --primary-dim:       #E6AC00;
+  --primary-dark:      #CC9900;
+  --primary-on:        #1a1000;
+  --primary-container: rgba(255, 191, 0, 0.12);
+  --primary-glow:      0 0 20px rgba(255, 191, 0, 0.3), 0 0 40px rgba(255, 191, 0, 0.1);
+
+  /* ── Secondary ── */
+  --secondary:           #D4A017;
+  --secondary-container: rgba(212, 160, 23, 0.15);
+
+  /* ── Text ── */
+  --on-surface:         #F5F5F5;
+  --on-surface-variant: #C0C0C0;
+  --on-surface-muted:   #808080;
+  --outline:            #3a3a3a;
+  --outline-variant:    rgba(255, 255, 255, 0.08);
+
+  /* ── Status ── */
+  --success:     #22c55e;
+  --success-bg:  rgba(34, 197, 94, 0.12);
+  --warning:     #f59e0b;
+  --warning-bg:  rgba(245, 158, 11, 0.12);
+  --error:       #ef4444;
+  --error-bg:    rgba(239, 68, 68, 0.12);
+  --info:        #60a5fa;
+  --info-bg:     rgba(96, 165, 250, 0.12);
+
+  /* ── Typography ── */
+  --font-display: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
+
+  /* ── Spacing & Radius ── */
+  --radius-xs:   4px;
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-full: 9999px;
+
+  /* ── Shadows ── */
+  --shadow-sm:     0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md:     0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg:     0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-float:  0 24px 48px rgba(0, 0, 0, 0.6), 0 8px 16px rgba(0, 0, 0, 0.4);
+  --shadow-inset:  inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ── Reset ──────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  background: #0a0a0a;
+  color: var(--on-surface);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--outline); border-radius: 2px; }
+
+/* ── Typography scale ────────────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+/* ── Global utility classes ─────────────────────────────────────────────── */
+.fade-up { animation: fadeUp 0.35s ease both; }
+.fade-in { animation: fadeIn 0.25s ease both; }
+
+/* ── Screen loading state ───────────────────────────────────────────────── */
+.screen-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 100%;
+  min-height: 200px;
+  color: var(--on-surface-muted);
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+
+.pulse-ring {
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--outline);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ── Empty state ────────────────────────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--on-surface-muted);
+  font-size: 14px;
+}
+
+.empty-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-high);
+  border-radius: 50%;
+  color: var(--on-surface-muted);
+}
+
+/* ── Status badge ───────────────────────────────────────────────────────── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* ── Spinner ────────────────────────────────────────────────────────────── */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--primary-on);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+}
+
+/* ── Keyframes ──────────────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: var(--primary-glow); }
+  50%       { box-shadow: 0 0 30px rgba(255, 191, 0, 0.45), 0 0 60px rgba(255, 191, 0, 0.2); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}

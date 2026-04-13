@@ -1,0 +1,15 @@
+{
+  "loading": "Loading...",
+  "welcome_back": "Welcome back",
+  "live_conditions": "Live Conditions",
+  "active_policy": "Active Policy",
+  "get_quote": "Get Quote",
+  "enroll_week": "Enroll Week",
+  "recent_payouts": "Recent Payouts",
+  "nav": {
+    "home": "Home",
+    "quote": "Quote",
+    "claims": "Claims"
+  },
+  "lang_toggle": "Language"
+}
