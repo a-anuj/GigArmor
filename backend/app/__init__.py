@@ -1,1 +1,0 @@
-# HustleHalt Backend Application
