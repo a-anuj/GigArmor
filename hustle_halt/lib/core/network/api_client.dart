@@ -5,6 +5,7 @@ class ApiClient {
   static const String baseUrl = 'https://gigarmor.onrender.com'; // Target FastAPI Backend
   
   static final Dio instance = _init();
+  
 
   static Dio _init() {
     final dio = Dio(
