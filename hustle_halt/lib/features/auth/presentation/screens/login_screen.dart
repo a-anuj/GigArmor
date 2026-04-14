@@ -25,6 +25,8 @@ final isLoadingProvider = NotifierProvider<IsLoadingNotifier, bool>(IsLoadingNot
 
 // Form Controllers
 final phoneControllerProvider = Provider((ref) => TextEditingController(text: '9876543210'));
+final emailControllerProvider = Provider((ref) => TextEditingController(text: 'arjun@example.com'));
+final passwordControllerProvider = Provider((ref) => TextEditingController(text: 'strongPass123!'));
 final nameControllerProvider = Provider((ref) => TextEditingController(text: 'Arjun Delivery'));
 final upiControllerProvider = Provider((ref) => TextEditingController(text: 'arjun@upi'));
 final zoneControllerProvider = StateProvider<int>((ref) => 1); // Default to Koramangala (1)
@@ -84,6 +86,7 @@ class _PhoneInputStep extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isLoading = ref.watch(isLoadingProvider);
     final phoneController = ref.watch(phoneControllerProvider);
+    final passwordController = ref.watch(passwordControllerProvider);
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,26 +106,31 @@ class _PhoneInputStep extends ConsumerWidget {
         const SizedBox(height: 48),
         CustomTextField(
           controller: phoneController,
-          hintText: 'Enter Mobile Number',
-          keyboardType: TextInputType.phone,
-          prefixIcon: const Icon(LucideIcons.phone, color: AppTheme.textSecondary, size: 20),
+          hintText: 'Email or Mobile Number',
+          prefixIcon: const Icon(LucideIcons.user, color: AppTheme.textSecondary, size: 20),
+        ),
+        const SizedBox(height: 16),
+        CustomTextField(
+          controller: passwordController,
+          hintText: 'Password',
+          obscureText: true,
+          prefixIcon: const Icon(LucideIcons.lock, color: AppTheme.textSecondary, size: 20),
         ),
         const Spacer(),
         CustomButton(
-          text: 'Continue',
+          text: 'Login',
           isLoading: isLoading,
           onPressed: () async {
-            if (phoneController.text.length < 10) return;
+            if (phoneController.text.length < 5 || passwordController.text.length < 6) return;
             
             ref.read(isLoadingProvider.notifier).setLoading(true);
             try {
-              final exists = await ref.read(authProvider.notifier).login(phoneController.text);
-              if (exists) {
-                // If exists, jump straight to quote or dashboard
+              final success = await ref.read(authProvider.notifier).login(phoneController.text, passwordController.text);
+              if (success) {
+                // If login works, jump straight to quote or dashboard
                 ref.read(authStepProvider.notifier).setStep(2); 
               } else {
-                // If doesn't exist, proceed to registration
-                ref.read(authStepProvider.notifier).setStep(1);
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid credentials.')));
               }
             } catch (e) {
                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
@@ -130,6 +138,15 @@ class _PhoneInputStep extends ConsumerWidget {
               ref.read(isLoadingProvider.notifier).setLoading(false);
             }
           },
+        ),
+        const SizedBox(height: 16),
+        Center(
+          child: TextButton(
+            onPressed: () {
+              ref.read(authStepProvider.notifier).setStep(1);
+            },
+            child: const Text('Don\'t have an account? Register', style: TextStyle(color: AppTheme.accent)),
+          ),
         ),
       ],
     );
@@ -143,70 +160,99 @@ class _ProfileSetupStep extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final nameController = ref.watch(nameControllerProvider);
+    final phoneController = ref.watch(phoneControllerProvider);
+    final emailController = ref.watch(emailControllerProvider);
+    final passwordController = ref.watch(passwordControllerProvider);
     final upiController = ref.watch(upiControllerProvider);
     final isLoading = ref.watch(isLoadingProvider);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Complete Profile',
-          style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 28),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Looks like you are new! Register to see your premium.',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16),
-        ),
-        const SizedBox(height: 32),
-        CustomTextField(
-          controller: nameController,
-          hintText: 'Full Name',
-          prefixIcon: const Icon(LucideIcons.user, color: AppTheme.textSecondary, size: 20),
-        ),
-        const SizedBox(height: 16),
-        CustomTextField(
-          controller: upiController,
-          hintText: 'UPI ID',
-          prefixIcon: const Icon(LucideIcons.creditCard, color: AppTheme.textSecondary, size: 20),
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(
-            color: AppTheme.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppTheme.border),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Complete Profile',
+            style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 28),
           ),
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Zone: Koramangala Dark Store', style: TextStyle(color: AppTheme.textPrimary)),
-            ],
+          const SizedBox(height: 8),
+          Text(
+            'Looks like you are new! Register to see your premium.',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16),
           ),
-        ),
-        const Spacer(),
-        CustomButton(
-          text: 'Register & Calculate Risk',
-          isLoading: isLoading,
-          onPressed: () async {
-            ref.read(isLoadingProvider.notifier).setLoading(true);
-            try {
-              await ref.read(authProvider.notifier).register(
-                name: nameController.text,
-                phone: ref.read(phoneControllerProvider).text,
-                upiId: upiController.text,
-                zoneId: ref.read(zoneControllerProvider),
-              );
-              ref.read(authStepProvider.notifier).setStep(2);
-            } catch (e) {
-               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-            } finally {
-              ref.read(isLoadingProvider.notifier).setLoading(false);
-            }
-          },
-        ),
-      ],
+          const SizedBox(height: 32),
+          CustomTextField(
+            controller: nameController,
+            hintText: 'Full Name',
+            prefixIcon: const Icon(LucideIcons.user, color: AppTheme.textSecondary, size: 20),
+          ),
+          const SizedBox(height: 16),
+          CustomTextField(
+            controller: phoneController,
+            hintText: 'Phone Number',
+            keyboardType: TextInputType.phone,
+            prefixIcon: const Icon(LucideIcons.phone, color: AppTheme.textSecondary, size: 20),
+          ),
+          const SizedBox(height: 16),
+          CustomTextField(
+            controller: emailController,
+            hintText: 'Email Address',
+            keyboardType: TextInputType.emailAddress,
+            prefixIcon: const Icon(LucideIcons.mail, color: AppTheme.textSecondary, size: 20),
+          ),
+          const SizedBox(height: 16),
+          CustomTextField(
+            controller: passwordController,
+            hintText: 'Password',
+            obscureText: true,
+            prefixIcon: const Icon(LucideIcons.lock, color: AppTheme.textSecondary, size: 20),
+          ),
+          const SizedBox(height: 16),
+          CustomTextField(
+            controller: upiController,
+            hintText: 'UPI ID',
+            prefixIcon: const Icon(LucideIcons.creditCard, color: AppTheme.textSecondary, size: 20),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            decoration: BoxDecoration(
+              color: AppTheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.border),
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Zone: Koramangala Dark Store', style: TextStyle(color: AppTheme.textPrimary)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 32),
+          CustomButton(
+            text: 'Register & Calculate Risk',
+            isLoading: isLoading,
+            onPressed: () async {
+              ref.read(isLoadingProvider.notifier).setLoading(true);
+              try {
+                await ref.read(authProvider.notifier).register(
+                  name: nameController.text,
+                  phone: phoneController.text,
+                  email: emailController.text,
+                  password: passwordController.text,
+                  upiId: upiController.text,
+                  zoneId: ref.read(zoneControllerProvider),
+                );
+                ref.read(authStepProvider.notifier).setStep(2);
+              } catch (e) {
+                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+              } finally {
+                ref.read(isLoadingProvider.notifier).setLoading(false);
+              }
+            },
+          ),
+          const SizedBox(height: 32),
+        ],
+      ),
     );
   }
 }
