@@ -13,21 +13,19 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # ── Database ─────────────────────────────────────────
-    # Default: SQLite (zero-config for hackathon demos)
-    DATABASE_URL: str = "sqlite:///./hustlehalt.db"
+    DATABASE_URL: str
 
-    # ── Redis (optional, falls back to in-process tasks) ─
-    REDIS_URL: str = "redis://localhost:6379/0"
+    REDIS_URL: str
 
-    # ── App ───────────────────────────────────────────────
-    APP_ENV: str = "development"
-    SECRET_KEY: str = "hustlehalt-dev-secret-key"
-    DEBUG: bool = True
+    APP_ENV: str
+    SECRET_KEY: str
+    DEBUG: bool
+    UPI_WEBHOOK_URL: str
+    UPI_API_KEY: str
 
-    # ── UPI Mock Webhook ─────────────────────────────────
-    UPI_WEBHOOK_URL: str = "https://mock-upi.example.com/payout"
-    UPI_API_KEY: str = "mock-api-key"
+    # JWT
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
 
 
 settings = Settings()
