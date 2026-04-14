@@ -6,12 +6,15 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/custom_inputs.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../dashboard/domain/state/dashboard_state.dart';
+import '../../../auth/domain/state/auth_state.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final worker = ref.watch(authProvider);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Profile')),
       body: SafeArea(
@@ -19,7 +22,7 @@ class ProfileScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              _buildProfileHeader(context),
+              _buildProfileHeader(context, worker),
               const SizedBox(height: 32),
               _buildMenuSection(
                 context,
@@ -55,6 +58,7 @@ class ProfileScreen extends ConsumerWidget {
                 isOutlined: true,
                 color: AppTheme.error,
                 onPressed: () {
+                  ref.read(authProvider.notifier).logout();
                   context.go('/login');
                 },
               ),
@@ -65,14 +69,14 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfileHeader(BuildContext context) {
+  Widget _buildProfileHeader(BuildContext context, WorkerModel? worker) {
     return Row(
       children: [
         CircleAvatar(
           radius: 32,
           backgroundColor: AppTheme.surface,
           child: Text(
-            'R',
+            worker?.name.isNotEmpty == true ? worker!.name[0].toUpperCase() : '?',
             style: Theme.of(context).textTheme.displaySmall?.copyWith(color: AppTheme.accent),
           ),
         ),
@@ -80,16 +84,19 @@ class ProfileScreen extends ConsumerWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Rahul Kumar',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+            Text(
+              worker?.name ?? 'Guest Worker',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
             ),
             const SizedBox(height: 4),
             Row(
               children: [
                 const Icon(LucideIcons.briefcase, size: 14, color: AppTheme.textSecondary),
                 const SizedBox(width: 4),
-                Text('Swiggy Instamart Partner', style: Theme.of(context).textTheme.bodyMedium),
+                Text(
+                  worker != null ? 'Registered Partner' : 'Identity Not Verified',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ],
             ),
           ],

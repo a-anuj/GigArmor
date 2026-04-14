@@ -6,6 +6,7 @@ class WorkerModel {
   final int id;
   final String name;
   final String phone;
+  final String? email;
   final int zoneId;
   final double trustScore;
 
@@ -13,17 +14,19 @@ class WorkerModel {
     required this.id,
     required this.name,
     required this.phone,
+    this.email,
     required this.zoneId,
     required this.trustScore,
   });
 
   factory WorkerModel.fromJson(Map<String, dynamic> json) {
     return WorkerModel(
-      id: json['id'],
-      name: json['name'],
-      phone: json['phone'],
-      zoneId: json['zone_id'],
-      trustScore: json['trust_baseline_score'] ?? 1.0,
+      id: (json['id'] as num).toInt(),
+      name: json['name'] as String,
+      phone: (json['phone'] ?? '') as String,
+      email: json['email'] as String?,
+      zoneId: (json['zone_id'] as num).toInt(),
+      trustScore: (json['trust_baseline_score'] as num?)?.toDouble() ?? 1.0,
     );
   }
 }
@@ -32,17 +35,25 @@ class AuthNotifier extends Notifier<WorkerModel?> {
   @override
   WorkerModel? build() => null;
 
-  Future<bool> login(String phone) async {
+  Future<bool> login(String identifier, String password) async {
     try {
       final response = await ApiClient.instance.post(
-        '/api/v1/workers/login',
-        data: {'phone': phone},
+        '/api/v1/auth/login',
+        data: {
+          'identifier': identifier,
+          'password': password,
+        },
       );
-      state = WorkerModel.fromJson(response.data);
-      return true;
+      final token = response.data['access_token'];
+      if (token != null) {
+        ApiClient.accessToken = token;
+        await _fetchProfile();
+        return true;
+      }
+      return false;
     } catch (e) {
-      if (e is DioException && e.response?.statusCode == 404) {
-        return false; // Worker not found
+      if (e is DioException && e.response?.statusCode == 401) {
+        return false; // Unauthorized
       }
       rethrow;
     }
@@ -51,22 +62,36 @@ class AuthNotifier extends Notifier<WorkerModel?> {
   Future<void> register({
     required String name,
     required String phone,
+    required String email,
+    required String password,
     required String upiId,
     required int zoneId,
   }) async {
     final response = await ApiClient.instance.post(
-      '/api/v1/workers/register',
+      '/api/v1/auth/register',
       data: {
         'name': name,
         'phone': phone,
+        'email': email,
+        'password': password,
         'upi_id': upiId,
         'zone_id': zoneId,
       },
     );
+    final token = response.data['access_token'];
+    if (token != null) {
+      ApiClient.accessToken = token;
+      await _fetchProfile();
+    }
+  }
+
+  Future<void> _fetchProfile() async {
+    final response = await ApiClient.instance.get('/api/v1/auth/me');
     state = WorkerModel.fromJson(response.data);
   }
 
   void logout() {
+    ApiClient.accessToken = null;
     state = null;
   }
 }
@@ -83,9 +108,9 @@ class QuoteModel {
 
   factory QuoteModel.fromJson(Map<String, dynamic> json) {
     return QuoteModel(
-      premium: json['premium'],
-      coverage: json['coverage_amount'],
-      message: json['message'],
+      premium: (json['premium'] as num).toDouble(),
+      coverage: (json['coverage_amount'] as num).toDouble(),
+      message: json['message'] as String,
     );
   }
 }
