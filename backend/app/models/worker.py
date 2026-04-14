@@ -18,6 +18,10 @@ class Worker(Base):
     phone = Column(String(20), unique=True, nullable=False, index=True)
     upi_id = Column(String(150), nullable=False)
 
+    # Auth fields
+    email = Column(String(255), unique=True, nullable=True, index=True)
+    hashed_password = Column(String(255), nullable=True)
+
     # Zone this worker operates in (their primary "dark store")
     zone_id = Column(Integer, ForeignKey("zones.id"), nullable=False)
 

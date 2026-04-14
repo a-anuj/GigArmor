@@ -76,8 +76,10 @@ app.add_middleware(
 
 # ── Routers (imported after models to avoid circular imports) ─────────────────
 from app.routers import workers, policies, claims, admin  # noqa: E402
-from app.routers.workers import zone_router  # noqa: E402
+from app.routers.workers import zone_router               # noqa: E402
+from app.routers.auth import router as auth_router        # noqa: E402
 
+app.include_router(auth_router)
 app.include_router(workers.router)
 app.include_router(zone_router)
 app.include_router(policies.router)
