@@ -24,11 +24,11 @@ class IsLoadingNotifier extends Notifier<bool> {
 final isLoadingProvider = NotifierProvider<IsLoadingNotifier, bool>(IsLoadingNotifier.new);
 
 // Form Controllers
-final phoneControllerProvider = Provider((ref) => TextEditingController(text: '9876543210'));
-final emailControllerProvider = Provider((ref) => TextEditingController(text: 'arjun@example.com'));
-final passwordControllerProvider = Provider((ref) => TextEditingController(text: 'strongPass123!'));
-final nameControllerProvider = Provider((ref) => TextEditingController(text: 'Arjun Delivery'));
-final upiControllerProvider = Provider((ref) => TextEditingController(text: 'arjun@upi'));
+final phoneControllerProvider = Provider((ref) => TextEditingController());
+final emailControllerProvider = Provider((ref) => TextEditingController());
+final passwordControllerProvider = Provider((ref) => TextEditingController());
+final nameControllerProvider = Provider((ref) => TextEditingController());
+final upiControllerProvider = Provider((ref) => TextEditingController());
 final zoneControllerProvider = StateProvider<int>((ref) => 1); // Default to Koramangala (1)
 
 class LoginScreen extends ConsumerWidget {
@@ -88,64 +88,72 @@ class _PhoneInputStep extends ConsumerWidget {
     final phoneController = ref.watch(phoneControllerProvider);
     final passwordController = ref.watch(passwordControllerProvider);
     
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'HustleHalt',
-          style: Theme.of(context).textTheme.displayLarge?.copyWith(
-            fontSize: 32,
-            color: AppTheme.accent,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Income protection for the modern delivery partner.',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16),
-        ),
-        const SizedBox(height: 48),
-        CustomTextField(
-          controller: phoneController,
-          hintText: 'Email or Mobile Number',
-          prefixIcon: const Icon(LucideIcons.user, color: AppTheme.textSecondary, size: 20),
-        ),
-        const SizedBox(height: 16),
-        CustomTextField(
-          controller: passwordController,
-          hintText: 'Password',
-          obscureText: true,
-          prefixIcon: const Icon(LucideIcons.lock, color: AppTheme.textSecondary, size: 20),
-        ),
-        const Spacer(),
-        CustomButton(
-          text: 'Login',
-          isLoading: isLoading,
-          onPressed: () async {
-            if (phoneController.text.length < 5 || passwordController.text.length < 6) return;
-            
-            ref.read(isLoadingProvider.notifier).setLoading(true);
-            try {
-              final success = await ref.read(authProvider.notifier).login(phoneController.text, passwordController.text);
-              if (success) {
-                // If login works, jump straight to quote or dashboard
-                ref.read(authStepProvider.notifier).setStep(2); 
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid credentials.')));
-              }
-            } catch (e) {
-               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-            } finally {
-              ref.read(isLoadingProvider.notifier).setLoading(false);
-            }
-          },
-        ),
-        const SizedBox(height: 16),
-        Center(
-          child: TextButton(
-            onPressed: () {
-              ref.read(authStepProvider.notifier).setStep(1);
-            },
-            child: const Text('Don\'t have an account? Register', style: TextStyle(color: AppTheme.accent)),
+    return CustomScrollView(
+      slivers: [
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'HustleHalt',
+                style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                  fontSize: 32,
+                  color: AppTheme.accent,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Income protection for the modern delivery partner.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16),
+              ),
+              const SizedBox(height: 48),
+              CustomTextField(
+                controller: phoneController,
+                hintText: 'Email or Mobile Number',
+                prefixIcon: const Icon(LucideIcons.user, color: AppTheme.textSecondary, size: 20),
+              ),
+              const SizedBox(height: 16),
+              CustomTextField(
+                controller: passwordController,
+                hintText: 'Password',
+                obscureText: true,
+                prefixIcon: const Icon(LucideIcons.lock, color: AppTheme.textSecondary, size: 20),
+              ),
+              const Spacer(),
+              const SizedBox(height: 24), // Added a small spacing for keyboard
+              CustomButton(
+                text: 'Login',
+                isLoading: isLoading,
+                onPressed: () async {
+                  if (phoneController.text.length < 5 || passwordController.text.length < 6) return;
+                  
+                  ref.read(isLoadingProvider.notifier).setLoading(true);
+                  try {
+                    final success = await ref.read(authProvider.notifier).login(phoneController.text, passwordController.text);
+                    if (success) {
+                      // If login works, jump straight to quote or dashboard
+                      ref.read(authStepProvider.notifier).setStep(2); 
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid credentials.')));
+                    }
+                  } catch (e) {
+                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                  } finally {
+                    ref.read(isLoadingProvider.notifier).setLoading(false);
+                  }
+                },
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: TextButton(
+                  onPressed: () {
+                    ref.read(authStepProvider.notifier).setStep(1);
+                  },
+                  child: const Text('Don\'t have an account? Register', style: TextStyle(color: AppTheme.accent)),
+                ),
+              ),
+            ],
           ),
         ),
       ],
