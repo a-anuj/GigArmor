@@ -358,6 +358,7 @@ class _EditableProfileSheet extends ConsumerStatefulWidget {
 class _EditableProfileSheetState extends ConsumerState<_EditableProfileSheet> {
   late TextEditingController _nameController;
   late TextEditingController _upiController;
+  late String _qCommercePlatform;
   bool _isSaving = false;
 
   @override
@@ -365,6 +366,7 @@ class _EditableProfileSheetState extends ConsumerState<_EditableProfileSheet> {
     super.initState();
     _nameController = TextEditingController(text: widget.worker.name);
     _upiController = TextEditingController(text: widget.worker.upiId ?? '');
+    _qCommercePlatform = widget.worker.qCommercePlatform;
   }
 
   @override
@@ -379,6 +381,7 @@ class _EditableProfileSheetState extends ConsumerState<_EditableProfileSheet> {
     try {
       await ref.read(authProvider.notifier).updateProfile(
         name: _nameController.text.trim(),
+        qCommercePlatform: _qCommercePlatform,
         upiId: _upiController.text.trim()
       );
       if (mounted) {
@@ -429,6 +432,37 @@ class _EditableProfileSheetState extends ConsumerState<_EditableProfileSheet> {
           _buildStaticRow(LucideIcons.phone, 'Phone Number', widget.worker.phone),
           const SizedBox(height: 16),
           _buildStaticRow(LucideIcons.mail, 'Email Address', widget.worker.email ?? 'Not provided'),
+          const SizedBox(height: 16),
+          const Text('Q-Commerce Platform', style: TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppTheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.border),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButtonFormField<String>(
+                value: _qCommercePlatform,
+                dropdownColor: AppTheme.surface,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  prefixIcon: Icon(LucideIcons.shoppingBag, color: AppTheme.textSecondary, size: 20),
+                ),
+                style: const TextStyle(color: AppTheme.textPrimary, fontSize: 16),
+                onChanged: (val) {
+                  if (val != null) {
+                    setState(() => _qCommercePlatform = val);
+                  }
+                },
+                items: ['Zomato', 'Swiggy', 'Zepto', 'Blinkit', 'Other'].map((p) => DropdownMenuItem(
+                  value: p,
+                  child: Text(p),
+                )).toList(),
+              ),
+            ),
+          ),
           const SizedBox(height: 16),
           const Text('UPI ID', style: TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
           const SizedBox(height: 8),

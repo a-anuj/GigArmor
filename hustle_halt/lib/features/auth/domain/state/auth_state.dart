@@ -31,6 +31,7 @@ class WorkerModel {
   final String name;
   final String phone;
   final String? email;
+  final String qCommercePlatform;
   final String? upiId;
   final int zoneId;
   final ZoneModel? zone;
@@ -43,6 +44,7 @@ class WorkerModel {
     required this.name,
     required this.phone,
     this.email,
+    required this.qCommercePlatform,
     this.upiId,
     required this.zoneId,
     this.zone,
@@ -57,6 +59,7 @@ class WorkerModel {
       name: json['name'] as String,
       phone: (json['phone'] ?? '') as String,
       email: json['email'] as String?,
+      qCommercePlatform: json['q_commerce_platform'] as String? ?? 'Zomato',
       upiId: json['upi_id'] as String?,
       zoneId: (json['zone_id'] as num).toInt(),
       zone: json['zone'] != null ? ZoneModel.fromJson(json['zone']) : null,
@@ -121,7 +124,8 @@ class AuthNotifier extends Notifier<WorkerModel?> {
     required String phone,
     required String email,
     required String password,
-    required String upiId,
+    required String qCommercePlatform,
+    String upiId = 'pending@upi',
     required int zoneId,
   }) async {
     final response = await ApiClient.instance.post(
@@ -131,6 +135,7 @@ class AuthNotifier extends Notifier<WorkerModel?> {
         'phone': phone,
         'email': email,
         'password': password,
+        'q_commerce_platform': qCommercePlatform,
         'upi_id': upiId,
         'zone_id': zoneId,
       },
@@ -157,10 +162,11 @@ class AuthNotifier extends Notifier<WorkerModel?> {
     await _fetchProfile(); // Refresh profile to get updated zone and reset state
   }
 
-  Future<void> updateProfile({String? name, String? upiId}) async {
+  Future<void> updateProfile({String? name, String? qCommercePlatform, String? upiId}) async {
     if (state == null) return;
     final Map<String, dynamic> data = {};
     if (name != null && name.isNotEmpty) data['name'] = name;
+    if (qCommercePlatform != null && qCommercePlatform.isNotEmpty) data['q_commerce_platform'] = qCommercePlatform;
     if (upiId != null && upiId.isNotEmpty) data['upi_id'] = upiId;
     
     if (data.isEmpty) return;

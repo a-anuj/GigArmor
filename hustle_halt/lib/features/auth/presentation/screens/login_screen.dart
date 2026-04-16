@@ -30,7 +30,7 @@ final phoneControllerProvider = Provider((ref) => TextEditingController());
 final emailControllerProvider = Provider((ref) => TextEditingController());
 final passwordControllerProvider = Provider((ref) => TextEditingController());
 final nameControllerProvider = Provider((ref) => TextEditingController());
-final upiControllerProvider = Provider((ref) => TextEditingController());
+final qCommerceProvider = StateProvider<String>((ref) => 'Zomato');
 final zoneControllerProvider = StateProvider<int>((ref) => 1); // Default to Koramangala (1)
 
 class LoginScreen extends ConsumerWidget {
@@ -186,7 +186,7 @@ class _ProfileSetupStep extends ConsumerWidget {
     final phoneController = ref.watch(phoneControllerProvider);
     final emailController = ref.watch(emailControllerProvider);
     final passwordController = ref.watch(passwordControllerProvider);
-    final upiController = ref.watch(upiControllerProvider);
+    final qCommercePlatform = ref.watch(qCommerceProvider);
     final isLoading = ref.watch(isLoadingProvider);
 
     return SingleChildScrollView(
@@ -236,10 +236,33 @@ class _ProfileSetupStep extends ConsumerWidget {
             prefixIcon: const Icon(LucideIcons.lock, color: AppTheme.textSecondary, size: 20),
           ),
           const SizedBox(height: 16),
-          CustomTextField(
-            controller: upiController,
-            hintText: AppLocalizations.of(context)!.upiIdHint,
-            prefixIcon: const Icon(LucideIcons.creditCard, color: AppTheme.textSecondary, size: 20),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppTheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppTheme.border),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButtonFormField<String>(
+                value: qCommercePlatform,
+                dropdownColor: AppTheme.surface,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  prefixIcon: Icon(LucideIcons.shoppingBag, color: AppTheme.textSecondary, size: 20),
+                ),
+                style: const TextStyle(color: AppTheme.textPrimary, fontSize: 16),
+                onChanged: (val) {
+                  if (val != null) {
+                    ref.read(qCommerceProvider.notifier).state = val;
+                  }
+                },
+                items: ['Zomato', 'Swiggy', 'Zepto', 'Blinkit', 'Other'].map((p) => DropdownMenuItem(
+                  value: p,
+                  child: Text(p),
+                )).toList(),
+              ),
+            ),
           ),
           const SizedBox(height: 16),
           // Dynamic Zone Selection
@@ -290,7 +313,7 @@ class _ProfileSetupStep extends ConsumerWidget {
                   phone: phoneController.text,
                   email: emailController.text,
                   password: passwordController.text,
-                  upiId: upiController.text,
+                  qCommercePlatform: qCommercePlatform,
                   zoneId: ref.read(zoneControllerProvider),
                 );
                 ref.read(authStepProvider.notifier).setStep(2);

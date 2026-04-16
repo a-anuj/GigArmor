@@ -13,7 +13,8 @@ class WorkerAuthRegister(BaseModel):
     phone: str = Field(..., min_length=10, max_length=20, examples=["+919876543210"])
     email: EmailStr = Field(..., examples=["ravi@example.com"])
     password: str = Field(..., min_length=8, examples=["strongPass123!"])
-    upi_id: str = Field(..., examples=["ravi@upi"])
+    q_commerce_platform: str = Field("Zomato", examples=["Swiggy"])
+    upi_id: Optional[str] = Field(None, examples=["ravi@upi"])
     zone_id: int = Field(..., ge=1, examples=[1])
 
 

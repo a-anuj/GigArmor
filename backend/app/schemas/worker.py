@@ -17,8 +17,12 @@ class WorkerRegister(BaseModel):
         examples=["9876543210"],
         description="10–15 digit mobile number (with or without country code)",
     )
-    upi_id: str = Field(
-        ...,
+    q_commerce_platform: str = Field(
+        "Zomato",
+        description="The Quick Commerce platform the worker drives for (e.g. Zomato, Swiggy)",
+    )
+    upi_id: Optional[str] = Field(
+        None,
         min_length=5,
         examples=["arjun@upi"],
         description="Worker's UPI ID for instant payouts",
@@ -45,6 +49,7 @@ class WorkerLogin(BaseModel):
 
 class WorkerUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=2, max_length=150)
+    q_commerce_platform: Optional[str] = Field(None, description="Q-Commerce platform")
     upi_id: Optional[str] = Field(None, min_length=5)
 
 class ZoneOut(BaseModel):
@@ -64,7 +69,8 @@ class WorkerOut(BaseModel):
     id: int
     name: str
     phone: str
-    upi_id: str
+    q_commerce_platform: str
+    upi_id: Optional[str] = None
     zone_id: int
     zone: Optional[ZoneOut] = None
     status: str
