@@ -1,0 +1,45 @@
+{
+  "@@locale": "hi",
+  "appName": "हसलहाल्ट",
+  "appDescription": "आधुनिक डिलीवरी पार्टनर के लिए आय सुरक्षा।",
+  "emailOrPhoneHint": "ईमेल या मोबाइल नंबर",
+  "passwordHint": "पासवर्ड",
+  "loginButton": "लॉग इन करें",
+  "invalidCredentials": "अमान्य क्रेडेंशियल।",
+  "registerPrompt": "अकाउंट नहीं है? रजिस्टर करें",
+  "completeProfile": "प्रोफ़ाइल पूरी करें",
+  "registerDescription": "लगता है आप नए हैं! अपना प्रीमियम देखने के लिए रजिस्टर करें।",
+  "fullNameHint": "पूरा नाम",
+  "phoneHint": "फोन नंबर",
+  "emailHint": "ईमेल पता",
+  "upiIdHint": "UPI आईडी",
+  "registerButton": "रजिस्टर करें और जोखिम की गणना करें",
+  "coverageEstimatedFor": "{name} के लिए अनुमानित कवरेज",
+  "@coverageEstimatedFor": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "John"
+      }
+    }
+  },
+  "perWeek": "₹{amount} / सप्ताह",
+  "@perWeek": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "100"
+      }
+    }
+  },
+  "startCoverageButton": "कवरेज शुरू करें",
+  "maybeLaterButton": "शायद बाद में",
+  "dashboardTitle": "डैशबोर्ड",
+  "activeCoverage": "सक्रिय कवरेज",
+  "coverageStatusActive": "वर्तमान में आपकी आय हानि से सुरक्षित है।",
+  "coverageStatusInactive": "वर्तमान में आप कवर नहीं हैं।",
+  "fileClaimButton": "दावा दायर करें",
+  "recentActivity": "हाल की गतिविधि",
+  "viewProfile": "प्रोफ़ाइल देखें",
+  "logout": "लॉग आउट"
+}

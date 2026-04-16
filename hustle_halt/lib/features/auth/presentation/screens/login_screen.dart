@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/custom_inputs.dart';
+import '../../../../core/widgets/language_selector.dart';
+import 'package:hustle_halt/l10n/app_localizations.dart';
 import '../../domain/state/auth_state.dart';
 
 class AuthStepNotifier extends Notifier<int> {
@@ -102,35 +104,41 @@ class _PhoneInputStep extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'HustleHalt',
-                style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                  fontSize: 32,
-                  color: AppTheme.accent,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.appName,
+                    style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                      fontSize: 32,
+                      color: AppTheme.accent,
+                    ),
+                  ),
+                  const LanguageSelector(),
+                ],
               ),
               const SizedBox(height: 8),
               Text(
-                'Income protection for the modern delivery partner.',
+                AppLocalizations.of(context)!.appDescription,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16),
               ),
               const SizedBox(height: 48),
               CustomTextField(
                 controller: phoneController,
-                hintText: 'Email or Mobile Number',
+                hintText: AppLocalizations.of(context)!.emailOrPhoneHint,
                 prefixIcon: const Icon(LucideIcons.user, color: AppTheme.textSecondary, size: 20),
               ),
               const SizedBox(height: 16),
               CustomTextField(
                 controller: passwordController,
-                hintText: 'Password',
+                hintText: AppLocalizations.of(context)!.passwordHint,
                 obscureText: true,
                 prefixIcon: const Icon(LucideIcons.lock, color: AppTheme.textSecondary, size: 20),
               ),
               const Spacer(),
               const SizedBox(height: 24), // Added a small spacing for keyboard
               CustomButton(
-                text: 'Login',
+                text: AppLocalizations.of(context)!.loginButton,
                 isLoading: isLoading,
                 onPressed: () async {
                   if (phoneController.text.length < 5 || passwordController.text.length < 6) return;
@@ -142,7 +150,7 @@ class _PhoneInputStep extends ConsumerWidget {
                       // If login works, jump straight to quote or dashboard
                       ref.read(authStepProvider.notifier).setStep(2); 
                     } else {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Invalid credentials.')));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.invalidCredentials)));
                     }
                   } catch (e) {
                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
@@ -157,7 +165,7 @@ class _PhoneInputStep extends ConsumerWidget {
                   onPressed: () {
                     ref.read(authStepProvider.notifier).setStep(1);
                   },
-                  child: const Text('Don\'t have an account? Register', style: TextStyle(color: AppTheme.accent)),
+                  child: Text(AppLocalizations.of(context)!.registerPrompt, style: const TextStyle(color: AppTheme.accent)),
                 ),
               ),
             ],
@@ -185,46 +193,52 @@ class _ProfileSetupStep extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Complete Profile',
-            style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 28),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                AppLocalizations.of(context)!.completeProfile,
+                style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 28),
+              ),
+              const LanguageSelector(),
+            ],
           ),
           const SizedBox(height: 8),
           Text(
-            'Looks like you are new! Register to see your premium.',
+            AppLocalizations.of(context)!.registerDescription,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16),
           ),
           const SizedBox(height: 32),
           CustomTextField(
             controller: nameController,
-            hintText: 'Full Name',
+            hintText: AppLocalizations.of(context)!.fullNameHint,
             prefixIcon: const Icon(LucideIcons.user, color: AppTheme.textSecondary, size: 20),
           ),
           const SizedBox(height: 16),
           CustomTextField(
             controller: phoneController,
-            hintText: 'Phone Number',
+            hintText: AppLocalizations.of(context)!.phoneHint,
             keyboardType: TextInputType.phone,
             prefixIcon: const Icon(LucideIcons.phone, color: AppTheme.textSecondary, size: 20),
           ),
           const SizedBox(height: 16),
           CustomTextField(
             controller: emailController,
-            hintText: 'Email Address',
+            hintText: AppLocalizations.of(context)!.emailHint,
             keyboardType: TextInputType.emailAddress,
             prefixIcon: const Icon(LucideIcons.mail, color: AppTheme.textSecondary, size: 20),
           ),
           const SizedBox(height: 16),
           CustomTextField(
             controller: passwordController,
-            hintText: 'Password',
+            hintText: AppLocalizations.of(context)!.passwordHint,
             obscureText: true,
             prefixIcon: const Icon(LucideIcons.lock, color: AppTheme.textSecondary, size: 20),
           ),
           const SizedBox(height: 16),
           CustomTextField(
             controller: upiController,
-            hintText: 'UPI ID',
+            hintText: AppLocalizations.of(context)!.upiIdHint,
             prefixIcon: const Icon(LucideIcons.creditCard, color: AppTheme.textSecondary, size: 20),
           ),
           const SizedBox(height: 16),
@@ -266,7 +280,7 @@ class _ProfileSetupStep extends ConsumerWidget {
 
           const SizedBox(height: 32),
           CustomButton(
-            text: 'Register & Calculate Risk',
+            text: AppLocalizations.of(context)!.registerButton,
             isLoading: isLoading,
             onPressed: () async {
               ref.read(isLoadingProvider.notifier).setLoading(true);
@@ -324,13 +338,13 @@ class _PremiumPreviewStep extends ConsumerWidget {
                   const Icon(LucideIcons.shieldCheck, color: AppTheme.success, size: 48),
                   const SizedBox(height: 16),
                   Text(
-                    'Coverage Estimated for ${worker.name}',
+                    AppLocalizations.of(context)!.coverageEstimatedFor(worker.name),
                     style: Theme.of(context).textTheme.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '₹${quote.premium.toStringAsFixed(0)} / week',
+                    AppLocalizations.of(context)!.perWeek(quote.premium.toStringAsFixed(0)),
                     style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
@@ -348,7 +362,7 @@ class _PremiumPreviewStep extends ConsumerWidget {
             ),
             const Spacer(),
             CustomButton(
-              text: 'Start Coverage',
+              text: AppLocalizations.of(context)!.startCoverageButton,
               onPressed: () async {
                  try {
                    await ref.read(enrollPolicyProvider(worker.id).future);
@@ -362,7 +376,7 @@ class _PremiumPreviewStep extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             CustomButton(
-              text: 'Maybe Later',
+              text: AppLocalizations.of(context)!.maybeLaterButton,
               isOutlined: true,
               onPressed: () {
                 context.go('/dashboard');
