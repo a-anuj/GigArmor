@@ -37,7 +37,7 @@ class DashboardScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildGreeting(context, worker?.name ?? 'Partner'),
+                _buildGreeting(context, worker),
                 const SizedBox(height: 24),
                 _buildCoverageCard(context, ref),
                 const SizedBox(height: 24),
@@ -57,12 +57,12 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildGreeting(BuildContext context, String name) {
+  Widget _buildGreeting(BuildContext context, WorkerModel? worker) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Stay Safe, ${name.split(' ').first}',
+          'Stay Safe, ${worker?.name.split(' ').first ?? 'Partner'}',
           style: Theme.of(context).textTheme.displaySmall?.copyWith(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -75,7 +75,7 @@ class DashboardScreen extends ConsumerWidget {
             const Icon(LucideIcons.mapPin, size: 14, color: AppTheme.textSecondary),
             const SizedBox(width: 4),
             Text(
-              'Assigned Zone',
+              worker?.zone?.name ?? 'Assigned Zone',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontSize: 14,
               ),
@@ -85,6 +85,7 @@ class DashboardScreen extends ConsumerWidget {
       ],
     );
   }
+
 
   Widget _buildCoverageCard(BuildContext context, WidgetRef ref) {
     final asyncCoverage = ref.watch(activeCoverageProvider);

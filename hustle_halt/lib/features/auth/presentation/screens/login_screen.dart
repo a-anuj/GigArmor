@@ -213,20 +213,42 @@ class _ProfileSetupStep extends ConsumerWidget {
             prefixIcon: const Icon(LucideIcons.creditCard, color: AppTheme.textSecondary, size: 20),
           ),
           const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            decoration: BoxDecoration(
-              color: AppTheme.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppTheme.border),
-            ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Zone: Koramangala Dark Store', style: TextStyle(color: AppTheme.textPrimary)),
-              ],
-            ),
+          // Dynamic Zone Selection
+          ref.watch(zonesProvider).when(
+            loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
+            error: (e, st) => Text('Error loading zones: $e', style: const TextStyle(color: Colors.red, fontSize: 12)),
+            data: (zones) {
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppTheme.border),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButtonFormField<int>(
+                    value: ref.watch(zoneControllerProvider),
+                    dropdownColor: AppTheme.surface,
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      prefixIcon: Icon(LucideIcons.mapPin, color: AppTheme.textSecondary, size: 20),
+                    ),
+                    style: const TextStyle(color: AppTheme.textPrimary, fontSize: 16),
+                    onChanged: (val) {
+                      if (val != null) {
+                        ref.read(zoneControllerProvider.notifier).state = val;
+                      }
+                    },
+                    items: zones.map((z) => DropdownMenuItem(
+                      value: z.id,
+                      child: Text(z.name),
+                    )).toList(),
+                  ),
+                ),
+              );
+            },
           ),
+
           const SizedBox(height: 32),
           CustomButton(
             text: 'Register & Calculate Risk',
