@@ -28,6 +28,7 @@ class DashboardScreen extends ConsumerWidget {
           onRefresh: () async {
             ref.invalidate(activeCoverageProvider);
             ref.invalidate(lastPayoutProvider);
+            ref.invalidate(environmentDataProvider);
           },
           color: AppTheme.accent,
           backgroundColor: AppTheme.surface,
@@ -170,43 +171,47 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildEnvironmentGrid(BuildContext context, WidgetRef ref) {
-    final env = ref.watch(environmentDataProvider);
+    final asyncEnv = ref.watch(environmentDataProvider);
     
-    return Row(
-      children: [
-        Expanded(
-          child: _buildEnvCard(
-            context,
-            title: 'Rainfall',
-            value: '${env['rainfall']}',
-            unit: 'mm/hr',
-            icon: LucideIcons.cloudRain,
-            color: Colors.blueAccent,
+    return asyncEnv.when(
+      loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
+      error: (e, st) => const Text('Error loading environment data', style: TextStyle(color: AppTheme.error)),
+      data: (env) => Row(
+        children: [
+          Expanded(
+            child: _buildEnvCard(
+              context,
+              title: 'Rainfall',
+              value: '${env['rainfall']}',
+              unit: 'mm/hr',
+              icon: LucideIcons.cloudRain,
+              color: Colors.blueAccent,
+            ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildEnvCard(
-            context,
-            title: 'AQI',
-            value: '${env['aqi']}',
-            unit: 'Index',
-            icon: LucideIcons.wind,
-            color: env['aqi'] > 100 ? AppTheme.error : AppTheme.success,
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildEnvCard(
+              context,
+              title: 'AQI',
+              value: '${env['aqi']}',
+              unit: 'Index',
+              icon: LucideIcons.wind,
+              color: env['aqi'] > 100 ? AppTheme.error : AppTheme.success,
+            ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildEnvCard(
-            context,
-            title: 'Temp',
-            value: '${env['temp']}',
-            unit: '°C',
-            icon: LucideIcons.thermometer,
-            color: AppTheme.accent,
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildEnvCard(
+              context,
+              title: 'Temp',
+              value: '${env['temp']}',
+              unit: '°C',
+              icon: LucideIcons.thermometer,
+              color: AppTheme.accent,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

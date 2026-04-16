@@ -35,23 +35,33 @@ final activeCoverageProvider = FutureProvider<Map<String, dynamic>>((ref) async 
   };
 });
 
-// Mock environment provider that can be overridden by simulator
-class EnvironmentDataNotifier extends Notifier<Map<String, dynamic>> {
+class EnvironmentDataNotifier extends AsyncNotifier<Map<String, dynamic>> {
   @override
-  Map<String, dynamic> build() {
-    return {
-      'rainfall': 0.0, // mm/hr
-      'aqi': 65,
-      'temp': 28, // Celsius
-    };
+  Future<Map<String, dynamic>> build() async {
+    final worker = ref.watch(authProvider);
+    if (worker == null) {
+      return {'rainfall': 0.0, 'aqi': 65, 'temp': 28};
+    }
+    
+    try {
+      final response = await ApiClient.instance.get('/api/v1/workers/${worker.id}/dashboard');
+      final env = response.data['live_weather'];
+      return {
+        'rainfall': env['rainfall_mm_hr'],
+        'aqi': env['aqi'],
+        'temp': env['temperature_c'],
+      };
+    } catch (e) {
+      return {'rainfall': 0.0, 'aqi': 65, 'temp': 28};
+    }
   }
 
   void updateEnvironment(Map<String, dynamic> newEnv) {
-    state = newEnv;
+    state = AsyncData(newEnv);
   }
 }
 
-final environmentDataProvider = NotifierProvider<EnvironmentDataNotifier, Map<String, dynamic>>(EnvironmentDataNotifier.new);
+final environmentDataProvider = AsyncNotifierProvider<EnvironmentDataNotifier, Map<String, dynamic>>(EnvironmentDataNotifier.new);
 
 // Last payout based on actual claims API
 final lastPayoutProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
