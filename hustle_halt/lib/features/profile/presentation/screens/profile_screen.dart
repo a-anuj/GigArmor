@@ -110,7 +110,7 @@ class ProfileScreen extends ConsumerWidget {
                 const Icon(LucideIcons.briefcase, size: 14, color: AppTheme.textSecondary),
                 const SizedBox(width: 4),
                 Text(
-                  worker != null ? 'Status: Active' : 'Identity Not Verified',
+                  worker != null ? 'Status: ${worker.status}' : 'Identity Not Verified',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppTheme.success,
                     fontWeight: FontWeight.bold,
@@ -332,67 +332,147 @@ class ProfileScreen extends ConsumerWidget {
     
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: AppTheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
         return Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: _EditableProfileSheet(worker: worker),
+        );
+      },
+    );
+  }
+}
+
+class _EditableProfileSheet extends ConsumerStatefulWidget {
+  final WorkerModel worker;
+  const _EditableProfileSheet({required this.worker});
+
+  @override
+  ConsumerState<_EditableProfileSheet> createState() => _EditableProfileSheetState();
+}
+
+class _EditableProfileSheetState extends ConsumerState<_EditableProfileSheet> {
+  late TextEditingController _nameController;
+  late TextEditingController _upiController;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.worker.name);
+    _upiController = TextEditingController(text: widget.worker.upiId ?? '');
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _upiController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSave() async {
+    setState(() => _isSaving = true);
+    try {
+      await ref.read(authProvider.notifier).updateProfile(
+        name: _nameController.text.trim(),
+        upiId: _upiController.text.trim()
+      );
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile updated successfully!'), backgroundColor: AppTheme.success),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update: $e'), backgroundColor: AppTheme.error),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 'Personal Information',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
               ),
-              const SizedBox(height: 24),
-              _buildInfoRow(LucideIcons.user, 'Full Name', worker.name),
-              const Divider(color: AppTheme.border, height: 24),
-              _buildInfoRow(LucideIcons.phone, 'Phone Number', worker.phone),
-              const Divider(color: AppTheme.border, height: 24),
-              _buildInfoRow(LucideIcons.mail, 'Email Address', worker.email ?? 'Not provided'),
-              const Divider(color: AppTheme.border, height: 24),
-              _buildInfoRow(LucideIcons.wallet, 'UPI ID', 'Stored Securely'), // Hiding sensitive financial identifiers
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: CustomButton(
-                  text: 'Close',
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ),
+              if (_isSaving) const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppTheme.accent, strokeWidth: 2))
             ],
           ),
-        );
-      },
+          const SizedBox(height: 24),
+          CustomTextField(
+            label: 'Full Name',
+            controller: _nameController,
+            icon: LucideIcons.user,
+            hintText: 'Enter your name',
+          ),
+          const SizedBox(height: 16),
+          // Uneditable phone/email fields
+          _buildStaticRow(LucideIcons.phone, 'Phone Number', widget.worker.phone),
+          const SizedBox(height: 16),
+          _buildStaticRow(LucideIcons.mail, 'Email Address', widget.worker.email ?? 'Not provided'),
+          const SizedBox(height: 16),
+          CustomTextField(
+            label: 'UPI ID',
+            controller: _upiController,
+            icon: LucideIcons.wallet,
+            hintText: 'e.g., yourname@upi',
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: CustomButton(
+              text: 'Save Changes',
+              onPressed: _isSaving ? null : _handleSave,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: AppTheme.border.withOpacity(0.2),
-            shape: BoxShape.circle,
+  Widget _buildStaticRow(IconData icon, String label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppTheme.background,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.border),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: AppTheme.textSecondary, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                Text(value, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14)),
+              ],
+            ),
           ),
-          child: Icon(icon, color: AppTheme.textSecondary, size: 20),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
-              const SizedBox(height: 2),
-              Text(value, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.w500)),
-            ],
-          ),
-        ),
-      ],
+          const Icon(LucideIcons.lock, color: AppTheme.textSecondary, size: 14),
+        ],
+      ),
     );
   }
 }
+

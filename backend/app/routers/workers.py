@@ -21,7 +21,7 @@ from app.models.claim import Claim
 from app.models.policy import Policy
 from app.models.worker import Worker
 from app.models.zone import Zone
-from app.schemas.worker import WorkerRegister, WorkerLogin, WorkerOut, WorkerListOut, ZoneOut
+from app.schemas.worker import WorkerRegister, WorkerLogin, WorkerOut, WorkerListOut, ZoneOut, WorkerUpdate
 from app.services.premium_engine import calculate_premium, get_consecutive_quiet_weeks, QUIET_WEEKS_THRESHOLD
 from app.services.weather_service import fetch_zone_weather
 from app.services.aqi_service import fetch_zone_aqi
@@ -101,6 +101,23 @@ def get_worker(worker_id: int, db: Session = Depends(get_db)):
     worker = db.query(Worker).filter(Worker.id == worker_id).first()
     if not worker:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Worker {worker_id} not found.")
+    return _worker_to_schema(worker)
+
+
+@router.patch("/{worker_id}", response_model=WorkerOut, summary="Update worker profile details")
+def update_worker(worker_id: int, data: WorkerUpdate, db: Session = Depends(get_db)):
+    """Allows a worker to update their personal details like name and UPI ID."""
+    worker = db.query(Worker).filter(Worker.id == worker_id).first()
+    if not worker:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Worker {worker_id} not found.")
+
+    if data.name is not None:
+        worker.name = data.name
+    if data.upi_id is not None:
+        worker.upi_id = data.upi_id
+
+    db.commit()
+    db.refresh(worker)
     return _worker_to_schema(worker)
 
 

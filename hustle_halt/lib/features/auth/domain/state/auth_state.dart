@@ -31,8 +31,10 @@ class WorkerModel {
   final String name;
   final String phone;
   final String? email;
+  final String? upiId;
   final int zoneId;
   final ZoneModel? zone;
+  final String status;
   final double trustScore;
   final bool coldStartActive;
 
@@ -41,8 +43,10 @@ class WorkerModel {
     required this.name,
     required this.phone,
     this.email,
+    this.upiId,
     required this.zoneId,
     this.zone,
+    this.status = 'Active',
     required this.trustScore,
     this.coldStartActive = false,
   });
@@ -53,8 +57,10 @@ class WorkerModel {
       name: json['name'] as String,
       phone: (json['phone'] ?? '') as String,
       email: json['email'] as String?,
+      upiId: json['upi_id'] as String?,
       zoneId: (json['zone_id'] as num).toInt(),
       zone: json['zone'] != null ? ZoneModel.fromJson(json['zone']) : null,
+      status: json['status'] as String? ?? 'Active',
       trustScore: (json['trust_baseline_score'] as num?)?.toDouble() ?? 1.0,
       coldStartActive: json['cold_start_active'] as bool? ?? false,
     );
@@ -149,6 +155,21 @@ class AuthNotifier extends Notifier<WorkerModel?> {
       data: {'zone_id': zoneId},
     );
     await _fetchProfile(); // Refresh profile to get updated zone and reset state
+  }
+
+  Future<void> updateProfile({String? name, String? upiId}) async {
+    if (state == null) return;
+    final Map<String, dynamic> data = {};
+    if (name != null && name.isNotEmpty) data['name'] = name;
+    if (upiId != null && upiId.isNotEmpty) data['upi_id'] = upiId;
+    
+    if (data.isEmpty) return;
+    
+    await ApiClient.instance.patch(
+      '/api/v1/workers/${state!.id}',
+      data: data,
+    );
+    await _fetchProfile();
   }
 
   void logout() {
