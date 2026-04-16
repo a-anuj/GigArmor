@@ -43,6 +43,10 @@ class WorkerRegister(BaseModel):
 class WorkerLogin(BaseModel):
     phone: str = Field(..., description="10–15 digit mobile number")
 
+class WorkerUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=2, max_length=150)
+    upi_id: Optional[str] = Field(None, min_length=5)
+
 class ZoneOut(BaseModel):
     id: int
     name: str

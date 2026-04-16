@@ -51,7 +51,7 @@ class CustomButton extends StatelessWidget {
   }
 }
 
-class CustomTextField extends StatelessWidget {
+class CustomTextField extends StatefulWidget {
   final String hintText;
   final TextEditingController? controller;
   final TextInputType keyboardType;
@@ -68,15 +68,38 @@ class CustomTextField extends StatelessWidget {
   });
 
   @override
+  State<CustomTextField> createState() => _CustomTextFieldState();
+}
+
+class _CustomTextFieldState extends State<CustomTextField> {
+  late bool _obscure;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscure = widget.obscureText;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: controller,
-      keyboardType: keyboardType,
-      obscureText: obscureText,
+      controller: widget.controller,
+      keyboardType: widget.keyboardType,
+      obscureText: _obscure,
       style: const TextStyle(color: AppTheme.textPrimary),
       decoration: InputDecoration(
-        hintText: hintText,
-        prefixIcon: prefixIcon,
+        hintText: widget.hintText,
+        prefixIcon: widget.prefixIcon,
+        suffixIcon: widget.obscureText
+            ? IconButton(
+                icon: Icon(
+                  _obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                  color: AppTheme.textSecondary,
+                  size: 20,
+                ),
+                onPressed: () => setState(() => _obscure = !_obscure),
+              )
+            : null,
       ),
     );
   }

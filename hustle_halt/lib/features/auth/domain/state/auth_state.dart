@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
 import 'package:dio/dio.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class ZoneModel {
   final int id;
@@ -30,8 +31,10 @@ class WorkerModel {
   final String name;
   final String phone;
   final String? email;
+  final String? upiId;
   final int zoneId;
   final ZoneModel? zone;
+  final String status;
   final double trustScore;
   final bool coldStartActive;
 
@@ -40,8 +43,10 @@ class WorkerModel {
     required this.name,
     required this.phone,
     this.email,
+    this.upiId,
     required this.zoneId,
     this.zone,
+    this.status = 'Active',
     required this.trustScore,
     this.coldStartActive = false,
   });
@@ -52,8 +57,10 @@ class WorkerModel {
       name: json['name'] as String,
       phone: (json['phone'] ?? '') as String,
       email: json['email'] as String?,
+      upiId: json['upi_id'] as String?,
       zoneId: (json['zone_id'] as num).toInt(),
       zone: json['zone'] != null ? ZoneModel.fromJson(json['zone']) : null,
+      status: json['status'] as String? ?? 'Active',
       trustScore: (json['trust_baseline_score'] as num?)?.toDouble() ?? 1.0,
       coldStartActive: json['cold_start_active'] as bool? ?? false,
     );
@@ -61,8 +68,28 @@ class WorkerModel {
 }
 
 class AuthNotifier extends Notifier<WorkerModel?> {
+  bool _initialized = false;
+
   @override
-  WorkerModel? build() => null;
+  WorkerModel? build() {
+    if (!_initialized) {
+      _initialized = true;
+      Future.microtask(_attemptAutoLogin);
+    }
+    return null;
+  }
+
+  Future<void> _attemptAutoLogin() async {
+    final token = Hive.box('auth').get('access_token');
+    if (token != null) {
+      ApiClient.accessToken = token;
+      try {
+        await _fetchProfile();
+      } catch (e) {
+        logout(); // Token invalid or expired
+      }
+    }
+  }
 
   Future<bool> login(String identifier, String password) async {
     try {
@@ -76,6 +103,7 @@ class AuthNotifier extends Notifier<WorkerModel?> {
       final token = response.data['access_token'];
       if (token != null) {
         ApiClient.accessToken = token;
+        Hive.box('auth').put('access_token', token);
         await _fetchProfile();
         return true;
       }
@@ -110,6 +138,7 @@ class AuthNotifier extends Notifier<WorkerModel?> {
     final token = response.data['access_token'];
     if (token != null) {
       ApiClient.accessToken = token;
+      Hive.box('auth').put('access_token', token);
       await _fetchProfile();
     }
   }
@@ -128,8 +157,24 @@ class AuthNotifier extends Notifier<WorkerModel?> {
     await _fetchProfile(); // Refresh profile to get updated zone and reset state
   }
 
+  Future<void> updateProfile({String? name, String? upiId}) async {
+    if (state == null) return;
+    final Map<String, dynamic> data = {};
+    if (name != null && name.isNotEmpty) data['name'] = name;
+    if (upiId != null && upiId.isNotEmpty) data['upi_id'] = upiId;
+    
+    if (data.isEmpty) return;
+    
+    await ApiClient.instance.patch(
+      '/api/v1/workers/${state!.id}',
+      data: data,
+    );
+    await _fetchProfile();
+  }
+
   void logout() {
     ApiClient.accessToken = null;
+    Hive.box('auth').delete('access_token');
     state = null;
   }
 }

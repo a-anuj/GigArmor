@@ -15,6 +15,15 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final worker = ref.watch(authProvider);
 
+    final zonesAsync = ref.watch(zonesProvider);
+    
+    // Resolve the current zone name since auth/me doesn't populate the nested zone object
+    String currentZoneName = 'Loading...';
+    if (zonesAsync is AsyncData) {
+      final matchingZone = zonesAsync.value?.where((z) => z.id == worker?.zoneId).firstOrNull;
+      if (matchingZone != null) currentZoneName = matchingZone.name;
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Profile')),
       body: SafeArea(
@@ -28,10 +37,12 @@ class ProfileScreen extends ConsumerWidget {
                 context,
                 title: 'Account Settings',
                 items: [
-                  _buildMenuItem(LucideIcons.user, 'Personal Information', () {}),
+                  _buildMenuItem(LucideIcons.user, 'Personal Information', () {
+                    _showPersonalInfoDialog(context, worker);
+                  }),
                   _buildMenuItem(
                     LucideIcons.map, 
-                    'Work Zone (${worker?.zone?.name ?? 'Loading...'})', 
+                    'Work Zone ($currentZoneName)', 
                     () => _showZoneSelection(context, ref)
                   ),
                   _buildMenuItem(LucideIcons.globe, 'Language (English)', () {}),
@@ -99,8 +110,11 @@ class ProfileScreen extends ConsumerWidget {
                 const Icon(LucideIcons.briefcase, size: 14, color: AppTheme.textSecondary),
                 const SizedBox(width: 4),
                 Text(
-                  worker != null ? 'Registered Partner' : 'Identity Not Verified',
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  worker != null ? 'Status: ${worker.status}' : 'Identity Not Verified',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppTheme.success,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -277,15 +291,14 @@ class ProfileScreen extends ConsumerWidget {
                 );
                 
                 // Immediately update env locally so user sees the change (or we could fetch from admin stats)
-                ref.read(environmentDataProvider.notifier).updateEnvironment({
-                  'rainfall': 22.5, 
+                ref.read(dashboardDataProvider.notifier).patchEnvironment({
+                  'rainfall_mm_hr': 22.5, 
                   'aqi': 65,
-                  'temp': 24, 
+                  'temperature_c': 24, 
                 });
                 
-                // Invalidate future providers so they refetch immediately based on the new backend state
-                ref.invalidate(activeCoverageProvider);
-                ref.invalidate(lastPayoutProvider);
+                // Active options will automatically extract from the dashboard data so invalidating it forces a full refetch
+                ref.invalidate(dashboardDataProvider);
                 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -313,4 +326,155 @@ class ProfileScreen extends ConsumerWidget {
       ),
     );
   }
+
+  void _showPersonalInfoDialog(BuildContext context, WorkerModel? worker) {
+    if (worker == null) return;
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppTheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: _EditableProfileSheet(worker: worker),
+        );
+      },
+    );
+  }
 }
+
+class _EditableProfileSheet extends ConsumerStatefulWidget {
+  final WorkerModel worker;
+  const _EditableProfileSheet({required this.worker});
+
+  @override
+  ConsumerState<_EditableProfileSheet> createState() => _EditableProfileSheetState();
+}
+
+class _EditableProfileSheetState extends ConsumerState<_EditableProfileSheet> {
+  late TextEditingController _nameController;
+  late TextEditingController _upiController;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.worker.name);
+    _upiController = TextEditingController(text: widget.worker.upiId ?? '');
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _upiController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSave() async {
+    setState(() => _isSaving = true);
+    try {
+      await ref.read(authProvider.notifier).updateProfile(
+        name: _nameController.text.trim(),
+        upiId: _upiController.text.trim()
+      );
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile updated successfully!'), backgroundColor: AppTheme.success),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update: $e'), backgroundColor: AppTheme.error),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Personal Information',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+              ),
+              if (_isSaving) const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: AppTheme.accent, strokeWidth: 2))
+            ],
+          ),
+          const SizedBox(height: 24),
+          const Text('Full Name', style: TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+          const SizedBox(height: 8),
+          CustomTextField(
+            controller: _nameController,
+            prefixIcon: const Icon(LucideIcons.user, color: AppTheme.textSecondary, size: 20),
+            hintText: 'Enter your name',
+          ),
+          const SizedBox(height: 16),
+          // Uneditable phone/email fields
+          _buildStaticRow(LucideIcons.phone, 'Phone Number', widget.worker.phone),
+          const SizedBox(height: 16),
+          _buildStaticRow(LucideIcons.mail, 'Email Address', widget.worker.email ?? 'Not provided'),
+          const SizedBox(height: 16),
+          const Text('UPI ID', style: TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+          const SizedBox(height: 8),
+          CustomTextField(
+            controller: _upiController,
+            prefixIcon: const Icon(LucideIcons.wallet, color: AppTheme.textSecondary, size: 20),
+            hintText: 'e.g., yourname@upi',
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: CustomButton(
+              text: 'Save Changes',
+              onPressed: _isSaving ? null : _handleSave,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStaticRow(IconData icon, String label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppTheme.background,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppTheme.border),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: AppTheme.textSecondary, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                Text(value, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14)),
+              ],
+            ),
+          ),
+          const Icon(LucideIcons.lock, color: AppTheme.textSecondary, size: 14),
+        ],
+      ),
+    );
+  }
+}
+
