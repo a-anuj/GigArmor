@@ -61,8 +61,28 @@ class WorkerModel {
 }
 
 class AuthNotifier extends Notifier<WorkerModel?> {
+  bool _initialized = false;
+
   @override
-  WorkerModel? build() => null;
+  WorkerModel? build() {
+    if (!_initialized) {
+      _initialized = true;
+      Future.microtask(_attemptAutoLogin);
+    }
+    return null;
+  }
+
+  Future<void> _attemptAutoLogin() async {
+    final token = Hive.box('auth').get('access_token');
+    if (token != null) {
+      ApiClient.accessToken = token;
+      try {
+        await _fetchProfile();
+      } catch (e) {
+        logout(); // Token invalid or expired
+      }
+    }
+  }
 
   Future<bool> login(String identifier, String password) async {
     try {
@@ -76,6 +96,7 @@ class AuthNotifier extends Notifier<WorkerModel?> {
       final token = response.data['access_token'];
       if (token != null) {
         ApiClient.accessToken = token;
+        Hive.box('auth').put('access_token', token);
         await _fetchProfile();
         return true;
       }
@@ -110,6 +131,7 @@ class AuthNotifier extends Notifier<WorkerModel?> {
     final token = response.data['access_token'];
     if (token != null) {
       ApiClient.accessToken = token;
+      Hive.box('auth').put('access_token', token);
       await _fetchProfile();
     }
   }
@@ -130,6 +152,7 @@ class AuthNotifier extends Notifier<WorkerModel?> {
 
   void logout() {
     ApiClient.accessToken = null;
+    Hive.box('auth').delete('access_token');
     state = null;
   }
 }

@@ -38,6 +38,13 @@ class LoginScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final step = ref.watch(authStepProvider);
     
+    // Auto-redirect if auth triggers in the background via auto-login
+    ref.listen(authProvider, (previous, next) {
+      if (next != null && context.mounted) {
+        context.go('/dashboard');
+      }
+    });
+    
     return Scaffold(
       body: SafeArea(
         child: Padding(
