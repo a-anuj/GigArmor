@@ -4,80 +4,95 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../auth/domain/state/auth_state.dart';
 
-// Current active policy FutureProvider
-final activeCoverageProvider = FutureProvider<Map<String, dynamic>>((ref) async {
-  final worker = ref.watch(authProvider);
-  if (worker == null) throw Exception('Not logged in');
-
-  final response = await ApiClient.instance.get('/api/v1/policies/worker/${worker.id}');
-  final policies = response.data['policies'] as List;
-  
-  if (policies.isEmpty) {
-    return {
-      'amount': 0,
-       'premium': 0,
-       'zoneRisk': 'UNKNOWN',
-       'zoneRiskColor': AppTheme.textSecondary,
-    };
-  }
-
-  // Find active
-  final activePol = policies.firstWhere((p) => p['status'] == 'ACTIVE', orElse: () => policies.first);
-  
-  // Hard code risk color calculation for now based on score
-  final isHighRisk = worker.trustScore < 0.8;
-  
-  return {
-    'amount': activePol['coverage_amount'],
-    'premium': activePol['premium_amount'],
-    'zoneRisk': isHighRisk ? 'HIGH' : 'LOW', 
-    'zoneRiskColor': isHighRisk ? AppTheme.error : AppTheme.success,
-  };
-});
-
-class EnvironmentDataNotifier extends AsyncNotifier<Map<String, dynamic>> {
+class DashboardDataNotifier extends AsyncNotifier<Map<String, dynamic>> {
   @override
   Future<Map<String, dynamic>> build() async {
     final worker = ref.watch(authProvider);
-    if (worker == null) {
-      return {'rainfall': 0.0, 'aqi': 65, 'temp': 28};
-    }
+    if (worker == null) throw Exception('Not logged in');
     
-    try {
-      final response = await ApiClient.instance.get('/api/v1/workers/${worker.id}/dashboard');
-      final env = response.data['live_weather'];
-      return {
-        'rainfall': env['rainfall_mm_hr'],
-        'aqi': env['aqi'],
-        'temp': env['temperature_c'],
-      };
-    } catch (e) {
-      return {'rainfall': 0.0, 'aqi': 65, 'temp': 28};
-    }
+    final response = await ApiClient.instance.get('/api/v1/workers/${worker.id}/dashboard');
+    return response.data;
   }
 
-  void updateEnvironment(Map<String, dynamic> newEnv) {
-    state = AsyncData(newEnv);
+  void patchEnvironment(Map<String, dynamic> envDiff) {
+    if (state.value != null) {
+      final current = Map<String, dynamic>.from(state.value!);
+      final currentEnv = Map<String, dynamic>.from(current['live_weather'] ?? {});
+      currentEnv.addAll(envDiff);
+      current['live_weather'] = currentEnv;
+      state = AsyncData(current);
+    }
   }
 }
 
-final environmentDataProvider = AsyncNotifierProvider<EnvironmentDataNotifier, Map<String, dynamic>>(EnvironmentDataNotifier.new);
+final dashboardDataProvider = AsyncNotifierProvider<DashboardDataNotifier, Map<String, dynamic>>(DashboardDataNotifier.new);
 
-// Last payout based on actual claims API
-final lastPayoutProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
-  final worker = ref.watch(authProvider);
-  if (worker == null) return null;
+// Current active policy maps from unified dashboard
+final activeCoverageProvider = Provider<AsyncValue<Map<String, dynamic>>>((ref) {
+  final dashboardAsync = ref.watch(dashboardDataProvider);
 
-  final response = await ApiClient.instance.get('/api/v1/claims/worker/${worker.id}');
-  final claims = response.data['claims'] as List;
-  
-  if (claims.isEmpty) return null;
-  
-  final latestClaim = claims.first; // Assuming ordered
-  
-  return {
-    'amount': latestClaim['amount'],
-    'reason': latestClaim['trigger_description'] ?? 'System Event',
-    'timestamp': 'Recent'
-  };
+  return dashboardAsync.whenData((dashboard) {
+    final activePolicy = dashboard['active_policy'];
+    final zoneRisk = dashboard['zone']?['risk_level'] ?? 'LOW';
+    
+    // Determine color from risk level (not exposing exact score)
+    Color riskColor = AppTheme.success;
+    if (zoneRisk == 'HIGH') riskColor = AppTheme.error;
+    if (zoneRisk == 'MEDIUM') riskColor = Colors.orange;
+
+    if (activePolicy == null) {
+      return {
+        'amount': 0,
+        'premium': 0,
+        'zoneRisk': zoneRisk,
+        'zoneRiskColor': riskColor,
+      };
+    }
+
+    return {
+      'amount': activePolicy['coverage_amount'],
+      'premium': activePolicy['premium_paid'],
+      'zoneRisk': zoneRisk, 
+      'zoneRiskColor': riskColor,
+    };
+  });
+});
+
+// Environment provider extracts from unified dashboard
+final environmentDataProvider = Provider<AsyncValue<Map<String, dynamic>>>((ref) {
+  final dashboardAsync = ref.watch(dashboardDataProvider);
+
+  return dashboardAsync.whenData((dashboard) {
+    final env = dashboard['live_weather'] ?? {};
+    return {
+      'rainfall': env['rainfall_mm_hr'] ?? 0.0,
+      'aqi': env['aqi'] ?? 65,
+      'temp': env['temperature_c'] ?? 28.0,
+    };
+  });
+});
+
+// Last payout maps from unified dashboard
+final lastPayoutProvider = Provider<AsyncValue<Map<String, dynamic>?>>((ref) {
+  final dashboardAsync = ref.watch(dashboardDataProvider);
+
+  return dashboardAsync.whenData((dashboard) {
+    final lastClaim = dashboard['last_claim'];
+    if (lastClaim == null) return null;
+    
+    return {
+      'amount': lastClaim['payout_amount'],
+      'reason': lastClaim['event_type'] ?? 'System Event',
+      'timestamp': 'Recent'
+    };
+  });
+});
+
+// Loyalty mapping from unified dashboard
+final loyaltyProvider = Provider<AsyncValue<Map<String, dynamic>?>>((ref) {
+  final dashboardAsync = ref.watch(dashboardDataProvider);
+
+  return dashboardAsync.whenData((dashboard) {
+    return dashboard['loyalty'];
+  });
 });

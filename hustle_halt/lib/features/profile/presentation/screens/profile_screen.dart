@@ -277,15 +277,14 @@ class ProfileScreen extends ConsumerWidget {
                 );
                 
                 // Immediately update env locally so user sees the change (or we could fetch from admin stats)
-                ref.read(environmentDataProvider.notifier).updateEnvironment({
-                  'rainfall': 22.5, 
+                ref.read(dashboardDataProvider.notifier).patchEnvironment({
+                  'rainfall_mm_hr': 22.5, 
                   'aqi': 65,
-                  'temp': 24, 
+                  'temperature_c': 24, 
                 });
                 
-                // Invalidate future providers so they refetch immediately based on the new backend state
-                ref.invalidate(activeCoverageProvider);
-                ref.invalidate(lastPayoutProvider);
+                // Active options will automatically extract from the dashboard data so invalidating it forces a full refetch
+                ref.invalidate(dashboardDataProvider);
                 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

@@ -26,9 +26,7 @@ class DashboardScreen extends ConsumerWidget {
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
-            ref.invalidate(activeCoverageProvider);
-            ref.invalidate(lastPayoutProvider);
-            ref.invalidate(environmentDataProvider);
+            ref.invalidate(dashboardDataProvider);
           },
           color: AppTheme.accent,
           backgroundColor: AppTheme.surface,
@@ -45,6 +43,10 @@ class DashboardScreen extends ConsumerWidget {
                 Text('Live Environment', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
                 _buildEnvironmentGrid(context, ref),
+                const SizedBox(height: 32),
+                Text('Loyalty & Shield Credits', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 16),
+                _buildLoyaltyCard(context, ref),
                 const SizedBox(height: 32),
                 Text('Recent Activity', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
@@ -298,6 +300,55 @@ class DashboardScreen extends ConsumerWidget {
                );
             }
         ),
+    );
+  }
+
+  Widget _buildLoyaltyCard(BuildContext context, WidgetRef ref) {
+    final asyncLoyalty = ref.watch(loyaltyProvider);
+    
+    return asyncLoyalty.when(
+      loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
+      error: (e, st) => const Text('Error loading loyalty data', style: TextStyle(color: AppTheme.error)),
+      data: (loyalty) {
+        if (loyalty == null) return const SizedBox.shrink();
+        
+        final eligible = loyalty['shield_credits_eligible'] == true;
+        
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppTheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppTheme.border),
+          ),
+          child: Row(
+            children: [
+               Container(
+                 padding: const EdgeInsets.all(12),
+                 decoration: BoxDecoration(
+                   color: AppTheme.accent.withOpacity(0.1),
+                   shape: BoxShape.circle,
+                 ),
+                 child: Icon(eligible ? LucideIcons.shieldCheck : LucideIcons.shield, color: AppTheme.accent),
+               ),
+               const SizedBox(width: 16),
+               Expanded(
+                 child: Column(
+                   crossAxisAlignment: CrossAxisAlignment.start,
+                   children: [
+                     const Text('Shield Credits Status', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textPrimary)),
+                     const SizedBox(height: 4),
+                     if (eligible)
+                        const Text('Eligible for 50% discount on next premium!', style: TextStyle(color: AppTheme.success, fontSize: 13, fontWeight: FontWeight.bold))
+                     else
+                        Text('${loyalty['consecutive_quiet_weeks']} weeks maintained. ${loyalty['weeks_until_eligible']} more until discount.', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+                   ]
+                 )
+               )
+            ]
+          )
+        );
+      }
     );
   }
 }
