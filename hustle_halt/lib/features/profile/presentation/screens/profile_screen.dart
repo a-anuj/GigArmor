@@ -15,6 +15,15 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final worker = ref.watch(authProvider);
 
+    final zonesAsync = ref.watch(zonesProvider);
+    
+    // Resolve the current zone name since auth/me doesn't populate the nested zone object
+    String currentZoneName = 'Loading...';
+    if (zonesAsync is AsyncData) {
+      final matchingZone = zonesAsync.value?.where((z) => z.id == worker?.zoneId).firstOrNull;
+      if (matchingZone != null) currentZoneName = matchingZone.name;
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Profile')),
       body: SafeArea(
@@ -28,10 +37,12 @@ class ProfileScreen extends ConsumerWidget {
                 context,
                 title: 'Account Settings',
                 items: [
-                  _buildMenuItem(LucideIcons.user, 'Personal Information', () {}),
+                  _buildMenuItem(LucideIcons.user, 'Personal Information', () {
+                    _showPersonalInfoDialog(context, worker);
+                  }),
                   _buildMenuItem(
                     LucideIcons.map, 
-                    'Work Zone (${worker?.zone?.name ?? 'Loading...'})', 
+                    'Work Zone ($currentZoneName)', 
                     () => _showZoneSelection(context, ref)
                   ),
                   _buildMenuItem(LucideIcons.globe, 'Language (English)', () {}),
@@ -99,8 +110,11 @@ class ProfileScreen extends ConsumerWidget {
                 const Icon(LucideIcons.briefcase, size: 14, color: AppTheme.textSecondary),
                 const SizedBox(width: 4),
                 Text(
-                  worker != null ? 'Registered Partner' : 'Identity Not Verified',
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  worker != null ? 'Status: Active' : 'Identity Not Verified',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppTheme.success,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
@@ -310,6 +324,75 @@ class ProfileScreen extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showPersonalInfoDialog(BuildContext context, WorkerModel? worker) {
+    if (worker == null) return;
+    
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppTheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Personal Information',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+              ),
+              const SizedBox(height: 24),
+              _buildInfoRow(LucideIcons.user, 'Full Name', worker.name),
+              const Divider(color: AppTheme.border, height: 24),
+              _buildInfoRow(LucideIcons.phone, 'Phone Number', worker.phone),
+              const Divider(color: AppTheme.border, height: 24),
+              _buildInfoRow(LucideIcons.mail, 'Email Address', worker.email ?? 'Not provided'),
+              const Divider(color: AppTheme.border, height: 24),
+              _buildInfoRow(LucideIcons.wallet, 'UPI ID', 'Stored Securely'), // Hiding sensitive financial identifiers
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: CustomButton(
+                  text: 'Close',
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: AppTheme.border.withOpacity(0.2),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: AppTheme.textSecondary, size: 20),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+              const SizedBox(height: 2),
+              Text(value, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.w500)),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
