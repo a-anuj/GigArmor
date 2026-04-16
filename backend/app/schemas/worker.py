@@ -43,6 +43,18 @@ class WorkerRegister(BaseModel):
 class WorkerLogin(BaseModel):
     phone: str = Field(..., description="10–15 digit mobile number")
 
+class ZoneOut(BaseModel):
+    id: int
+    name: str
+    pincode: str
+    city: str = "Bengaluru"
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    base_risk_multiplier: float
+
+    model_config = {"from_attributes": True}
+
+
 # ── Response ──────────────────────────────────────────────────────────────────
 class WorkerOut(BaseModel):
     id: int
@@ -50,6 +62,7 @@ class WorkerOut(BaseModel):
     phone: str
     upi_id: str
     zone_id: int
+    zone: Optional[ZoneOut] = None
     status: str
     trust_baseline_score: float
     enrollment_date: datetime
@@ -61,12 +74,3 @@ class WorkerOut(BaseModel):
 class WorkerListOut(BaseModel):
     total: int
     workers: list[WorkerOut]
-
-
-class ZoneOut(BaseModel):
-    id: int
-    name: str
-    pincode: str
-    base_risk_multiplier: float
-
-    model_config = {"from_attributes": True}
