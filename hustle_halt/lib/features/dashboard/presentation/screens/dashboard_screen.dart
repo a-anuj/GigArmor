@@ -4,6 +4,8 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../auth/domain/state/auth_state.dart';
 import '../../domain/state/dashboard_state.dart';
+import '../../../../core/widgets/language_selector.dart';
+import 'package:hustle_halt/l10n/app_localizations.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -14,8 +16,10 @@ class DashboardScreen extends ConsumerWidget {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('HustleHalt'),
+        title: Text(AppLocalizations.of(context)!.appName),
         actions: [
+          const LanguageSelector(),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(LucideIcons.bell),
             onPressed: () {},
@@ -48,7 +52,7 @@ class DashboardScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
                 _buildLoyaltyCard(context, ref),
                 const SizedBox(height: 32),
-                Text('Recent Activity', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                Text(AppLocalizations.of(context)!.recentActivity, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
                 _buildLastPayout(context, ref),
                 const SizedBox(height: 48), // Padding for scroll
@@ -125,7 +129,7 @@ class DashboardScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Active Coverage', style: Theme.of(context).textTheme.bodyMedium),
+                Text(AppLocalizations.of(context)!.activeCoverage, style: Theme.of(context).textTheme.bodyMedium),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(

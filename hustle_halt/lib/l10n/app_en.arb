@@ -1,0 +1,45 @@
+{
+  "@@locale": "en",
+  "appName": "HustleHalt",
+  "appDescription": "Income protection for the modern delivery partner.",
+  "emailOrPhoneHint": "Email or Mobile Number",
+  "passwordHint": "Password",
+  "loginButton": "Login",
+  "invalidCredentials": "Invalid credentials.",
+  "registerPrompt": "Don't have an account? Register",
+  "completeProfile": "Complete Profile",
+  "registerDescription": "Looks like you are new! Register to see your premium.",
+  "fullNameHint": "Full Name",
+  "phoneHint": "Phone Number",
+  "emailHint": "Email Address",
+  "upiIdHint": "UPI ID",
+  "registerButton": "Register & Calculate Risk",
+  "coverageEstimatedFor": "Coverage Estimated for {name}",
+  "@coverageEstimatedFor": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "John"
+      }
+    }
+  },
+  "perWeek": "₹{amount} / week",
+  "@perWeek": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "100"
+      }
+    }
+  },
+  "startCoverageButton": "Start Coverage",
+  "maybeLaterButton": "Maybe Later",
+  "dashboardTitle": "Dashboard",
+  "activeCoverage": "Active Coverage",
+  "coverageStatusActive": "You are currently protected against loss of income.",
+  "coverageStatusInactive": "You are currently not covered.",
+  "fileClaimButton": "File a Claim",
+  "recentActivity": "Recent Activity",
+  "viewProfile": "View Profile",
+  "logout": "Logout"
+}
