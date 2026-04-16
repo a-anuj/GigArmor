@@ -2,13 +2,38 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
 import 'package:dio/dio.dart';
 
+class ZoneModel {
+  final int id;
+  final String name;
+  final String pincode;
+  final double riskMultiplier;
+
+  ZoneModel({
+    required this.id,
+    required this.name,
+    required this.pincode,
+    required this.riskMultiplier,
+  });
+
+  factory ZoneModel.fromJson(Map<String, dynamic> json) {
+    return ZoneModel(
+      id: json['id'] as int,
+      name: json['name'] as String,
+      pincode: json['pincode'] as String,
+      riskMultiplier: (json['base_risk_multiplier'] as num).toDouble(),
+    );
+  }
+}
+
 class WorkerModel {
   final int id;
   final String name;
   final String phone;
   final String? email;
   final int zoneId;
+  final ZoneModel? zone;
   final double trustScore;
+  final bool coldStartActive;
 
   WorkerModel({
     required this.id,
@@ -16,7 +41,9 @@ class WorkerModel {
     required this.phone,
     this.email,
     required this.zoneId,
+    this.zone,
     required this.trustScore,
+    this.coldStartActive = false,
   });
 
   factory WorkerModel.fromJson(Map<String, dynamic> json) {
@@ -26,7 +53,9 @@ class WorkerModel {
       phone: (json['phone'] ?? '') as String,
       email: json['email'] as String?,
       zoneId: (json['zone_id'] as num).toInt(),
+      zone: json['zone'] != null ? ZoneModel.fromJson(json['zone']) : null,
       trustScore: (json['trust_baseline_score'] as num?)?.toDouble() ?? 1.0,
+      coldStartActive: json['cold_start_active'] as bool? ?? false,
     );
   }
 }
@@ -40,7 +69,7 @@ class AuthNotifier extends Notifier<WorkerModel?> {
       final response = await ApiClient.instance.post(
         '/api/v1/auth/login',
         data: {
-          'identifier': identifier,
+          'identifier': identifier, // Backend accepts email OR phone
           'password': password,
         },
       );
@@ -90,6 +119,15 @@ class AuthNotifier extends Notifier<WorkerModel?> {
     state = WorkerModel.fromJson(response.data);
   }
 
+  Future<void> updateZone(int zoneId) async {
+    if (state == null) return;
+    await ApiClient.instance.patch(
+      '/api/v1/workers/${state!.id}/zone',
+      data: {'zone_id': zoneId},
+    );
+    await _fetchProfile(); // Refresh profile to get updated zone and reset state
+  }
+
   void logout() {
     ApiClient.accessToken = null;
     state = null;
@@ -97,6 +135,13 @@ class AuthNotifier extends Notifier<WorkerModel?> {
 }
 
 final authProvider = NotifierProvider<AuthNotifier, WorkerModel?>(AuthNotifier.new);
+
+// Added zonesProvider to fetch all dark stores
+final zonesProvider = FutureProvider<List<ZoneModel>>((ref) async {
+  final response = await ApiClient.instance.get('/api/v1/zones');
+  final list = response.data as List;
+  return list.map((z) => ZoneModel.fromJson(z)).toList();
+});
 
 // Added quote model for PremiumPreview
 class QuoteModel {
@@ -123,3 +168,4 @@ final quoteProvider = FutureProvider.family<QuoteModel, int>((ref, workerId) asy
 final enrollPolicyProvider = FutureProvider.family<void, int>((ref, workerId) async {
   await ApiClient.instance.post('/api/v1/policies/enroll', data: {'worker_id': workerId});
 });
+

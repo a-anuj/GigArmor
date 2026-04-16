@@ -29,8 +29,13 @@ class ProfileScreen extends ConsumerWidget {
                 title: 'Account Settings',
                 items: [
                   _buildMenuItem(LucideIcons.user, 'Personal Information', () {}),
-                  _buildMenuItem(LucideIcons.map, 'Work Zone (Koramangala)', () {}),
+                  _buildMenuItem(
+                    LucideIcons.map, 
+                    'Work Zone (${worker?.zone?.name ?? 'Loading...'})', 
+                    () => _showZoneSelection(context, ref)
+                  ),
                   _buildMenuItem(LucideIcons.globe, 'Language (English)', () {}),
+
                 ],
               ),
               const SizedBox(height: 24),
@@ -144,6 +149,102 @@ class ProfileScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showZoneSelection(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppTheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
+                child: Text(
+                  'Switch Work Zone',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ref.watch(zonesProvider).when(
+                loading: () => const Center(child: Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: CircularProgressIndicator(color: AppTheme.accent),
+                )),
+                error: (e, st) => Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Text('Error loading zones: $e', style: const TextStyle(color: AppTheme.error)),
+                ),
+                data: (zones) => Flexible(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: zones.length,
+                    itemBuilder: (context, index) {
+                      final zone = zones[index];
+                      final isCurrent = zone.id == ref.read(authProvider)?.zoneId;
+                      return ListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: isCurrent ? AppTheme.accent.withOpacity(0.1) : AppTheme.border.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            LucideIcons.mapPin, 
+                            size: 18, 
+                            color: isCurrent ? AppTheme.accent : AppTheme.textSecondary
+                          ),
+                        ),
+                        title: Text(
+                          zone.name, 
+                          style: TextStyle(
+                            color: isCurrent ? AppTheme.accent : AppTheme.textPrimary,
+                            fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+                          )
+                        ),
+                        subtitle: Text('${zone.pincode} • ${zone.riskMultiplier}x Base Risk', style: const TextStyle(fontSize: 12)),
+                        trailing: isCurrent ? const Icon(LucideIcons.checkCircle2, color: AppTheme.accent, size: 20) : null,
+                        onTap: () async {
+                          Navigator.pop(context);
+                          if (isCurrent) return;
+                          
+                          try {
+                            await ref.read(authProvider.notifier).updateZone(zone.id);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Zone switched to ${zone.name}'),
+                                  backgroundColor: AppTheme.success,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                             if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Failed: $e'), backgroundColor: AppTheme.error),
+                              );
+                            }
+                          }
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
