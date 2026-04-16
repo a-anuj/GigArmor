@@ -44,6 +44,13 @@ class PremiumQuote(BaseModel):
 
     message: str
 
+    # Live weather data — powers the Flutter home screen weather readout
+    weather_source: str = "mock"
+    live_rainfall_mm_hr: float = 0.0
+    live_temperature_c: float = 0.0
+    live_wet_bulb_c: float = 0.0
+    live_humidity_pct: float = 0.0
+
 
 # ── Response: Active Policy ───────────────────────────────────────────────────
 class PolicyOut(BaseModel):

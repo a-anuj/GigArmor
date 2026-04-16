@@ -1,21 +1,19 @@
 """
-HustleHalt — Dynamic Premium Calculation Engine (Phase 3)
+HustleHalt — Dynamic Premium Calculation Engine
 
-Formula:
+Formula (verbatim from README Section 5):
   Premium = max(19, min(99, R_base × M_weather × M_social × H_expected × M_coldstart))
 
-Where:
-  R_base     = ₹5 (base rate)
-  M_weather  = 1.0 (Clear) → 3.5 (Severe monsoon) — mocked per zone
-  M_social   = 1.0 (Normal) → 2.0 (Bandh/Curfew)  — mocked per zone
-  H_expected = 1.0 (constant for demo)
-  M_coldstart= 1.2 if enrolled < 14 days, else 1.0
+M_weather now comes from a real OWM API call using the zone's lat/lon.
+M_social is still mocked — no reliable free API for hyperlocal Indian social disruption data exists.
 """
 from datetime import datetime
 
 from sqlalchemy.orm import Session
 
-# ── Constants ─────────────────────────────────────────────────────────────────
+from app.services.weather_service import fetch_zone_weather
+
+# Constants — hard-coded as per README, do not change without product sign-off
 R_BASE: float = 5.0
 H_EXPECTED: float = 1.0
 COLD_START_DAYS: int = 14
@@ -23,64 +21,39 @@ COLD_START_MULTIPLIER: float = 1.2
 PREMIUM_FLOOR: float = 19.0
 PREMIUM_CEILING: float = 99.0
 SHIELD_DISCOUNT_PCT: float = 0.20
-SHIELD_DISCOUNT_CAP: float = 99.0   # Max discount ₹99
-COVERAGE_AMOUNT: float = 1200.0
-QUIET_WEEKS_THRESHOLD: int = 4      # Weeks before Shield Credits kick in
+SHIELD_DISCOUNT_CAP: float = 99.0       # Max Shield Credit in rupees
+COVERAGE_BASE: float = 1000.0           # Coverage = zone.base_risk_multiplier × 1000
+QUIET_WEEKS_THRESHOLD: int = 4          # Weeks before Shield Credits kick in
 
-# ── Mock Weather Forecast Data (per zone) ─────────────────────────────────────
-# Simulates calls to an external weather forecasting API
-_ZONE_WEATHER: dict[int, dict] = {
-    1: {"condition": "Heavy Rain",       "multiplier": 2.8},
-    2: {"condition": "Partly Cloudy",    "multiplier": 1.3},
-    3: {"condition": "Severe Monsoon",   "multiplier": 3.5},
-    4: {"condition": "Clear",            "multiplier": 1.0},
-    5: {"condition": "Moderate Rain",    "multiplier": 2.0},
-    6: {"condition": "Thunderstorm",     "multiplier": 3.0},
-    7: {"condition": "Hazy / Smoggy",   "multiplier": 1.8},
-}
 
-# ── Mock Social Disruption Data (per zone) ────────────────────────────────────
-# Simulates weighted consensus: news API + traffic API
+# M_social stays mocked — simulates the weighted oracle consensus (news + traffic + platform)
+# In production this would be a call to a news NLP microservice
 _ZONE_SOCIAL: dict[int, dict] = {
     1: {"condition": "Normal",                    "multiplier": 1.0},
-    2: {"condition": "Traffic Disruption",         "multiplier": 1.4},
-    3: {"condition": "Bandh — Full shutdown",      "multiplier": 2.0},
+    2: {"condition": "Moderate Traffic Disruption","multiplier": 1.4},
+    3: {"condition": "Bandh — Full Shutdown",     "multiplier": 2.0},
     4: {"condition": "Normal",                    "multiplier": 1.0},
     5: {"condition": "Political Protest",          "multiplier": 1.6},
-    6: {"condition": "Curfew-like restrictions",   "multiplier": 1.9},
+    6: {"condition": "Curfew-like Restrictions",  "multiplier": 1.9},
     7: {"condition": "Normal",                    "multiplier": 1.0},
+    8: {"condition": "Normal",                    "multiplier": 1.0},
 }
-
-_DEFAULT_WEATHER = {"condition": "Moderate Overcast", "multiplier": 1.5}
-_DEFAULT_SOCIAL  = {"condition": "Normal",             "multiplier": 1.0}
-
-
-# ── API Mock Functions ────────────────────────────────────────────────────────
-def get_weather_multiplier(zone_id: int) -> tuple[float, str]:
-    """Mock weather forecast API call for a given zone."""
-    data = _ZONE_WEATHER.get(zone_id, _DEFAULT_WEATHER)
-    return data["multiplier"], data["condition"]
+_DEFAULT_SOCIAL = {"condition": "Normal", "multiplier": 1.0}
 
 
 def get_social_multiplier(zone_id: int) -> tuple[float, str]:
-    """Mock social disruption consensus (news + traffic API) for a given zone."""
     data = _ZONE_SOCIAL.get(zone_id, _DEFAULT_SOCIAL)
     return data["multiplier"], data["condition"]
 
 
 def is_cold_start(enrollment_date: datetime) -> bool:
-    """True if worker is still in their cold-start period (first 14 days)."""
     return (datetime.utcnow() - enrollment_date).days <= COLD_START_DAYS
 
 
-# ── Loyalty: Consecutive Quiet Weeks ─────────────────────────────────────────
 def get_consecutive_quiet_weeks(worker_id: int, db: Session) -> int:
     """
-    Returns the number of consecutive *expired* policy weeks with no payout
-    (i.e., no Auto-Approved or Soft-Hold claims).
-
-    A 'quiet week' = an expired Policy where every associated Claim is Blocked
-    (fraud detected) or there are 0 claims at all.
+    Count consecutive expired policy weeks where no payout claim was Auto-Approved or Soft-Hold.
+    Used to determine Shield Credit eligibility (4+ quiet weeks = 20% discount).
     """
     from app.models.policy import Policy
     from app.models.claim import Claim
@@ -94,7 +67,6 @@ def get_consecutive_quiet_weeks(worker_id: int, db: Session) -> int:
 
     consecutive = 0
     for policy in past_policies:
-        # Any claim that actually paid out (not blocked) breaks the streak
         payout_claims = (
             db.query(Claim)
             .filter(Claim.policy_id == policy.id, Claim.status != "Blocked")
@@ -103,44 +75,48 @@ def get_consecutive_quiet_weeks(worker_id: int, db: Session) -> int:
         if payout_claims == 0:
             consecutive += 1
         else:
-            break   # Streak broken
+            break  # One week with a payout breaks the quiet streak
 
     return consecutive
 
 
-# ── Core Calculation ──────────────────────────────────────────────────────────
 def calculate_premium(
     zone_id: int,
     base_risk_multiplier: float,
     enrollment_date: datetime,
+    lat: float = None,
+    lon: float = None,
     shield_credits: bool = False,
     booked_shift_ratio: float = 1.0,
 ) -> dict:
     """
-    Compute the weekly parametric premium for a worker.
-
-    Returns a dict with the full calculation breakdown (transparent audit trail).
+    Computes the full weekly premium breakdown for a worker.
+    Returns a detailed dict used for both the quote API and the enrollment confirmation.
+    M_weather comes from a live OWM call if lat/lon is provided, otherwise falls back.
     """
-    m_weather, weather_condition = get_weather_multiplier(zone_id)
-    m_social, social_condition   = get_social_multiplier(zone_id)
+    # Live weather call — this is what makes the premium actually responsive to real conditions
+    weather = fetch_zone_weather(lat or 12.9716, lon or 77.5946, zone_id)
+    m_weather = weather["m_weather"]
+    weather_condition = weather["weather_condition"]
+    weather_source = weather.get("source", "mock")
 
-    cold_start   = is_cold_start(enrollment_date)
-    m_coldstart  = COLD_START_MULTIPLIER if cold_start else 1.0
-    
-    # H_expected calculation for Shift-Linked Micro-Policy
+    m_social, social_condition = get_social_multiplier(zone_id)
+
+    cold_start = is_cold_start(enrollment_date)
+    m_coldstart = COLD_START_MULTIPLIER if cold_start else 1.0
+
+    # Shift-linked micro-policy support — part-time workers pay proportionally less
     h_expected = H_EXPECTED * booked_shift_ratio
 
-    # Exact Implementation of the README Formula
-    raw_premium           = R_BASE * m_weather * m_social * h_expected * m_coldstart
-    premium_before_disc   = max(PREMIUM_FLOOR, min(PREMIUM_CEILING, raw_premium))
+    raw_premium = R_BASE * m_weather * m_social * h_expected * m_coldstart
+    premium_before_disc = max(PREMIUM_FLOOR, min(PREMIUM_CEILING, raw_premium))
 
-    coverage_amount = base_risk_multiplier * 1000.0
+    # Coverage scales with zone risk — riskier zones = higher coverage ceiling
+    coverage_amount = round(base_risk_multiplier * COVERAGE_BASE, 2)
 
-    # Shield Credits discount (only if not in cold-start period)
-    discount_amount   = 0.0
-    credits_applied   = False
+    discount_amount = 0.0
+    credits_applied = False
     if shield_credits and not cold_start:
-        # Micro-rollover logic limits max shield credit
         discount_amount = min(premium_before_disc * SHIELD_DISCOUNT_PCT, SHIELD_DISCOUNT_CAP)
         premium_before_disc = max(PREMIUM_FLOOR, premium_before_disc - discount_amount)
         credits_applied = True
@@ -148,19 +124,25 @@ def calculate_premium(
     final_premium = round(premium_before_disc, 2)
 
     return {
-        "r_base":                 R_BASE,
-        "m_weather":              round(m_weather, 4),
-        "m_social":               round(m_social, 4),
-        "m_coldstart":            m_coldstart,
-        "h_expected":             round(h_expected, 4),
-        "base_risk_multiplier":   base_risk_multiplier,
-        "raw_premium":            round(raw_premium, 2),
-        "premium_before_discount": round(premium_before_disc + discount_amount, 2),
-        "premium":                final_premium,
-        "weather_condition":      weather_condition,
-        "social_condition":       social_condition,
-        "cold_start_active":      cold_start,
-        "coverage_amount":        coverage_amount,
-        "shield_credits_applied": credits_applied,
-        "discount_amount":        round(discount_amount, 2),
+        "r_base":                   R_BASE,
+        "m_weather":                round(m_weather, 4),
+        "m_social":                 round(m_social, 4),
+        "m_coldstart":              m_coldstart,
+        "h_expected":               round(h_expected, 4),
+        "base_risk_multiplier":     base_risk_multiplier,
+        "raw_premium":              round(raw_premium, 2),
+        "premium_before_discount":  round(premium_before_disc + discount_amount, 2),
+        "premium":                  final_premium,
+        "weather_condition":        weather_condition,
+        "social_condition":         social_condition,
+        "weather_source":           weather_source,
+        "cold_start_active":        cold_start,
+        "coverage_amount":          coverage_amount,
+        "shield_credits_applied":   credits_applied,
+        "discount_amount":          round(discount_amount, 2),
+        # Expose raw weather data for the Flutter dashboard's live readout
+        "live_rainfall_mm_hr":      weather.get("rainfall_mm_hr", 0.0),
+        "live_temperature_c":       weather.get("temperature_c", 0.0),
+        "live_wet_bulb_c":          weather.get("wet_bulb_c", 0.0),
+        "live_humidity_pct":        weather.get("humidity_pct", 0.0),
     }

@@ -1,6 +1,6 @@
 """
 HustleHalt — Zone (Dark Store) Model
-Represents a geographic delivery zone / dark store.
+Added lat/lon so the weather service can make real API calls per zone
 """
 from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.orm import relationship
@@ -14,7 +14,13 @@ class Zone(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(150), nullable=False)
     pincode = Column(String(10), nullable=False)
-    # Multiplier applied on top of R_base to account for zone risk
+    city = Column(String(100), nullable=False, default="Bengaluru")
+
+    # Needed for OWM and AQICN API calls — the whole point of hyperlocal zone intelligence
+    latitude = Column(Float, nullable=True)
+    longitude = Column(Float, nullable=True)
+
+    # Zone's base risk level applied on top of the formula's R_base
     base_risk_multiplier = Column(Float, default=1.0, nullable=False)
 
     # Relationships

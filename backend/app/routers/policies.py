@@ -60,6 +60,8 @@ def get_premium_quote(worker_id: int, db: Session = Depends(get_db)):
         zone_id=worker.zone_id,
         base_risk_multiplier=zone.base_risk_multiplier,
         enrollment_date=worker.enrollment_date,
+        lat=zone.latitude,
+        lon=zone.longitude,
         shield_credits=shield_credits,
     )
 
@@ -140,6 +142,8 @@ def enroll_policy(data: PolicyEnroll, db: Session = Depends(get_db)):
         zone_id=worker.zone_id,
         base_risk_multiplier=zone.base_risk_multiplier,
         enrollment_date=worker.enrollment_date,
+        lat=zone.latitude,
+        lon=zone.longitude,
         shield_credits=shield_credits,
     )
 
