@@ -1,6 +1,6 @@
 """
 HustleHalt — Application Configuration
-Reads settings from environment variables / .env file.
+Reads all settings from .env — add new keys here when you add new integrations
 """
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -13,19 +13,33 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    # Database — PostgreSQL (Supabase) in prod, SQLite works locally too
     DATABASE_URL: str
 
-    REDIS_URL: str
+    # Redis — optional for local dev, required in prod for burst detection
+    REDIS_URL: str = "redis://localhost:6379/0"
 
-    APP_ENV: str
-    SECRET_KEY: str
-    DEBUG: bool
-    UPI_WEBHOOK_URL: str
-    UPI_API_KEY: str
+    # App
+    APP_ENV: str = "development"
+    SECRET_KEY: str = "changeme-replace-before-production"
+    DEBUG: bool = True
 
-    # JWT
+    # JWT — 24h tokens so workers stay logged in through the day
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24
+
+    # UPI Payout Gateway — Razorpay in prod, mock URL for demo
+    UPI_WEBHOOK_URL: str = "https://mock-upi.example.com/payout"
+    UPI_API_KEY: str = "mock-api-key-replace-in-production"
+
+    # OpenWeatherMap — free tier (1000 calls/day), used for M_weather and real triggers
+    OPENWEATHERMAP_API_KEY: str = ""
+
+    # AQICN — free token, used for AQI trigger (T2)
+    AQICN_API_TOKEN: str = ""
+
+    # Set to false to use hardcoded mock data instead of live API calls (useful in CI)
+    USE_REAL_WEATHER_API: bool = True
 
 
 settings = Settings()
