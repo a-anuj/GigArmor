@@ -74,6 +74,7 @@ try:
         "name": "Rajan Kumar",
         "phone": _PHONE,
         "upi_id": "rajan@upi",
+        "q_commerce_platform": "Blinkit",
         "zone_id": 1,
     })
     worker_id = w["id"]

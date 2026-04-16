@@ -83,6 +83,15 @@ class DashboardScreen extends ConsumerWidget {
                 fontSize: 14,
               ),
             ),
+            const SizedBox(width: 12),
+            const Icon(LucideIcons.shoppingBag, size: 14, color: AppTheme.textSecondary),
+            const SizedBox(width: 4),
+            Text(
+              worker?.qCommercePlatform ?? 'Platform',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontSize: 14,
+              ),
+            ),
           ],
         )
       ],

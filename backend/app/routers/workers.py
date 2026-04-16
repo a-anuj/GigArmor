@@ -64,6 +64,7 @@ def register_worker(data: WorkerRegister, db: Session = Depends(get_db)):
     worker = Worker(
         name=data.name,
         phone=data.phone,
+        q_commerce_platform=data.q_commerce_platform,
         upi_id=data.upi_id,
         zone_id=data.zone_id,
         enrollment_date=datetime.utcnow(),
@@ -113,6 +114,8 @@ def update_worker(worker_id: int, data: WorkerUpdate, db: Session = Depends(get_
 
     if data.name is not None:
         worker.name = data.name
+    if data.q_commerce_platform is not None:
+        worker.q_commerce_platform = data.q_commerce_platform
     if data.upi_id is not None:
         worker.upi_id = data.upi_id
 
@@ -213,6 +216,7 @@ def worker_dashboard(worker_id: int, db: Session = Depends(get_db)):
             "id":                   worker.id,
             "name":                 worker.name,
             "phone":                worker.phone,
+            "q_commerce_platform":  worker.q_commerce_platform,
             "upi_id":               worker.upi_id,
             "status":               worker.status,
             "cold_start_active":    worker.cold_start_active,
@@ -264,6 +268,7 @@ def _worker_to_schema(worker: Worker) -> dict:
         "id":                   worker.id,
         "name":                 worker.name,
         "phone":                worker.phone,
+        "q_commerce_platform":  worker.q_commerce_platform,
         "upi_id":               worker.upi_id,
         "zone_id":              worker.zone_id,
         "zone": {
