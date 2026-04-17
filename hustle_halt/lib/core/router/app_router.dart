@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -8,6 +9,8 @@ import '../../features/claims/presentation/screens/claim_status_screen.dart';
 import '../../features/policy/presentation/screens/policy_history_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../theme/app_theme.dart';
+import '../providers/locale_provider.dart';
+import 'package:hustle_halt/l10n/app_localizations.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'shell');
@@ -22,8 +25,10 @@ final GoRouter appRouter = GoRouter(
     ),
     ShellRoute(
       navigatorKey: shellNavigatorKey,
+      // Use a ConsumerWidget shell so the locale propagates into GoRouter's
+      // own navigator subtree (GoRouter breaks the MaterialApp locale chain).
       builder: (context, state, child) {
-        return ScaffoldWithNavBar(child: child);
+        return _LocalizedShell(child: child);
       },
       routes: [
         GoRoute(
@@ -47,6 +52,28 @@ final GoRouter appRouter = GoRouter(
   ],
 );
 
+/// Wraps the shell in a [Localizations.override] driven by [localeProvider].
+/// This is required because GoRouter's ShellRoute creates its own Navigator
+/// which breaks MaterialApp's locale propagation.
+class _LocalizedShell extends ConsumerWidget {
+  final Widget child;
+  const _LocalizedShell({required this.child});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locale = ref.watch(localeProvider);
+
+    return Localizations.override(
+      context: context,
+      locale: locale,
+      delegates: AppLocalizations.localizationsDelegates,
+      child: Builder(
+        builder: (localizedContext) => ScaffoldWithNavBar(child: child),
+      ),
+    );
+  }
+}
+
 class ScaffoldWithNavBar extends StatelessWidget {
   final Widget child;
 
@@ -57,6 +84,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: child,
       bottomNavigationBar: Theme(
@@ -74,11 +102,11 @@ class ScaffoldWithNavBar extends StatelessWidget {
           elevation: 8,
           currentIndex: _calculateSelectedIndex(context),
           onTap: (int idx) => _onItemTapped(idx, context),
-          items: const [
-            BottomNavigationBarItem(icon: Icon(LucideIcons.home), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(LucideIcons.history), label: 'History'),
-            BottomNavigationBarItem(icon: Icon(LucideIcons.fileText), label: 'Claims'),
-            BottomNavigationBarItem(icon: Icon(LucideIcons.user), label: 'Profile'),
+          items: [
+            BottomNavigationBarItem(icon: const Icon(LucideIcons.home), label: l10n.navHome),
+            BottomNavigationBarItem(icon: const Icon(LucideIcons.history), label: l10n.navHistory),
+            BottomNavigationBarItem(icon: const Icon(LucideIcons.fileText), label: l10n.navClaims),
+            BottomNavigationBarItem(icon: const Icon(LucideIcons.user), label: l10n.navProfile),
           ],
         ),
       ),

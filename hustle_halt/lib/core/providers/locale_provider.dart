@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
+import 'package:hustle_halt/l10n/app_localizations.dart';
 
 class LocaleNotifier extends Notifier<Locale> {
   static const String _localeKey = 'app_locale';
@@ -23,3 +24,12 @@ class LocaleNotifier extends Notifier<Locale> {
 }
 
 final localeProvider = NotifierProvider<LocaleNotifier, Locale>(LocaleNotifier.new);
+
+/// Provides the correct [AppLocalizations] instance directly from Riverpod.
+/// Use `ref.watch(appL10nProvider)` instead of `AppLocalizations.of(context)!`
+/// to guarantee translation updates when language changes, regardless of
+/// Flutter's Localizations context chain.
+final appL10nProvider = Provider<AppLocalizations>((ref) {
+  final locale = ref.watch(localeProvider);
+  return lookupAppLocalizations(locale);
+});

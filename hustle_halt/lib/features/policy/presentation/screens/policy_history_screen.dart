@@ -4,6 +4,9 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../auth/domain/state/auth_state.dart';
+import 'package:hustle_halt/l10n/app_localizations.dart';
+import '../../../../core/widgets/language_selector.dart';
+import '../../../../core/providers/locale_provider.dart';
 
 final mockPoliciesProvider = FutureProvider<List<dynamic>>((ref) async {
   final worker = ref.watch(authProvider);
@@ -18,17 +21,21 @@ class PolicyHistoryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = ref.watch(appL10nProvider);
     final policiesAsync = ref.watch(mockPoliciesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Policy History')),
+      appBar: AppBar(
+        title: Text(l10n.policyHistoryTitle),
+        actions: const [LanguageSelector(), SizedBox(width: 8)],
+      ),
       body: SafeArea(
         child: policiesAsync.when(
           loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
-          error: (e, st) => Center(child: Text('Failed to load policies: $e', style: const TextStyle(color: AppTheme.error))),
+          error: (e, st) => Center(child: Text(l10n.failedToLoadPolicies(e.toString()), style: const TextStyle(color: AppTheme.error))),
           data: (policies) {
             if (policies.isEmpty) {
-              return const Center(child: Text('You have no active or past policies.', style: TextStyle(color: AppTheme.textSecondary)));
+              return Center(child: Text(l10n.noPoliciesFound, style: const TextStyle(color: AppTheme.textSecondary)));
             }
             return ListView.separated(
               padding: const EdgeInsets.all(20),
@@ -45,9 +52,9 @@ class PolicyHistoryScreen extends ConsumerWidget {
   }
 
   Widget _buildPolicyCard(BuildContext context, dynamic policy) {
+    final l10n = AppLocalizations.of(context)!;
     final isActive = policy['status'] == 'ACTIVE';
 
-    // Parse start and end dates simply
     final startStr = policy['start_date'].toString().split('T').first;
     final endStr = policy['end_date'].toString().split('T').first;
 
@@ -78,7 +85,7 @@ class PolicyHistoryScreen extends ConsumerWidget {
                     border: Border.all(color: isActive ? AppTheme.success : AppTheme.border),
                   ),
                   child: Text(
-                    isActive ? 'ACTIVE' : policy['status'],
+                    isActive ? l10n.statusActive : policy['status'],
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
@@ -92,12 +99,12 @@ class PolicyHistoryScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Week of $startStr',
+              l10n.weekOf(startStr),
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textPrimary),
             ),
             const SizedBox(height: 4),
             Text(
-              'Valid through $endStr',
+              l10n.validThrough(endStr),
               style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary),
             ),
           ],
@@ -114,18 +121,18 @@ class PolicyHistoryScreen extends ConsumerWidget {
         children: [
           const Divider(color: AppTheme.border),
           const SizedBox(height: 16),
-          _buildDetailRow('Coverage Amount', '₹${policy['coverage_amount']} / day max limit'),
+          _buildDetailRow(l10n.coverageAmount, l10n.coverageAmountValue(policy['coverage_amount'].toString())),
           const SizedBox(height: 12),
-          _buildDetailRow('Policy Type', 'Parametric Income Protection'),
+          _buildDetailRow(l10n.policyType, l10n.parametricIncomeProtection),
           const SizedBox(height: 12),
-          _buildDetailRow('Claims Count', 'Not available'),
+          _buildDetailRow(l10n.claimsCount, l10n.notAvailable),
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: () {},
               icon: const Icon(LucideIcons.download, size: 16),
-              label: const Text('Download Policy Document'),
+              label: Text(l10n.downloadPolicyDocument),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.accent,
                 side: const BorderSide(color: AppTheme.border),

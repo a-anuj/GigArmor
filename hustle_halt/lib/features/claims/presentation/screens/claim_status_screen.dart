@@ -4,6 +4,9 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../auth/domain/state/auth_state.dart';
+import 'package:hustle_halt/l10n/app_localizations.dart';
+import '../../../../core/widgets/language_selector.dart';
+import '../../../../core/providers/locale_provider.dart';
 
 final mockClaimsProvider = FutureProvider<List<dynamic>>((ref) async {
   final worker = ref.watch(authProvider);
@@ -18,17 +21,21 @@ class ClaimStatusScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = ref.watch(appL10nProvider);
     final claimsAsync = ref.watch(mockClaimsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Claims')),
+      appBar: AppBar(
+        title: Text(l10n.claimsTitle),
+        actions: const [LanguageSelector(), SizedBox(width: 8)],
+      ),
       body: SafeArea(
         child: claimsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
-          error: (e, st) => Center(child: Text('Failed to load claims: $e', style: const TextStyle(color: AppTheme.error))),
+          error: (e, st) => Center(child: Text(l10n.failedToLoadClaims(e.toString()), style: const TextStyle(color: AppTheme.error))),
           data: (claims) {
             if (claims.isEmpty) {
-               return const Center(child: Text('No claims found.', style: TextStyle(color: AppTheme.textSecondary)));
+               return Center(child: Text(l10n.noClaimsFound, style: const TextStyle(color: AppTheme.textSecondary)));
             }
             return ListView.separated(
               padding: const EdgeInsets.all(20),
@@ -45,6 +52,7 @@ class ClaimStatusScreen extends ConsumerWidget {
   }
 
   Widget _buildClaimCard(BuildContext context, dynamic claim) {
+    final l10n = AppLocalizations.of(context)!;
     Color statusColor;
     IconData statusIcon;
     String statusText;
@@ -54,12 +62,12 @@ class ClaimStatusScreen extends ConsumerWidget {
       case 'APPROVED':
         statusColor = AppTheme.success;
         statusIcon = LucideIcons.checkCircle;
-        statusText = 'Auto-Approved';
+        statusText = l10n.statusAutoApproved;
         break;
       case 'PROCESSING':
-        statusColor = AppTheme.accent; 
+        statusColor = AppTheme.accent;
         statusIcon = LucideIcons.clock;
-        statusText = 'Processing Soft Hold';
+        statusText = l10n.statusProcessingSoftHold;
         break;
       default: // BLOCKED or REJECTED
         statusColor = AppTheme.error;
@@ -90,7 +98,7 @@ class ClaimStatusScreen extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                claim['trigger_description'] ?? 'System Event',
+                claim['trigger_description'] ?? l10n.systemEvent,
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
               ),
               if (claim['amount'] > 0)
@@ -123,9 +131,12 @@ class ClaimStatusScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           const Divider(color: AppTheme.border),
           const SizedBox(height: 12),
-          _buildInfoRow(LucideIcons.info, claim['notes'] ?? 'Auto-processed based on zonal risk data.'),
+          _buildInfoRow(LucideIcons.info, claim['notes'] ?? l10n.autoProcessedNote),
           const SizedBox(height: 12),
-          _buildInfoRow(LucideIcons.creditCard, status == 'APPROVED' ? 'Expected to credit via UPI soon.' : 'Resolution pending.'),
+          _buildInfoRow(
+            LucideIcons.creditCard,
+            status == 'APPROVED' ? l10n.expectedCreditUPI : l10n.resolutionPending,
+          ),
         ],
       ),
     );
