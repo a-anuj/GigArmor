@@ -63,6 +63,18 @@ class ZoneOut(BaseModel):
 
     model_config = {"from_attributes": True}
 
+class NearbyZoneOut(BaseModel):
+    id: int
+    name: str
+    pincode: str
+    city: str = "Bengaluru"
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    base_risk_multiplier: float
+    distance_km: float = 0.0
+
+    model_config = {"from_attributes": True}
+
 
 # ── Response ──────────────────────────────────────────────────────────────────
 class WorkerOut(BaseModel):

@@ -21,7 +21,7 @@ from app.models.claim import Claim
 from app.models.policy import Policy
 from app.models.worker import Worker
 from app.models.zone import Zone
-from app.schemas.worker import WorkerRegister, WorkerLogin, WorkerOut, WorkerListOut, ZoneOut, WorkerUpdate
+from app.schemas.worker import WorkerRegister, WorkerLogin, WorkerOut, WorkerListOut, ZoneOut, NearbyZoneOut, WorkerUpdate
 from app.services.premium_engine import calculate_premium, get_consecutive_quiet_weeks, QUIET_WEEKS_THRESHOLD
 from app.services.weather_service import fetch_zone_weather
 from app.services.aqi_service import fetch_zone_aqi
@@ -38,7 +38,7 @@ def list_zones(db: Session = Depends(get_db)):
     """Returns all available zones a worker can register with — used on the onboarding screen."""
     return db.query(Zone).all()
 
-@zone_router.get("/nearby", response_model=list[ZoneOut], summary="List dark store zones ranked by proximity")
+@zone_router.get("/nearby", response_model=list[NearbyZoneOut], summary="List dark store zones ranked by proximity")
 def list_nearby_zones(
     lat: float = Query(..., description="Worker's current latitude"),
     lon: float = Query(..., description="Worker's current longitude"),
@@ -57,8 +57,22 @@ def list_nearby_zones(
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
         return R * c
 
-    zones.sort(key=haversine_distance)
-    return zones
+    # Build list with distance included
+    results = []
+    for z in zones:
+        dist = haversine_distance(z)
+        results.append(NearbyZoneOut(
+            id=z.id,
+            name=z.name,
+            pincode=z.pincode,
+            city=z.city,
+            latitude=z.latitude,
+            longitude=z.longitude,
+            base_risk_multiplier=z.base_risk_multiplier,
+            distance_km=round(dist, 1),
+        ))
+    results.sort(key=lambda r: r.distance_km)
+    return results
 
 # ── Worker Registration (Legacy — use /auth/register for proper accounts) ─────
 @router.post(
