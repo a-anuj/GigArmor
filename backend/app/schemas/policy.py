@@ -10,6 +10,9 @@ from pydantic import BaseModel, Field
 # ── Request ───────────────────────────────────────────────────────────────────
 class PolicyEnroll(BaseModel):
     worker_id: int = Field(..., description="Worker ID to enroll for this week's cover")
+    razorpay_payment_id: Optional[str] = None
+    razorpay_order_id: Optional[str] = None
+    razorpay_signature: Optional[str] = None
 
 
 # ── Response: Premium Quote ───────────────────────────────────────────────────
@@ -50,6 +53,10 @@ class PremiumQuote(BaseModel):
     live_temperature_c: float = 0.0
     live_wet_bulb_c: float = 0.0
     live_humidity_pct: float = 0.0
+
+class CreateOrderResponse(BaseModel):
+    order_id: str
+    quote: PremiumQuote
 
 
 # ── Response: Active Policy ───────────────────────────────────────────────────

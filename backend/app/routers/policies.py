@@ -16,7 +16,7 @@ from app.models.policy import Policy
 from app.models.worker import Worker
 from app.schemas.policy import (
     PolicyEnroll,
-    PolicyOut,
+    PolicyOut, CreateOrderResponse, PremiumQuote,
     PolicyEnrollOut,
     PolicyListOut,
     PremiumQuote,
@@ -147,6 +147,20 @@ def enroll_policy(data: PolicyEnroll, db: Session = Depends(get_db)):
         shield_credits=shield_credits,
     )
 
+    # Razorpay Verification
+    if data.razorpay_payment_id and data.razorpay_order_id and data.razorpay_signature:
+        import razorpay
+        from app.config import settings
+        rzp = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+        try:
+            rzp.utility.verify_payment_signature({
+                'razorpay_order_id': data.razorpay_order_id,
+                'razorpay_payment_id': data.razorpay_payment_id,
+                'razorpay_signature': data.razorpay_signature
+            })
+        except razorpay.errors.SignatureVerificationError:
+            raise HTTPException(status_code=400, detail="Invalid payment signature")
+
     now = datetime.utcnow()
     policy = Policy(
         worker_id=data.worker_id,
@@ -205,3 +219,46 @@ def list_worker_policies(worker_id: int, db: Session = Depends(get_db)):
         .all()
     )
     return {"total": len(policies), "policies": policies}
+
+
+# ── Razorpay Integration ──────────────────────────────────────────────────────
+@router.post(
+    "/create-order/{worker_id}",
+    response_model=CreateOrderResponse,
+    summary="Create a Razorpay Order ID for weekly premium",
+)
+def create_policy_order(worker_id: int, db: Session = Depends(get_db)):
+    """Returns a Razorpay order_id alongside the calculated premium quote."""
+    # Prevent creating duplicate orders if already insured
+    existing_active = (
+        db.query(Policy)
+        .filter(Policy.worker_id == worker_id, Policy.status == "Active")
+        .first()
+    )
+    if existing_active:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                f"Worker already has an active policy (ID: {existing_active.id}) "
+                f"valid until {existing_active.end_date.date()}."
+            ),
+        )
+
+    # Reuse existing quote logic
+    quote_response = get_premium_quote(worker_id, db)
+    
+    import razorpay
+    from app.config import settings
+    rzp_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+    
+    amount_in_paise = int(quote_response["premium"] * 100)
+    order = rzp_client.order.create({
+        "amount": amount_in_paise, 
+        "currency": "INR", 
+        "receipt": f"worker_{worker_id}"
+    })
+    
+    return {
+        "order_id": order["id"], 
+        "quote": quote_response
+    }
