@@ -31,7 +31,7 @@ final emailControllerProvider = Provider((ref) => TextEditingController());
 final passwordControllerProvider = Provider((ref) => TextEditingController());
 final nameControllerProvider = Provider((ref) => TextEditingController());
 final qCommerceProvider = StateProvider<String>((ref) => 'Zomato');
-final zoneControllerProvider = StateProvider<int>((ref) => 1); // Default to Koramangala (1)
+final zoneControllerProvider = StateProvider<int?>((ref) => null); // Default to closest
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
@@ -267,36 +267,68 @@ class _ProfileSetupStep extends ConsumerWidget {
           const SizedBox(height: 16),
           // Dynamic Zone Selection
           ref.watch(zonesProvider).when(
-            loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
+            loading: () => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: const [
+                    Icon(LucideIcons.locateFixed, color: AppTheme.accent, size: 16),
+                    SizedBox(width: 8),
+                    Text('📍 Detecting your location...', style: TextStyle(color: AppTheme.accent, fontSize: 13)),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
+              ],
+            ),
             error: (e, st) => Text('Error loading zones: $e', style: const TextStyle(color: Colors.red, fontSize: 12)),
             data: (zones) {
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppTheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppTheme.border),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButtonFormField<int>(
-                    value: ref.watch(zoneControllerProvider),
-                    dropdownColor: AppTheme.surface,
-                    decoration: const InputDecoration(
-                      border: InputBorder.none,
-                      prefixIcon: Icon(LucideIcons.mapPin, color: AppTheme.textSecondary, size: 20),
-                    ),
-                    style: const TextStyle(color: AppTheme.textPrimary, fontSize: 16),
-                    onChanged: (val) {
-                      if (val != null) {
-                        ref.read(zoneControllerProvider.notifier).state = val;
-                      }
-                    },
-                    items: zones.map((z) => DropdownMenuItem(
-                      value: z.id,
-                      child: Text(z.name),
-                    )).toList(),
+              final hasDistance = zones.isNotEmpty && zones.first.distanceKm > 0;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(LucideIcons.locateFixed, color: hasDistance ? AppTheme.success : AppTheme.textSecondary, size: 16),
+                      const SizedBox(width: 8),
+                      Text(
+                        hasDistance ? '📍 Sorted by proximity to your location' : '📍 Showing all zones (location unavailable)',
+                        style: TextStyle(color: hasDistance ? AppTheme.success : AppTheme.textSecondary, fontSize: 13),
+                      ),
+                    ],
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppTheme.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppTheme.border),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButtonFormField<int>(
+                        value: ref.watch(zoneControllerProvider) ?? zones.first.id,
+                        dropdownColor: AppTheme.surface,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          prefixIcon: Icon(LucideIcons.mapPin, color: AppTheme.textSecondary, size: 20),
+                        ),
+                        style: const TextStyle(color: AppTheme.textPrimary, fontSize: 16),
+                        onChanged: (val) {
+                          if (val != null) {
+                            ref.read(zoneControllerProvider.notifier).state = val;
+                          }
+                        },
+                        items: zones.map((z) => DropdownMenuItem(
+                          value: z.id,
+                          child: Text(
+                            z.distanceKm > 0 ? '${z.name} (${z.distanceKm.toStringAsFixed(1)} km)' : z.name,
+                          ),
+                        )).toList(),
+                      ),
+                    ),
+                  ),
+                ],
               );
             },
           ),
@@ -314,7 +346,7 @@ class _ProfileSetupStep extends ConsumerWidget {
                   email: emailController.text,
                   password: passwordController.text,
                   qCommercePlatform: qCommercePlatform,
-                  zoneId: ref.read(zoneControllerProvider),
+                  zoneId: ref.read(zoneControllerProvider) ?? ref.read(zonesProvider).valueOrNull?.first.id ?? 1,
                 );
                 ref.read(authStepProvider.notifier).setStep(2);
               } catch (e) {
