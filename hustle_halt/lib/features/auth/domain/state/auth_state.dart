@@ -2,26 +2,36 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/network/api_client.dart';
 import 'package:dio/dio.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 class ZoneModel {
   final int id;
   final String name;
   final String pincode;
   final double riskMultiplier;
+  final double? latitude;
+  final double? longitude;
+  final double? distanceKm; // populated when fetched via /zones/nearby
 
   ZoneModel({
     required this.id,
     required this.name,
     required this.pincode,
     required this.riskMultiplier,
+    this.latitude,
+    this.longitude,
+    this.distanceKm,
   });
 
-  factory ZoneModel.fromJson(Map<String, dynamic> json) {
+  factory ZoneModel.fromJson(Map<String, dynamic> json, {double? distanceKm}) {
     return ZoneModel(
       id: json['id'] as int,
       name: json['name'] as String,
       pincode: json['pincode'] as String,
       riskMultiplier: (json['base_risk_multiplier'] as num).toDouble(),
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      distanceKm: distanceKm,
     );
   }
 }
@@ -187,26 +197,88 @@ class AuthNotifier extends Notifier<WorkerModel?> {
 
 final authProvider = NotifierProvider<AuthNotifier, WorkerModel?>(AuthNotifier.new);
 
-// Added zonesProvider to fetch all dark stores
+// All dark stores (flat list, no location awareness — used as fallback)
 final zonesProvider = FutureProvider<List<ZoneModel>>((ref) async {
   final response = await ApiClient.instance.get('/api/v1/zones');
   final list = response.data as List;
   return list.map((z) => ZoneModel.fromJson(z)).toList();
 });
 
+// GPS location state — null means not yet acquired / permission denied
+final locationProvider = StateProvider<Position?>((ref) => null);
+
+// Nearby zones by GPS — calls /api/v1/zones/nearby?lat=&lon=
+// Sorted by distance and includes distanceKm on each zone.
+final nearbyZonesProvider = FutureProvider<List<ZoneModel>>((ref) async {
+  final position = ref.watch(locationProvider);
+  if (position == null) {
+    // Fallback to flat list if GPS isn't available yet
+    return ref.watch(zonesProvider.future);
+  }
+  final response = await ApiClient.instance.get(
+    '/api/v1/zones/nearby',
+    queryParameters: {
+      'lat': position.latitude,
+      'lon': position.longitude,
+    },
+  );
+  final list = response.data as List;
+  return list.map((z) => ZoneModel.fromJson(z)).toList();
+});
+
+/// Requests GPS permission and updates [locationProvider].
+/// Returns true if location was successfully obtained.
+Future<bool> requestAndFetchLocation(ref) async {
+  try {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return false;
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) return false;
+    }
+    if (permission == LocationPermission.deniedForever) return false;
+
+    final position = await Geolocator.getCurrentPosition(
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.low, // Save battery — we only need city-level precision
+        timeLimit: Duration(seconds: 8),
+      ),
+    );
+    ref.read(locationProvider.notifier).state = position;
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
 // Added quote model for PremiumPreview
 class QuoteModel {
   final double premium;
   final double coverage;
   final String message;
+  final double mWeather;
+  final String weatherCondition;
+  final String weatherSource;
 
-  QuoteModel({required this.premium, required this.coverage, required this.message});
+  QuoteModel({
+    required this.premium,
+    required this.coverage,
+    required this.message,
+    this.mWeather = 1.0,
+    this.weatherCondition = 'Clear',
+    this.weatherSource = 'mock',
+  });
 
   factory QuoteModel.fromJson(Map<String, dynamic> json) {
     return QuoteModel(
       premium: (json['premium'] as num).toDouble(),
       coverage: (json['coverage_amount'] as num).toDouble(),
-      message: json['message'] as String,
+      message: json['message'] as String? ?? '',
+      mWeather: (json['m_weather'] as num?)?.toDouble() ?? 1.0,
+      weatherCondition: json['weather_condition'] as String? ?? 'Clear',
+      weatherSource: json['weather_source'] as String? ?? 'mock',
     );
   }
 }

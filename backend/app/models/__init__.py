@@ -8,5 +8,6 @@ from app.models.worker import Worker
 from app.models.policy import Policy
 from app.models.trigger_event import TriggerEvent
 from app.models.claim import Claim
+from app.models.worker_activity_log import WorkerActivityLog
 
-__all__ = ["Zone", "Worker", "Policy", "TriggerEvent", "Claim"]
+__all__ = ["Zone", "Worker", "Policy", "TriggerEvent", "Claim", "WorkerActivityLog"]

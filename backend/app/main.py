@@ -12,7 +12,7 @@ from app.config import settings
 from app.database import engine, Base, SessionLocal
 
 # Import all models so SQLAlchemy registers them before create_all
-from app.models import Zone, Worker, Policy, TriggerEvent, Claim  # noqa: F401
+from app.models import Zone, Worker, Policy, TriggerEvent, Claim, WorkerActivityLog  # noqa: F401
 
 
 # Real Bengaluru dark store coordinates — verified against Google Maps
@@ -127,6 +127,7 @@ app.add_middleware(
 from app.routers import workers, policies, claims, admin  # noqa: E402
 from app.routers.workers import zone_router               # noqa: E402
 from app.routers.auth import router as auth_router        # noqa: E402
+from app.routers.activity import router as activity_router  # noqa: E402
 
 app.include_router(auth_router)
 app.include_router(workers.router)
@@ -134,6 +135,7 @@ app.include_router(zone_router)
 app.include_router(policies.router)
 app.include_router(claims.router)
 app.include_router(admin.router)
+app.include_router(activity_router)
 
 
 @app.get("/", tags=["Health"], summary="Service Info")

@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../auth/domain/state/auth_state.dart';
+import '../../../zones/domain/models/zone_model.dart';
+import '../../../zones/domain/state/zone_provider.dart';
 
 class DashboardDataNotifier extends AsyncNotifier<Map<String, dynamic>> {
   @override
@@ -30,12 +32,15 @@ final dashboardDataProvider = AsyncNotifierProvider<DashboardDataNotifier, Map<S
 // Current active policy maps from unified dashboard
 final activeCoverageProvider = Provider<AsyncValue<Map<String, dynamic>>>((ref) {
   final dashboardAsync = ref.watch(dashboardDataProvider);
+  final selectedZone = ref.watch(selectedZoneProvider);
 
   return dashboardAsync.whenData((dashboard) {
     final activePolicy = dashboard['active_policy'];
-    final zoneRisk = dashboard['zone']?['risk_level'] ?? 'LOW';
     
-    // Determine color from risk level (not exposing exact score)
+    // Use selected zone's risk level if available, fallback to dashboard data
+    final zoneRisk = selectedZone?.riskLevel.label ?? (dashboard['zone']?['risk_level'] ?? 'LOW');
+    
+    // Determine color from risk level
     Color riskColor = AppTheme.success;
     if (zoneRisk == 'HIGH') riskColor = AppTheme.error;
     if (zoneRisk == 'MEDIUM') riskColor = Colors.orange;
@@ -61,9 +66,17 @@ final activeCoverageProvider = Provider<AsyncValue<Map<String, dynamic>>>((ref) 
 // Environment provider extracts from unified dashboard
 final environmentDataProvider = Provider<AsyncValue<Map<String, dynamic>>>((ref) {
   final dashboardAsync = ref.watch(dashboardDataProvider);
+  final selectedZone = ref.watch(selectedZoneProvider);
 
   return dashboardAsync.whenData((dashboard) {
-    final env = dashboard['live_weather'] ?? {};
+    final env = Map<String, dynamic>.from(dashboard['live_weather'] ?? {});
+    
+    // SIMULATION: Adjust environment based on zone risk
+    if (selectedZone != null && selectedZone.riskLevel == RiskLevel.high) {
+      env['rainfall_mm_hr'] = (env['rainfall_mm_hr'] ?? 0.0) + 2.5; 
+      env['aqi'] = (env['aqi'] ?? 65) + 40;
+    }
+
     return {
       'rainfall': env['rainfall_mm_hr'] ?? 0.0,
       'aqi': env['aqi'] ?? 65,
