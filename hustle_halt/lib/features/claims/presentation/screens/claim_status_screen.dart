@@ -2,19 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_theme.dart';
-import '../../../../core/network/api_client.dart';
-import '../../../auth/domain/state/auth_state.dart';
-import 'package:hustle_halt/l10n/app_localizations.dart';
-import '../../../../core/widgets/language_selector.dart';
 import '../../../../core/providers/locale_provider.dart';
-
-final mockClaimsProvider = FutureProvider<List<dynamic>>((ref) async {
-  final worker = ref.watch(authProvider);
-  if (worker == null) return [];
-
-  final response = await ApiClient.instance.get('/api/v1/claims/worker/${worker.id}');
-  return response.data['claims'] as List;
-});
+import '../../../../core/widgets/language_selector.dart';
+import '../../../auth/domain/state/auth_state.dart';
+import '../../domain/models/claim_model.dart';
+import '../../domain/state/claims_state.dart';
 
 class ClaimStatusScreen extends ConsumerWidget {
   const ClaimStatusScreen({super.key});
@@ -22,7 +14,7 @@ class ClaimStatusScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = ref.watch(appL10nProvider);
-    final claimsAsync = ref.watch(mockClaimsProvider);
+    final claimsAsync = ref.watch(claimsProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -32,124 +24,438 @@ class ClaimStatusScreen extends ConsumerWidget {
       body: SafeArea(
         child: claimsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
-          error: (e, st) => Center(child: Text(l10n.failedToLoadClaims(e.toString()), style: const TextStyle(color: AppTheme.error))),
-          data: (claims) {
-            if (claims.isEmpty) {
-               return Center(child: Text(l10n.noClaimsFound, style: const TextStyle(color: AppTheme.textSecondary)));
+          error: (e, st) => Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(LucideIcons.alertCircle, color: AppTheme.error, size: 48),
+                  const SizedBox(height: 16),
+                  Text(l10n.failedToLoadClaims(e.toString()),
+                      textAlign: TextAlign.center, style: const TextStyle(color: AppTheme.error)),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () => ref.invalidate(claimsProvider),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          data: (result) {
+            if (result.claims.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(LucideIcons.shieldCheck, size: 64, color: AppTheme.textSecondary.withOpacity(0.4)),
+                    const SizedBox(height: 16),
+                    Text(l10n.noClaimsFound, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 16)),
+                    const SizedBox(height: 8),
+                    const Text('No triggers have fired in your zone yet.', style: TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+                  ],
+                ),
+              );
             }
-            return ListView.separated(
-              padding: const EdgeInsets.all(20),
-              itemCount: claims.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 16),
-              itemBuilder: (context, index) {
-                return _buildClaimCard(context, claims[index]);
-              },
+
+            return Column(
+              children: [
+                // ── Summary banner ─────────────────────────────────────
+                if (result.totalPayout > 0)
+                  _PayoutSummaryBanner(totalPayout: result.totalPayout, totalClaims: result.totalClaims),
+
+                // ── Claims list ────────────────────────────────────────
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () async => ref.invalidate(claimsProvider),
+                    color: AppTheme.accent,
+                    backgroundColor: AppTheme.surface,
+                    child: ListView.separated(
+                      padding: const EdgeInsets.all(20),
+                      itemCount: result.claims.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 16),
+                      itemBuilder: (context, index) {
+                        return _ClaimCard(claim: result.claims[index]);
+                      },
+                    ),
+                  ),
+                ),
+              ],
             );
-          }
-        )
+          },
+        ),
       ),
     );
   }
+}
 
-  Widget _buildClaimCard(BuildContext context, dynamic claim) {
-    final l10n = AppLocalizations.of(context)!;
-    Color statusColor;
-    IconData statusIcon;
-    String statusText;
+// ── Payout Summary Banner ──────────────────────────────────────────────────────
+class _PayoutSummaryBanner extends StatelessWidget {
+  final double totalPayout;
+  final int totalClaims;
 
-    final status = claim['status'];
-    switch (status) {
-      case 'APPROVED':
-        statusColor = AppTheme.success;
-        statusIcon = LucideIcons.checkCircle;
-        statusText = l10n.statusAutoApproved;
-        break;
-      case 'PROCESSING':
-        statusColor = AppTheme.accent;
-        statusIcon = LucideIcons.clock;
-        statusText = l10n.statusProcessingSoftHold;
-        break;
-      default: // BLOCKED or REJECTED
-        statusColor = AppTheme.error;
-        statusIcon = LucideIcons.xCircle;
-        statusText = status;
-        break;
-    }
+  const _PayoutSummaryBanner({required this.totalPayout, required this.totalClaims});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppTheme.success.withOpacity(0.8), AppTheme.success.withOpacity(0.4)],
+        ),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          const Icon(LucideIcons.banknote, color: Colors.white, size: 28),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Total Payouts Received', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                Text('₹${totalPayout.toStringAsFixed(0)}', style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+          Text('$totalClaims claims', style: const TextStyle(color: Colors.white70, fontSize: 13)),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Claim Card ─────────────────────────────────────────────────────────────────
+class _ClaimCard extends ConsumerWidget {
+  final ClaimModel claim;
+
+  const _ClaimCard({required this.claim});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = ref.watch(appL10nProvider);
+    final worker = ref.watch(authProvider);
+
+    // Status styling
+    final (statusColor, statusIcon, statusText) = switch (claim.status) {
+      'Auto-Approved' => (AppTheme.success, LucideIcons.checkCircle, l10n.statusAutoApproved),
+      'Soft-Hold' => (Colors.orangeAccent, LucideIcons.clock, l10n.statusProcessingSoftHold),
+      'Under-Appeal' => (Colors.blueAccent, LucideIcons.messageSquare, 'Under Appeal'),
+      'Blocked' => (AppTheme.error, LucideIcons.xCircle, 'Blocked'),
+      _ => (AppTheme.textSecondary, LucideIcons.alertCircle, claim.status),
+    };
 
     return Container(
-      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppTheme.surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppTheme.border),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('CLM-${claim['id']}', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
-              Text(claim['date'].toString().split('T').first, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                claim['trigger_description'] ?? l10n.systemEvent,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
-              ),
-              if (claim['amount'] > 0)
-                Text(
-                  '₹${claim['amount']}',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
-                ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: statusColor.withOpacity(0.5)),
-            ),
+          // ── Header ──────────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
             child: Row(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(statusIcon, color: statusColor, size: 16),
-                const SizedBox(width: 8),
+                Text('CLM-${claim.id}', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12, fontWeight: FontWeight.w600)),
                 Text(
-                  statusText,
-                  style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12),
+                  claim.createdAt.toLocal().toString().split(' ').first,
+                  style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
-          const Divider(color: AppTheme.border),
-          const SizedBox(height: 12),
-          _buildInfoRow(LucideIcons.info, claim['notes'] ?? l10n.autoProcessedNote),
-          const SizedBox(height: 12),
-          _buildInfoRow(
-            LucideIcons.creditCard,
-            status == 'APPROVED' ? l10n.expectedCreditUPI : l10n.resolutionPending,
+
+          // ── Event info ───────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _formatEventType(claim.eventType),
+                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                      ),
+                      if (claim.zoneName != null) ...[
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            const Icon(LucideIcons.mapPin, size: 12, color: AppTheme.textSecondary),
+                            const SizedBox(width: 4),
+                            Text(claim.zoneName!, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (claim.payoutAmount > 0)
+                  Text(
+                    '+₹${claim.payoutAmount.toStringAsFixed(0)}',
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.success),
+                  ),
+              ],
+            ),
           ),
+
+          const SizedBox(height: 14),
+
+          // ── Status & Payout % ────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+            child: Row(
+              children: [
+                // Status pill
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: statusColor.withOpacity(0.5)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(statusIcon, color: statusColor, size: 14),
+                      const SizedBox(width: 6),
+                      Text(statusText, style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 12)),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+
+                // Payout % pill
+                if (claim.payoutPercentage > 0 && claim.isAutoApproved)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppTheme.success.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppTheme.success.withOpacity(0.4)),
+                    ),
+                    child: Text(
+                      '${claim.payoutPercentage.toStringAsFixed(0)}% payout',
+                      style: const TextStyle(color: AppTheme.success, fontWeight: FontWeight.bold, fontSize: 12),
+                    ),
+                  ),
+
+                // Severity badge
+                if (claim.eventSeverity != null) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppTheme.surface,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppTheme.border),
+                    ),
+                    child: Text(
+                      claim.eventSeverity!,
+                      style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 14),
+          const Divider(color: AppTheme.border, height: 1),
+          const SizedBox(height: 14),
+
+          // ── Info rows ── always shown ────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+            child: Column(
+              children: [
+                _infoRow(
+                  LucideIcons.info,
+                  claim.isAutoApproved ? l10n.autoProcessedNote : l10n.resolutionPending,
+                ),
+                const SizedBox(height: 8),
+                _infoRow(
+                  LucideIcons.creditCard,
+                  claim.upiWebhookFired ? l10n.expectedCreditUPI : l10n.resolutionPending,
+                ),
+              ],
+            ),
+          ),
+
+          // ── Appeal button for Blocked claims ─────────────────────────
+          if (claim.canAppeal)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 18),
+              child: _AppealSection(claim: claim, workerId: worker?.id ?? 0),
+            )
+          else
+            const SizedBox(height: 18),
         ],
       ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String text) {
+  String _formatEventType(String? eventType) {
+    if (eventType == null) return 'System Event';
+    return eventType
+        .split('_')
+        .map((w) => w.isEmpty ? '' : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
+        .join(' ');
+  }
+
+  Widget _infoRow(IconData icon, String text) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 16, color: AppTheme.textSecondary),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(text, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 14, height: 1.4)),
+        Icon(icon, size: 15, color: AppTheme.textSecondary),
+        const SizedBox(width: 10),
+        Expanded(child: Text(text, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13, height: 1.4))),
+      ],
+    );
+  }
+}
+
+// ── Appeal Section ─────────────────────────────────────────────────────────────
+class _AppealSection extends ConsumerStatefulWidget {
+  final ClaimModel claim;
+  final int workerId;
+
+  const _AppealSection({required this.claim, required this.workerId});
+
+  @override
+  ConsumerState<_AppealSection> createState() => _AppealSectionState();
+}
+
+class _AppealSectionState extends ConsumerState<_AppealSection> {
+  bool _showForm = false;
+  final _reasonController = TextEditingController();
+
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final appealState = ref.watch(appealNotifierProvider);
+
+    if (appealState.status == AppealStatus.success) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.blueAccent.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.blueAccent.withOpacity(0.4)),
+        ),
+        child: Row(
+          children: [
+            const Icon(LucideIcons.messageSquare, color: Colors.blueAccent, size: 18),
+            const SizedBox(width: 10),
+            Expanded(child: Text(appealState.message ?? 'Appeal submitted!', style: const TextStyle(color: Colors.blueAccent, fontSize: 13))),
+          ],
+        ),
+      );
+    }
+
+    if (!_showForm) {
+      return OutlinedButton.icon(
+        onPressed: () => setState(() => _showForm = true),
+        icon: const Icon(LucideIcons.messageSquare, size: 16),
+        label: const Text('Appeal This Decision'),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppTheme.error,
+          side: const BorderSide(color: AppTheme.error),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          minimumSize: const Size(double.infinity, 0),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (widget.claim.appealDeadline != null) ...[
+          Row(
+            children: [
+              const Icon(LucideIcons.clock, size: 14, color: Colors.orangeAccent),
+              const SizedBox(width: 6),
+              Text(
+                'Appeal deadline: ${widget.claim.appealDeadline!.toLocal().toString().split('.').first}',
+                style: const TextStyle(color: Colors.orangeAccent, fontSize: 12),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+        ],
+        TextField(
+          controller: _reasonController,
+          maxLines: 3,
+          decoration: InputDecoration(
+            hintText: 'Explain your reason for appeal (min 10 characters)…',
+            hintStyle: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+            filled: true,
+            fillColor: AppTheme.background,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.border),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppTheme.border),
+            ),
+          ),
+        ),
+        if (appealState.status == AppealStatus.error) ...[
+          const SizedBox(height: 8),
+          Text(appealState.errorMessage ?? '', style: const TextStyle(color: AppTheme.error, fontSize: 12)),
+        ],
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => setState(() => _showForm = false),
+                child: const Text('Cancel'),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: appealState.status == AppealStatus.loading
+                    ? null
+                    : () {
+                        if (_reasonController.text.trim().length < 10) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Please enter at least 10 characters.')),
+                          );
+                          return;
+                        }
+                        ref.read(appealNotifierProvider.notifier).appealClaim(
+                          claimId: widget.claim.id,
+                          workerId: widget.workerId,
+                          reason: _reasonController.text.trim(),
+                        );
+                      },
+                icon: appealState.status == AppealStatus.loading
+                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+                    : const Icon(LucideIcons.send, size: 16, color: Colors.black),
+                label: const Text('Submit', style: TextStyle(color: Colors.black)),
+                style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accent),
+              ),
+            ),
+          ],
         ),
       ],
     );

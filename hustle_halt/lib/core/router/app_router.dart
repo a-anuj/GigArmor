@@ -7,6 +7,7 @@ import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../../features/claims/presentation/screens/claim_status_screen.dart';
 import '../../features/policy/presentation/screens/policy_history_screen.dart';
+import '../../features/policy/presentation/screens/premium_quote_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../theme/app_theme.dart';
 import '../providers/locale_provider.dart';
@@ -46,6 +47,10 @@ final GoRouter appRouter = GoRouter(
         GoRoute(
           path: '/profile',
           pageBuilder: (context, state) => const NoTransitionPage(child: ProfileScreen()),
+        ),
+        GoRoute(
+          path: '/quote',
+          pageBuilder: (context, state) => const NoTransitionPage(child: PremiumQuoteScreen()),
         ),
       ],
     ),

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../auth/domain/state/auth_state.dart';
 import '../../domain/state/dashboard_state.dart';
 import '../../../../core/widgets/language_selector.dart';
-import 'package:hustle_halt/l10n/app_localizations.dart';
+import '../../../../core/providers/locale_provider.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -13,7 +14,7 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final worker = ref.watch(authProvider);
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = ref.watch(appL10nProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -41,7 +42,7 @@ class DashboardScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildGreeting(context, worker),
+                _buildGreeting(context, worker, ref),
                 const SizedBox(height: 24),
                 _buildCoverageCard(context, ref),
                 const SizedBox(height: 24),
@@ -65,8 +66,8 @@ class DashboardScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildGreeting(BuildContext context, WorkerModel? worker) {
-    final l10n = AppLocalizations.of(context)!;
+  Widget _buildGreeting(BuildContext context, WorkerModel? worker, WidgetRef ref) {
+    final l10n = ref.watch(appL10nProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -107,7 +108,7 @@ class DashboardScreen extends ConsumerWidget {
 
   Widget _buildCoverageCard(BuildContext context, WidgetRef ref) {
     final asyncCoverage = ref.watch(activeCoverageProvider);
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = ref.watch(appL10nProvider);
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -126,7 +127,7 @@ class DashboardScreen extends ConsumerWidget {
       child: asyncCoverage.when(
         loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
         error: (e, st) => Text(l10n.failedToLoadPolicy),
-        data: (coverage) => Column(
+          data: (coverage) => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -159,38 +160,64 @@ class DashboardScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              '₹${coverage['amount']}',
-              style: const TextStyle(
+              coverage['amount'] != null ? '₹${coverage['amount']}' : l10n.coverageStatusInactive,
+              style: TextStyle(
                 fontSize: 36,
                 fontWeight: FontWeight.bold,
-                color: AppTheme.success,
+                color: coverage['amount'] != null ? AppTheme.success : AppTheme.textSecondary,
               ),
             ),
             const SizedBox(height: 16),
-            const Divider(color: AppTheme.border),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(l10n.weeklyPremium, style: Theme.of(context).textTheme.bodyMedium),
-                Text(
-                  l10n.perWeekLabel(coverage['premium'].toString()),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textPrimary,
-                  )
+            if (coverage['amount'] != null) ...[  
+              const Divider(color: AppTheme.border),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(l10n.weeklyPremium, style: Theme.of(context).textTheme.bodyMedium),
+                  Text(
+                    l10n.perWeekLabel(coverage['premium'].toString()),
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                  ),
+                ],
+              ),
+            ] else ...[  
+              const Divider(color: AppTheme.border),
+              const SizedBox(height: 12),
+              // ── Enroll CTA ─────────────────────────────────────────
+              GestureDetector(
+                onTap: () => context.push('/quote'),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppTheme.accent.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppTheme.accent.withOpacity(0.4)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(LucideIcons.shield, color: AppTheme.accent, size: 18),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Get Quote & Enroll →',
+                        style: const TextStyle(color: AppTheme.accent, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            )
+              ),
+            ],
           ],
-        )
-      )
+        ),
+      ),
     );
   }
 
   Widget _buildEnvironmentGrid(BuildContext context, WidgetRef ref) {
     final asyncEnv = ref.watch(environmentDataProvider);
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = ref.watch(appL10nProvider);
 
     return asyncEnv.when(
       loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
@@ -265,7 +292,7 @@ class DashboardScreen extends ConsumerWidget {
 
   Widget _buildLastPayout(BuildContext context, WidgetRef ref) {
     final asyncPayout = ref.watch(lastPayoutProvider);
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = ref.watch(appL10nProvider);
 
     return Container(
         padding: const EdgeInsets.all(20),
@@ -323,7 +350,7 @@ class DashboardScreen extends ConsumerWidget {
 
   Widget _buildLoyaltyCard(BuildContext context, WidgetRef ref) {
     final asyncLoyalty = ref.watch(loyaltyProvider);
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = ref.watch(appL10nProvider);
 
     return asyncLoyalty.when(
       loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
