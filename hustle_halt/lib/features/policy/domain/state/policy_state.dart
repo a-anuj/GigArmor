@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../auth/domain/state/auth_state.dart';
 import '../models/policy_model.dart';
@@ -54,18 +55,26 @@ class EnrollNotifier extends Notifier<EnrollState> {
   @override
   EnrollState build() => const EnrollState();
 
-  Future<void> enroll(int workerId) async {
+  Future<void> enroll(int workerId, String paymentId, String orderId, String signature) async {
     state = state.copyWith(status: EnrollStatus.loading);
     try {
       final response = await ApiClient.instance.post(
         '/api/v1/policies/enroll',
-        data: {'worker_id': workerId},
+        data: {
+          'worker_id': workerId,
+          'razorpay_payment_id': paymentId,
+          'razorpay_order_id': orderId,
+          'razorpay_signature': signature,
+        },
       );
       final result = EnrollResult.fromJson(response.data as Map<String, dynamic>);
       state = state.copyWith(status: EnrollStatus.success, result: result);
 
       // Invalidate policy history so the list refreshes
       ref.invalidate(policyHistoryProvider);
+    } on DioException catch (e) {
+      final msg = e.response?.data?['detail'] ?? e.message;
+      state = state.copyWith(status: EnrollStatus.error, errorMessage: msg.toString());
     } catch (e) {
       state = state.copyWith(status: EnrollStatus.error, errorMessage: e.toString());
     }

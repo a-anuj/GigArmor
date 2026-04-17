@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/providers/locale_provider.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../core/widgets/language_selector.dart';
 import '../../../auth/domain/state/auth_state.dart';
 import '../../domain/models/policy_model.dart';
@@ -366,8 +369,7 @@ class _ShieldCreditsCard extends StatelessWidget {
   }
 }
 
-// ── Enroll Button ──────────────────────────────────────────────────────────────
-class _EnrollButton extends ConsumerWidget {
+class _EnrollButton extends ConsumerStatefulWidget {
   final PremiumQuoteModel quote;
   final int workerId;
   final bool isLoading;
@@ -376,11 +378,89 @@ class _EnrollButton extends ConsumerWidget {
   const _EnrollButton({required this.quote, required this.workerId, required this.isLoading, this.errorMessage});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_EnrollButton> createState() => _EnrollButtonState();
+}
+
+class _EnrollButtonState extends ConsumerState<_EnrollButton> {
+  late Razorpay _razorpay;
+  bool _isInitializing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _razorpay.clear();
+  }
+
+  void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    if (!mounted) return;
+    ref.read(enrollNotifierProvider.notifier).enroll(
+      widget.workerId,
+      response.paymentId ?? '',
+      response.orderId ?? '',
+      response.signature ?? '',
+    );
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Payment Failed: ${response.message}')),
+    );
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {}
+
+  Future<void> _handleEnroll(BuildContext context) async {
+    setState(() => _isInitializing = true);
+    try {
+      final res = await ApiClient.instance.post('/api/v1/policies/create-order/${widget.workerId}');
+      final orderId = res.data['order_id'] as String;
+      
+      var options = {
+        'key': 'rzp_test_SeRpQpOTDyHEkk',
+        'amount': (widget.quote.premium * 100).toInt(),
+        'name': 'GigArmor',
+        'description': 'Weekly Premium Cover',
+        'order_id': orderId,
+        'prefill': {
+          'contact': '9876543210',
+          'email': 'worker@gigarmor.com'
+        },
+        'theme': {
+           'color': '#00ADB5'
+        }
+      };
+      
+      _razorpay.open(options);
+    } catch (e) {
+      if (mounted) {
+         String errMessage = e.toString();
+         if (e is DioException) {
+            errMessage = e.response?.data?['detail']?.toString() ?? e.message ?? 'Unknown checkout error';
+         }
+         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errMessage)));
+      }
+    } finally {
+      if (mounted) setState(() => _isInitializing = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final showLoading = widget.isLoading || _isInitializing;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (errorMessage != null) ...[
+        if (widget.errorMessage != null) ...[
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -388,21 +468,19 @@ class _EnrollButton extends ConsumerWidget {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppTheme.error.withOpacity(0.4)),
             ),
-            child: Text(errorMessage!, style: const TextStyle(color: AppTheme.error, fontSize: 13)),
+            child: Text(widget.errorMessage!, style: const TextStyle(color: AppTheme.error, fontSize: 13)),
           ),
           const SizedBox(height: 12),
         ],
         SizedBox(
           height: 56,
           child: ElevatedButton.icon(
-            onPressed: isLoading || workerId == 0
-                ? null
-                : () => ref.read(enrollNotifierProvider.notifier).enroll(workerId),
-            icon: isLoading
+            onPressed: showLoading || widget.workerId == 0 ? null : () => _handleEnroll(context),
+            icon: showLoading
                 ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.black, strokeWidth: 2))
                 : const Icon(LucideIcons.shield, color: Colors.black),
             label: Text(
-              isLoading ? 'Enrolling...' : 'Enroll for ₹${quote.premium.toStringAsFixed(0)} / week',
+              showLoading ? 'Initializing Gateway...' : 'Enroll via Razorpay for ₹${widget.quote.premium.toStringAsFixed(0)}',
               style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16),
             ),
             style: ElevatedButton.styleFrom(
@@ -412,10 +490,10 @@ class _EnrollButton extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          'Coverage: ₹${quote.coverageAmount.toStringAsFixed(0)}/day max · Auto-approved on trigger',
+        const Text(
+          'Coverage active immediately post-payment · Auto-approved on trigger',
           textAlign: TextAlign.center,
-          style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+          style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
         ),
       ],
     );
