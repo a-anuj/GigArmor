@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 class ApiClient {
-  static const String baseUrl = 'https://gigarmor.onrender.com'; // Target FastAPI Backend
+  static const String baseUrl = 'https://gigarmor.onrender.com'; // Target FastAPI Backend (Deployed)
   
   static String? accessToken; // Stored JWT token
 
