@@ -224,14 +224,8 @@ HustleHalt monitors 5 parametric events. Payouts are triggered **automatically**
 - **Threshold:** AQI > 300 ("Hazardous") sustained for ≥ 3 hours + platform mock API confirms dispatch suspension in zone
 - **Payout:** 50% of weekly coverage per event (max 2 events/week)
 
-### Trigger 3 — Platform Outage
 
-- **Data source:** Zepto/Blinkit platform mock API — order dispatch volume monitored
-- **Threshold:** Zero orders dispatched from a dark store for ≥ 45 minutes during peak hours (7–9 AM, 12–2 PM, 7–10 PM)
-- **Payout:** 25% of weekly coverage per event (max 2 events/week)
-- **Fraud resistance:** Must coincide with zero-activity for ≥ 60% of workers in the same zone simultaneously
-
-### Trigger 4 — Social Disruption (Curfew / Bandh)
+### Trigger 3 — Social Disruption (Curfew / Bandh)
 
 - **Data source:** Oracle consensus model — requires 2-of-3 weighted node agreement:
   - Node A (weight 0.35): News API keyword spike — "bandh / curfew / section 144" in pincode
@@ -240,7 +234,7 @@ HustleHalt monitors 5 parametric events. Payouts are triggered **automatically**
   - **Trigger condition:** Combined weighted confidence ≥ 0.65
 - **Payout:** 75% of weekly coverage per confirmed social disruption event
 
-### Trigger 5 — Extreme Heat Event
+### Trigger 4 — Extreme Heat Event
 
 - **Data source:** OpenWeatherMap — wet-bulb temperature calculation from temp + humidity
 - **Threshold:** Wet-bulb temperature ≥ 38°C sustained for ≥ 4 hours
@@ -496,79 +490,7 @@ Standard weather APIs are highly reliable. Social disruptions (curfews, bandhs) 
 
 ## 10. System Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        DATA SOURCES                             │
-│  OpenWeatherMap · AQICN · IMD Feed · Platform Mock API          │
-│  Traffic API · News/Social API · Telecom Cell Tower Data        │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────────────────┐
-│         HYPERLOCAL ZONE INTELLIGENCE ENGINE (HZI)               │
-│  • Pincode-level disruption score per dark store zone           │
-│  • Refreshed every 15 minutes via Redis pub/sub                 │
-│  • Oracle consensus for social disruption verification          │
-└──────────┬──────────────────┬───────────────────────────────────┘
-           │                  │
-           ▼                  ▼
-┌──────────────────┐  ┌──────────────────────────────────────────┐
-│  AI RISK ENGINE  │  │     PARAMETRIC TRIGGER ENGINE            │
-│  (FastAPI/Python)│  │  • 5 trigger types monitored real-time   │
-│  • XGBoost model │  │  • Zone burst detection (Redis counter)  │
-│  • Weekly premium│  │  • Auto-claim initiation on threshold    │
-│  • Retrained     │  │  • Cross-validation before payout        │
-│    weekly        │  └──────────────┬───────────────────────────┘
-└──────────────────┘                 │
-                                     ▼
-                    ┌────────────────────────────────┐
-                    │    TRUST SCORE ENGINE          │
-                    │    (Fraud Detection)           │
-                    │  Layer 1: Device sensors       │
-                    │  Layer 2: Behavioral signals   │
-                    │  Layer 3: Network graph        │
-                    │  → 0–100 score per claim       │
-                    └────────────┬───────────────────┘
-                                 │
-              ┌──────────────────┼──────────────────┐
-              ▼                  ▼                  ▼
-       Score ≥ 75          Score 40–74         Score < 40
-    AUTO-APPROVE          SOFT HOLD           BLOCK + FLAG
-    UPI in <60s       Passive re-verify    Admin queue + appeal
-                      4hr window
-                                 │
-                                 ▼
-                    ┌────────────────────────────┐
-                    │    ML FEEDBACK LOOP        │
-                    │  • Confidence-weighted     │
-                    │    label on resolution     │
-                    │  • Weekly model retraining │
-                    └────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────┐
-│                    HUSTLEHALT CORE PLATFORM                       │
-│         Node.js + Express · PostgreSQL · Redis · BullMQ         │
-│  Onboarding · Policy Management · Claims Ledger · Payout Queue  │
-└───────────────────────┬───────────────────────────────┬─────────┘
-                        │                               │
-              ┌─────────▼────────┐            ┌────────▼────────┐
-              │  WORKER MOBILE   │            │  ADMIN WEB APP  │
-              │  React Native    │            │  React.js       │
-              │  (Expo) · PWA    │            │  Dashboard      │
-              │  Offline-first   │            │  Soft-hold Q    │
-              │  Tamil/Hindi/EN  │            │  Analytics      │
-              └──────────────────┘            └─────────────────┘
-                        │                               │
-                        └───────────┬───────────────────┘
-                                    ▼
-                    ┌────────────────────────────────┐
-                    │      PAYOUT GATEWAY            │
-                    │  Razorpay (test mode) · UPI    │
-                    │  Direct bank transfer fallback │
-                    └────────────────────────────────┘
-```
-
----
+<p align="center"><img src="./arch. diagram.png" width="100%" alt="Arch Diagram" /></p>
 
 ## 11. Tech Stack
 
