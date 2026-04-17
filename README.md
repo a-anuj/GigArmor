@@ -1,55 +1,163 @@
-<p align="center"><img src="./logo.png" width="150" alt="HustleHalt Logo" /></p>
+# GigArmor
 
-# HustleHalt
+### Parametric Income Insurance for Gig Economy Workers
 
-### AI-Powered Parametric Income Insurance for India's Gig Economy
-
-> _"Your income. Protected. Automatically."_
+> _"Protecting gig worker income from uncontrollable disruptions."_
 
 **Guidewire DEVTrails 2026 — University Hackathon**
-**Persona:** Grocery & Q-Commerce Delivery Partners (Zepto / Blinkit)
-**Platform:** React Native Mobile App (Workers) + React.js Web Dashboard (Admin)
-**Languages:** English · हिन्दी · தமிழ்
 
 ---
 
 ## Table of Contents
 
-1. [The Problem We Are Solving](#1-the-problem-we-are-solving)
-2. [Why Q-Commerce Delivery Partners](#2-why-q-commerce-delivery-partners)
-3. [Our Solution — HustleHalt](#3-our-solution--hustlehalt)
-4. [End-to-End Working Solution](#4-end-to-end-working-solution)
-5. [Weekly AI Premium Calculation Model](#5-weekly-ai-premium-calculation-model)
-6. [Parametric Trigger System](#6-parametric-trigger-system)
-7. [Adversarial Defense & Anti-Spoofing Strategy](#7-adversarial-defense--anti-spoofing-strategy)
-8. [Edge Cases — How We Handle Every Scenario](#8-edge-cases--how-we-handle-every-scenario)
-9. [Additional Innovation Features](#9-additional-innovation-features)
-10. [System Architecture](#10-system-architecture)
-11. [Tech Stack](#11-tech-stack)
-12. [Platform Design — Mobile & Web](#12-platform-design--mobile--web)
-13. [Liquidity Pool & Financial Model](#13-liquidity-pool--financial-model)
-14. [Benefits to Gig Workers](#14-benefits-to-gig-workers)
-15. [Conclusion](#15-conclusion)
+1. [Project Overview](#project-overview)
+2. [Implemented Features](#implemented-features)
+3. [Demo/Mocked Features](#demomocked-features)
+4. [Architecture](#architecture)
+5. [Backend API](#backend-api)
+6. [Mobile Frontend](#mobile-frontend)
+7. [Tech Stack](#tech-stack)
+8. [Development Setup](#development-setup)
+9. [Notes](#notes)
 
 ---
 
-## 1. The Problem We Are Solving
+## Project Overview
 
-India has over 12 million platform-based gig delivery workers. The Q-commerce segment alone — Zepto, Blinkit, Swiggy Instamart — employs an estimated 3–4 million riders operating under the promise of 10-minute delivery. These workers are the last-mile backbone of the Indian digital economy.
+GigArmor is a parametric income insurance platform designed for gig economy workers, particularly Q-commerce delivery partners. It provides zero-touch claims processing for income loss due to weather and social disruptions, using real-time data from APIs like OpenWeatherMap and AQICN.
 
-### The Income Vulnerability
+The system includes a FastAPI backend for policy management, claims processing, and trigger simulation, along with a Flutter mobile app for workers to view policies, claims, and dashboards.
 
-External disruptions that are entirely outside a worker's control cause them to lose **20–30% of their monthly earnings**:
+---
 
-- **Extreme weather** — Heavy monsoon rain (>35mm/hr), cyclonic activity, severe flooding. A Blinkit rider in Chennai cannot ride in a Category-1 rain event. The platform suspends dispatch. The worker earns zero.
-- **Severe air pollution** — AQI exceeding 300 creates legal and health grounds for platform-side suspension of outdoor delivery operations, particularly during North India winters.
-- **Social disruptions** — Unannounced curfews, local bandhs, police-declared no-movement zones, and sudden market closures prevent access to dark stores and customer locations.
-- **Extreme heat events** — Wet-bulb temperatures exceeding 38°C during April–June in cities like Chennai, Hyderabad, and Delhi now routinely halt outdoor operations for safety.
-- **Platform-side outages** — App crashes and dispatch server failures prevent order assignment even when the worker is present, on-road, and ready to work.
+## Implemented Features
 
-### The Gap in Protection
+- **Worker Registration and Authentication**: JWT-based login and registration for gig workers.
+- **Policy Enrollment**: Workers can enroll in weekly insurance policies with dynamic premium calculation based on zone risk.
+- **Premium Calculation**: Deterministic formula using weather and social risk multipliers, with Shield Credits for loyalty.
+- **Claims Processing**: Automatic claim generation on parametric triggers (Rain, AQI, Social, Heat), with trust scoring and payout routing.
+- **Trigger Simulation**: Admin endpoints to simulate triggers for testing.
+- **Admin Stats**: Platform-wide statistics and soft-hold claim management.
+- **Mobile App**: Flutter app with dashboard, policy history, claims status, and profile management, supporting English, Hindi, and Tamil.
 
-Currently, **zero formal income protection products exist for gig workers against these events**. Traditional insurance products require:
+---
+
+## Demo/Mocked Features
+
+- **Trust Engine**: Scoring is mocked with random values; no real ML or fraud detection.
+- **UPI Payouts**: Webhook logging only; no actual payment gateway integration.
+- **Social Risk Multiplier**: Uses hardcoded zone data; no real social disruption APIs.
+- **Admin Dashboard UI**: Only API endpoints; no frontend UI implemented.
+- **Outage Trigger**: Not implemented; claims do not cover platform outages.
+- **Advanced ML**: No XGBoost, TensorFlow, or model retraining.
+
+---
+
+## Architecture
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Flutter App   │    │   FastAPI API   │    │   Database      │
+│                 │    │                 │    │   (SQLite/PG)   │
+│ - Dashboard     │◄──►│ - Workers       │◄──►│                 │
+│ - Policies      │    │ - Policies      │    │                 │
+│ - Claims        │    │ - Claims        │    │                 │
+│ - Profile       │    │ - Admin         │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────┐
+                    │   External APIs │
+                    │ - OpenWeatherMap│
+                    │ - AQICN         │
+                    └─────────────────┘
+```
+
+- **Backend**: FastAPI with SQLAlchemy for ORM, configurable database (SQLite for dev, PostgreSQL for prod).
+- **Scheduler**: Background jobs for policy expiry and weather caching.
+- **Services**: Modular services for premium calculation, trigger processing, trust scoring, and payouts.
+
+---
+
+## Backend API
+
+### Workers
+- `POST /api/v1/workers/register` — Register a new worker.
+- `POST /api/v1/workers/login` — Login with phone/email.
+- `GET /api/v1/workers/{id}` — Get worker profile.
+- `GET /api/v1/workers/{id}/dashboard` — Full dashboard data.
+- `PATCH /api/v1/workers/{id}/zone` — Update active zone.
+
+### Policies
+- `GET /api/v1/policies/quote/{worker_id}` — Get premium quote.
+- `POST /api/v1/policies/enroll` — Enroll in policy.
+- `GET /api/v1/policies/worker/{worker_id}` — List worker policies.
+
+### Claims
+- `GET /api/v1/claims/worker/{worker_id}` — List worker claims.
+- `GET /api/v1/claims/{id}` — Get claim details.
+- `POST /api/v1/claims/{id}/appeal` — Appeal a blocked claim.
+
+### Admin
+- `POST /api/v1/admin/simulate-trigger` — Simulate a trigger.
+- `GET /api/v1/admin/stats` — Platform stats.
+- `GET /api/v1/admin/claims/soft-hold` — Pending claims.
+- `PATCH /api/v1/admin/claims/{id}/resolve` — Resolve claim.
+
+### Zones
+- `GET /api/v1/zones` — List available zones.
+
+---
+
+## Mobile Frontend
+
+The Flutter app provides:
+- **Dashboard**: Active policy, live weather, zone risk, last claim.
+- **Policy History**: List of enrolled policies.
+- **Claims Status**: View and appeal claims.
+- **Profile**: Update details and view trust score.
+- **Localization**: English, Hindi, Tamil support.
+
+---
+
+## Tech Stack
+
+| Component       | Technology                  |
+|-----------------|-----------------------------|
+| Backend API     | Python FastAPI              |
+| Database        | SQLAlchemy (SQLite/PG)      |
+| Scheduler       | APScheduler                 |
+| Weather API     | OpenWeatherMap              |
+| AQI API         | AQICN                       |
+| Mobile App      | Flutter (Dart)              |
+| Authentication  | JWT                         |
+| Payments        | Mocked (no real gateway)    |
+
+---
+
+## Development Setup
+
+1. **Clone the repo** and navigate to the project directory.
+2. **Backend Setup**:
+   - Install Python 3.8+.
+   - `cd backend`
+   - `pip install -r requirements.txt`
+   - Set environment variables in `.env` (e.g., DATABASE_URL, API keys).
+   - `uvicorn app.main:app --reload`
+3. **Mobile App Setup**:
+   - Install Flutter SDK.
+   - `flutter pub get`
+   - `flutter run` (for Android/iOS).
+4. **Database**: Uses SQLite by default; configure for PostgreSQL if needed.
+
+---
+
+## Notes
+
+- This is a hackathon project; many features are demo-level and not production-ready.
+- Frontend folder references are avoided; the mobile app is implemented in Flutter.
+- For production, integrate real payment gateways, ML models, and admin UI.
+- Repository: github.com/a-anuj/GigArmor
 
 - Documentation of loss (impossible during an active rain event)
 - Medical or accident framing (excludes income disruption)
@@ -224,14 +332,7 @@ HustleHalt monitors 5 parametric events. Payouts are triggered **automatically**
 - **Threshold:** AQI > 300 ("Hazardous") sustained for ≥ 3 hours + platform mock API confirms dispatch suspension in zone
 - **Payout:** 50% of weekly coverage per event (max 2 events/week)
 
-### Trigger 3 — Platform Outage
-
-- **Data source:** Zepto/Blinkit platform mock API — order dispatch volume monitored
-- **Threshold:** Zero orders dispatched from a dark store for ≥ 45 minutes during peak hours (7–9 AM, 12–2 PM, 7–10 PM)
-- **Payout:** 25% of weekly coverage per event (max 2 events/week)
-- **Fraud resistance:** Must coincide with zero-activity for ≥ 60% of workers in the same zone simultaneously
-
-### Trigger 4 — Social Disruption (Curfew / Bandh)
+### Trigger 3 — Social Disruption (Curfew / Bandh)
 
 - **Data source:** Oracle consensus model — requires 2-of-3 weighted node agreement:
   - Node A (weight 0.35): News API keyword spike — "bandh / curfew / section 144" in pincode
@@ -240,7 +341,7 @@ HustleHalt monitors 5 parametric events. Payouts are triggered **automatically**
   - **Trigger condition:** Combined weighted confidence ≥ 0.65
 - **Payout:** 75% of weekly coverage per confirmed social disruption event
 
-### Trigger 5 — Extreme Heat Event
+### Trigger  — Extreme Heat Event
 
 - **Data source:** OpenWeatherMap — wet-bulb temperature calculation from temp + humidity
 - **Threshold:** Wet-bulb temperature ≥ 38°C sustained for ≥ 4 hours
