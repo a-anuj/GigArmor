@@ -41,5 +41,60 @@
   "fileClaimButton": "दावा दायर करें",
   "recentActivity": "हाल की गतिविधि",
   "viewProfile": "प्रोफ़ाइल देखें",
-  "logout": "लॉग आउट"
+  "logout": "लॉग आउट",
+  "staySafe": "सुरक्षित रहें, {name}",
+  "@staySafe": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "राहुल"
+      }
+    }
+  },
+  "assignedZone": "निर्धारित क्षेत्र",
+  "platform": "प्लेटफ़ॉर्म",
+  "liveEnvironment": "लाइव वातावरण",
+  "loyaltyShieldCredits": "लॉयल्टी और शील्ड क्रेडिट",
+  "rainfall": "वर्षा",
+  "aqi": "वायु गुणवत्ता सूचकांक",
+  "temp": "तापमान",
+  "weeklyPremium": "साप्ताहिक प्रीमियम:",
+  "perWeekLabel": "₹{amount} / सप्ताह",
+  "@perWeekLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "100"
+      }
+    }
+  },
+  "risk": "{level} जोखिम",
+  "@risk": {
+    "placeholders": {
+      "level": {
+        "type": "String",
+        "example": "मध्यम"
+      }
+    }
+  },
+  "failedToLoadPolicy": "सक्रिय नीति लोड करने में विफल। क्या आपने पंजीकरण किया है?",
+  "errorLoadingEnvironment": "वातावरण डेटा लोड करने में त्रुटि",
+  "errorLoadingPayout": "भुगतान इतिहास लोड करने में त्रुटि।",
+  "noPayoutsYet": "अभी तक कोई भुगतान नहीं।",
+  "payoutCredited": "भुगतान जमा किया गया",
+  "shieldCreditsStatus": "शील्ड क्रेडिट स्थिति",
+  "eligibleForDiscount": "अगले प्रीमियम पर 50% छूट के लिए पात्र!",
+  "weeksUntilDiscount": "{weeks} सप्ताह बनाए रखे। छूट मिलने में {remaining} और बाकी।",
+  "@weeksUntilDiscount": {
+    "placeholders": {
+      "weeks": {
+        "type": "String",
+        "example": "3"
+      },
+      "remaining": {
+        "type": "String",
+        "example": "2"
+      }
+    }
+  }
 }

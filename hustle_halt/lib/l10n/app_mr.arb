@@ -1,0 +1,100 @@
+{
+  "@@locale": "mr",
+  "appName": "HustleHalt",
+  "appDescription": "आधुनिक डिलिव्हरी पार्टनरसाठी उत्पन्न संरक्षण.",
+  "emailOrPhoneHint": "ईमेल किंवा मोबाईल नंबर",
+  "passwordHint": "पासवर्ड",
+  "loginButton": "लॉग इन करा",
+  "invalidCredentials": "अवैध प्रमाणपत्रे.",
+  "registerPrompt": "खाते नाही? नोंदणी करा",
+  "completeProfile": "प्रोफाइल पूर्ण करा",
+  "registerDescription": "असे दिसते की तुम्ही नवीन आहात! तुमचा प्रीमियम पाहण्यासाठी नोंदणी करा.",
+  "fullNameHint": "पूर्ण नाव",
+  "phoneHint": "फोन नंबर",
+  "emailHint": "ईमेल पत्ता",
+  "upiIdHint": "UPI आयडी",
+  "registerButton": "नोंदणी करा आणि जोखीम मोजा",
+  "coverageEstimatedFor": "{name} साठी अंदाजित कव्हरेज",
+  "@coverageEstimatedFor": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "John"
+      }
+    }
+  },
+  "perWeek": "₹{amount} / आठवडा",
+  "@perWeek": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "100"
+      }
+    }
+  },
+  "startCoverageButton": "कव्हरेज सुरू करा",
+  "maybeLaterButton": "कदाचित नंतर",
+  "dashboardTitle": "डॅशबोर्ड",
+  "activeCoverage": "सक्रिय कव्हरेज",
+  "coverageStatusActive": "तुम्ही सध्या उत्पन्न गमावण्यापासून संरक्षित आहात.",
+  "coverageStatusInactive": "तुम्ही सध्या कव्हर केलेले नाही.",
+  "fileClaimButton": "दावा दाखल करा",
+  "recentActivity": "अलीकडील क्रियाकलाप",
+  "viewProfile": "प्रोफाइल पहा",
+  "logout": "लॉग आउट",
+  "staySafe": "सुरक्षित राहा, {name}",
+  "@staySafe": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "राहुल"
+      }
+    }
+  },
+  "assignedZone": "नियुक्त क्षेत्र",
+  "platform": "प्लॅटफॉर्म",
+  "liveEnvironment": "लाइव्ह वातावरण",
+  "loyaltyShieldCredits": "लॉयल्टी आणि शील्ड क्रेडिट्स",
+  "rainfall": "पाऊस",
+  "aqi": "हवा गुणवत्ता निर्देशांक",
+  "temp": "तापमान",
+  "weeklyPremium": "साप्ताहिक प्रीमियम:",
+  "perWeekLabel": "₹{amount} / आठवडा",
+  "@perWeekLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "100"
+      }
+    }
+  },
+  "risk": "{level} जोखीम",
+  "@risk": {
+    "placeholders": {
+      "level": {
+        "type": "String",
+        "example": "मध्यम"
+      }
+    }
+  },
+  "failedToLoadPolicy": "सक्रिय पॉलिसी लोड करण्यात अयशस्वी. तुम्ही नोंदणी केली का?",
+  "errorLoadingEnvironment": "वातावरण डेटा लोड करण्यात त्रुटी",
+  "errorLoadingPayout": "पेआउट इतिहास लोड करण्यात त्रुटी.",
+  "noPayoutsYet": "अद्याप कोणतेही पेमेंट जमा झाले नाही.",
+  "payoutCredited": "पेमेंट जमा झाले",
+  "shieldCreditsStatus": "शील्ड क्रेडिट स्थिती",
+  "eligibleForDiscount": "पुढील प्रीमियमवर 50% सूट मिळण्यास पात्र!",
+  "weeksUntilDiscount": "{weeks} आठवडे राखले. सूटीसाठी {remaining} आणखी बाकी.",
+  "@weeksUntilDiscount": {
+    "placeholders": {
+      "weeks": {
+        "type": "String",
+        "example": "3"
+      },
+      "remaining": {
+        "type": "String",
+        "example": "2"
+      }
+    }
+  }
+}

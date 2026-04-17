@@ -17,19 +17,13 @@
   "coverageEstimatedFor": "Coverage Estimated for {name}",
   "@coverageEstimatedFor": {
     "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "John"
-      }
+      "name": { "type": "String", "example": "John" }
     }
   },
   "perWeek": "₹{amount} / week",
   "@perWeek": {
     "placeholders": {
-      "amount": {
-        "type": "String",
-        "example": "100"
-      }
+      "amount": { "type": "String", "example": "100" }
     }
   },
   "startCoverageButton": "Start Coverage",
@@ -41,5 +35,168 @@
   "fileClaimButton": "File a Claim",
   "recentActivity": "Recent Activity",
   "viewProfile": "View Profile",
-  "logout": "Logout"
+  "logout": "Logout",
+  "staySafe": "Stay Safe, {name}",
+  "@staySafe": {
+    "placeholders": {
+      "name": { "type": "String", "example": "Rahul" }
+    }
+  },
+  "assignedZone": "Assigned Zone",
+  "platform": "Platform",
+  "liveEnvironment": "Live Environment",
+  "loyaltyShieldCredits": "Loyalty & Shield Credits",
+  "rainfall": "Rainfall",
+  "aqi": "AQI",
+  "temp": "Temp",
+  "weeklyPremium": "Weekly Premium:",
+  "perWeekLabel": "₹{amount} / week",
+  "@perWeekLabel": {
+    "placeholders": {
+      "amount": { "type": "String", "example": "100" }
+    }
+  },
+  "risk": "{level} RISK",
+  "@risk": {
+    "placeholders": {
+      "level": { "type": "String", "example": "MEDIUM" }
+    }
+  },
+  "failedToLoadPolicy": "Failed to load active policy. Have you registered?",
+  "errorLoadingEnvironment": "Error loading environment data",
+  "errorLoadingPayout": "Error loading payout history.",
+  "noPayoutsYet": "No payouts credited yet.",
+  "payoutCredited": "Payout Credited",
+  "shieldCreditsStatus": "Shield Credits Status",
+  "eligibleForDiscount": "Eligible for 50% discount on next premium!",
+  "weeksUntilDiscount": "{weeks} weeks maintained. {remaining} more until discount.",
+  "@weeksUntilDiscount": {
+    "placeholders": {
+      "weeks": { "type": "String", "example": "3" },
+      "remaining": { "type": "String", "example": "2" }
+    }
+  },
+  "navHome": "Home",
+  "navHistory": "History",
+  "navClaims": "Claims",
+  "navProfile": "Profile",
+  "claimsTitle": "Claims",
+  "failedToLoadClaims": "Failed to load claims: {error}",
+  "@failedToLoadClaims": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "noClaimsFound": "No claims found.",
+  "statusAutoApproved": "Auto-Approved",
+  "statusProcessingSoftHold": "Processing Soft Hold",
+  "systemEvent": "System Event",
+  "autoProcessedNote": "Auto-processed based on zonal risk data.",
+  "expectedCreditUPI": "Expected to credit via UPI soon.",
+  "resolutionPending": "Resolution pending.",
+  "policyHistoryTitle": "Policy History",
+  "failedToLoadPolicies": "Failed to load policies: {error}",
+  "@failedToLoadPolicies": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "noPoliciesFound": "You have no active or past policies.",
+  "statusActive": "ACTIVE",
+  "weekOf": "Week of {date}",
+  "@weekOf": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "validThrough": "Valid through {date}",
+  "@validThrough": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "coverageAmount": "Coverage Amount",
+  "coverageAmountValue": "₹{amount} / day max limit",
+  "@coverageAmountValue": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "policyType": "Policy Type",
+  "parametricIncomeProtection": "Parametric Income Protection",
+  "claimsCount": "Claims Count",
+  "notAvailable": "Not available",
+  "downloadPolicyDocument": "Download Policy Document",
+  "baseRiskMultiplier": "{multiplier}x Base Risk",
+  "@baseRiskMultiplier": {
+    "placeholders": {
+      "multiplier": { "type": "String" }
+    }
+  },
+  "profileTitle": "Profile",
+  "accountSettings": "Account Settings",
+  "personalInformation": "Personal Information",
+  "workZone": "Work Zone ({zone})",
+  "@workZone": {
+    "placeholders": {
+      "zone": { "type": "String" }
+    }
+  },
+  "languageMenuItem": "Language",
+  "payoutsBilling": "Payouts & Billing",
+  "paymentMethods": "Payment Methods (UPI)",
+  "taxDetails": "Tax Details",
+  "developerTools": "Developer Tools",
+  "triggerMockSimulation": "Trigger Mock Simulation",
+  "logOut": "Log Out",
+  "loading": "Loading...",
+  "workerStatus": "Status: {status}",
+  "@workerStatus": {
+    "placeholders": {
+      "status": { "type": "String" }
+    }
+  },
+  "identityNotVerified": "Identity Not Verified",
+  "guestWorker": "Guest Worker",
+  "switchWorkZone": "Switch Work Zone",
+  "errorLoadingZones": "Error loading zones: {error}",
+  "@errorLoadingZones": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "zoneSwitched": "Zone switched to {zone}",
+  "@zoneSwitched": {
+    "placeholders": {
+      "zone": { "type": "String" }
+    }
+  },
+  "failedGeneric": "Failed: {error}",
+  "@failedGeneric": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "runSimulation": "Run Simulation",
+  "simulationDescription": "This will trigger a mock heavy rainfall event. The dashboard environmental stats will update and an auto-payout notification will appear.",
+  "cancel": "Cancel",
+  "triggerEvent": "Trigger Event",
+  "failedSimulation": "Failed simulation: {error}",
+  "@failedSimulation": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "enterYourName": "Enter your name",
+  "notProvided": "Not provided",
+  "qCommercePlatform": "Q-Commerce Platform",
+  "upiIdLabel": "UPI ID",
+  "saveChanges": "Save Changes",
+  "profileUpdatedSuccess": "Profile updated successfully!",
+  "failedToUpdate": "Failed to update: {error}",
+  "@failedToUpdate": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  }
 }

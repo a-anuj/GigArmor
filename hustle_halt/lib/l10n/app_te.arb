@@ -1,0 +1,100 @@
+{
+  "@@locale": "te",
+  "appName": "HustleHalt",
+  "appDescription": "ఆధునిక డెలివరీ పార్ట్‌నర్ కోసం ఆదాయ రక్షణ.",
+  "emailOrPhoneHint": "ఇమెయిల్ లేదా మొబైల్ నంబర్",
+  "passwordHint": "పాస్‌వర్డ్",
+  "loginButton": "లాగిన్",
+  "invalidCredentials": "చెల్లని ఆధారాలు.",
+  "registerPrompt": "ఖాతా లేదా? నమోదు చేయండి",
+  "completeProfile": "ప్రొఫైల్ పూర్తి చేయండి",
+  "registerDescription": "మీరు కొత్తవారు అనిపిస్తోంది! మీ ప్రీమియం చూడటానికి నమోదు చేయండి.",
+  "fullNameHint": "పూర్తి పేరు",
+  "phoneHint": "ఫోన్ నంబర్",
+  "emailHint": "ఇమెయిల్ చిరునామా",
+  "upiIdHint": "UPI ID",
+  "registerButton": "నమోదు చేసి రిస్క్ లెక్కించండి",
+  "coverageEstimatedFor": "{name} కోసం అంచనా వేయబడిన కవరేజ్",
+  "@coverageEstimatedFor": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "John"
+      }
+    }
+  },
+  "perWeek": "₹{amount} / వారానికి",
+  "@perWeek": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "100"
+      }
+    }
+  },
+  "startCoverageButton": "కవరేజ్ ప్రారంభించండి",
+  "maybeLaterButton": "తర్వాత చూద్దాం",
+  "dashboardTitle": "డ్యాష్‌బోర్డ్",
+  "activeCoverage": "యాక్టివ్ కవరేజ్",
+  "coverageStatusActive": "మీరు ప్రస్తుతం ఆదాయ నష్టం నుండి రక్షించబడ్డారు.",
+  "coverageStatusInactive": "మీరు ప్రస్తుతం కవర్ చేయబడలేదు.",
+  "fileClaimButton": "క్లెయిమ్ దాఖలు చేయండి",
+  "recentActivity": "ఇటీవలి కార్యకలాపం",
+  "viewProfile": "ప్రొఫైల్ చూడండి",
+  "logout": "లాగ్అవుట్",
+  "staySafe": "సురక్షితంగా ఉండండి, {name}",
+  "@staySafe": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "రాజేష్"
+      }
+    }
+  },
+  "assignedZone": "నిర్ణయించబడిన జోన్",
+  "platform": "ప్లాట్‌ఫారమ్",
+  "liveEnvironment": "లైవ్ వాతావరణం",
+  "loyaltyShieldCredits": "లాయల్టీ & షీల్డ్ క్రెడిట్లు",
+  "rainfall": "వర్షపాతం",
+  "aqi": "వాయు నాణ్యత సూచిక",
+  "temp": "ఉష్ణోగ్రత",
+  "weeklyPremium": "వారపు ప్రీమియం:",
+  "perWeekLabel": "₹{amount} / వారానికి",
+  "@perWeekLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "100"
+      }
+    }
+  },
+  "risk": "{level} రిస్క్",
+  "@risk": {
+    "placeholders": {
+      "level": {
+        "type": "String",
+        "example": "మధ్యస్థం"
+      }
+    }
+  },
+  "failedToLoadPolicy": "యాక్టివ్ పాలసీ లోడ్ చేయడం విఫలమైంది. మీరు నమోదు చేశారా?",
+  "errorLoadingEnvironment": "వాతావరణ డేటా లోడ్ చేయడంలో లోపం",
+  "errorLoadingPayout": "పేఅవుట్ చరిత్ర లోడ్ చేయడంలో లోపం.",
+  "noPayoutsYet": "ఇంకా పేమెంట్లు జమ కాలేదు.",
+  "payoutCredited": "పేమెంట్ జమ చేయబడింది",
+  "shieldCreditsStatus": "షీల్డ్ క్రెడిట్ స్థితి",
+  "eligibleForDiscount": "తదుపరి ప్రీమియంపై 50% తగ్గింపుకు అర్హులు!",
+  "weeksUntilDiscount": "{weeks} వారాలు నిర్వహించారు. తగ్గింపుకు {remaining} మరిన్ని అవసరం.",
+  "@weeksUntilDiscount": {
+    "placeholders": {
+      "weeks": {
+        "type": "String",
+        "example": "3"
+      },
+      "remaining": {
+        "type": "String",
+        "example": "2"
+      }
+    }
+  }
+}

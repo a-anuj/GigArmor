@@ -4,157 +4,159 @@ import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
 
-/// The translations for Hindi (`hi`).
-class AppLocalizationsHi extends AppLocalizations {
-  AppLocalizationsHi([String locale = 'hi']) : super(locale);
+/// The translations for Tamil (`ta`).
+class AppLocalizationsTa extends AppLocalizations {
+  AppLocalizationsTa([String locale = 'ta']) : super(locale);
 
   @override
-  String get appName => 'हसलहाल्ट';
+  String get appName => 'HustleHalt';
 
   @override
-  String get appDescription => 'आधुनिक डिलीवरी पार्टनर के लिए आय सुरक्षा।';
+  String get appDescription => 'நவீன டெலிவரி பார்ட்னருக்கான வருமான பாதுகாப்பு.';
 
   @override
-  String get emailOrPhoneHint => 'ईमेल या मोबाइल नंबर';
+  String get emailOrPhoneHint => 'மின்னஞ்சல் அல்லது மொபைல் எண்';
 
   @override
-  String get passwordHint => 'पासवर्ड';
+  String get passwordHint => 'கடவுச்சொல்';
 
   @override
-  String get loginButton => 'लॉग इन करें';
+  String get loginButton => 'உள்நுழைக';
 
   @override
-  String get invalidCredentials => 'अमान्य क्रेडेंशियल।';
+  String get invalidCredentials => 'தவறான நற்சான்றிதழ்கள்.';
 
   @override
-  String get registerPrompt => 'अकाउंट नहीं है? रजिस्टर करें';
+  String get registerPrompt => 'கணக்கு இல்லையா? பதிவு செய்க';
 
   @override
-  String get completeProfile => 'प्रोफ़ाइल पूरी करें';
+  String get completeProfile => 'சுயவிவரத்தை நிறைவு செய்க';
 
   @override
   String get registerDescription =>
-      'लगता है आप नए हैं! अपना प्रीमियम देखने के लिए रजिस्टर करें।';
+      'நீங்கள் புதியவர் போல் தெரிகிறது! உங்கள் பிரீமியம் பார்க்க பதிவு செய்க.';
 
   @override
-  String get fullNameHint => 'पूरा नाम';
+  String get fullNameHint => 'முழு பெயர்';
 
   @override
-  String get phoneHint => 'फोन नंबर';
+  String get phoneHint => 'தொலைபேசி எண்';
 
   @override
-  String get emailHint => 'ईमेल पता';
+  String get emailHint => 'மின்னஞ்சல் முகவரி';
 
   @override
-  String get upiIdHint => 'UPI आईडी';
+  String get upiIdHint => 'UPI ஐடி';
 
   @override
-  String get registerButton => 'रजिस्टर करें और जोखिम की गणना करें';
+  String get registerButton => 'பதிவு செய்து ஆபத்தை கணக்கிடுக';
 
   @override
   String coverageEstimatedFor(String name) {
-    return '$name के लिए अनुमानित कवरेज';
+    return '$name க்கான மதிப்பிடப்பட்ட கவரேஜ்';
   }
 
   @override
   String perWeek(String amount) {
-    return '₹$amount / सप्ताह';
+    return '₹$amount / வாரம்';
   }
 
   @override
-  String get startCoverageButton => 'कवरेज शुरू करें';
+  String get startCoverageButton => 'கவரேஜ் தொடங்குக';
 
   @override
-  String get maybeLaterButton => 'शायद बाद में';
+  String get maybeLaterButton => 'பிறகு பார்க்கலாம்';
 
   @override
-  String get dashboardTitle => 'डैशबोर्ड';
+  String get dashboardTitle => 'டாஷ்போர்டு';
 
   @override
-  String get activeCoverage => 'सक्रिय कवरेज';
+  String get activeCoverage => 'செயலில் உள்ள கவரேஜ்';
 
   @override
-  String get coverageStatusActive => 'वर्तमान में आपकी आय हानि से सुरक्षित है।';
+  String get coverageStatusActive =>
+      'தற்போது உங்கள் வருமான இழப்பிலிருந்து பாதுகாக்கப்படுகிறீர்கள்.';
 
   @override
-  String get coverageStatusInactive => 'वर्तमान में आप कवर नहीं हैं।';
+  String get coverageStatusInactive => 'தற்போது நீங்கள் கவர் செய்யப்படவில்லை.';
 
   @override
-  String get fileClaimButton => 'दावा दायर करें';
+  String get fileClaimButton => 'கோரிக்கை தாக்கல் செய்க';
 
   @override
-  String get recentActivity => 'हाल की गतिविधि';
+  String get recentActivity => 'சமீபத்திய செயல்பாடு';
 
   @override
-  String get viewProfile => 'प्रोफ़ाइल देखें';
+  String get viewProfile => 'சுயவிவரம் காண்க';
 
   @override
-  String get logout => 'लॉग आउट';
+  String get logout => 'வெளியேறு';
 
   @override
   String staySafe(String name) {
-    return 'सुरक्षित रहें, $name';
+    return 'பாதுகாப்பாக இருங்கள், $name';
   }
 
   @override
-  String get assignedZone => 'निर्धारित क्षेत्र';
+  String get assignedZone => 'நியமிக்கப்பட்ட மண்டலம்';
 
   @override
-  String get platform => 'प्लेटफ़ॉर्म';
+  String get platform => 'தளம்';
 
   @override
-  String get liveEnvironment => 'लाइव वातावरण';
+  String get liveEnvironment => 'நேரடி சூழல்';
 
   @override
-  String get loyaltyShieldCredits => 'लॉयल्टी और शील्ड क्रेडिट';
+  String get loyaltyShieldCredits => 'லாயல்டி & ஷீல்ட் கிரெடிட்கள்';
 
   @override
-  String get rainfall => 'वर्षा';
+  String get rainfall => 'மழை';
 
   @override
-  String get aqi => 'वायु गुणवत्ता सूचकांक';
+  String get aqi => 'காற்று தர குறியீடு';
 
   @override
-  String get temp => 'तापमान';
+  String get temp => 'வெப்பநிலை';
 
   @override
-  String get weeklyPremium => 'साप्ताहिक प्रीमियम:';
+  String get weeklyPremium => 'வாராந்திர பிரீமியம்:';
 
   @override
   String perWeekLabel(String amount) {
-    return '₹$amount / सप्ताह';
+    return '₹$amount / வாரம்';
   }
 
   @override
   String risk(String level) {
-    return '$level जोखिम';
+    return '$level ஆபத்து';
   }
 
   @override
   String get failedToLoadPolicy =>
-      'सक्रिय नीति लोड करने में विफल। क्या आपने पंजीकरण किया है?';
+      'செயலில் உள்ள பாலிசி ஏற்ற முடியவில்லை. பதிவு செய்தீர்களா?';
 
   @override
-  String get errorLoadingEnvironment => 'वातावरण डेटा लोड करने में त्रुटि';
+  String get errorLoadingEnvironment => 'சூழல் தரவை ஏற்றுவதில் பிழை';
 
   @override
-  String get errorLoadingPayout => 'भुगतान इतिहास लोड करने में त्रुटि।';
+  String get errorLoadingPayout => 'பேஅவுட் வரலாற்றை ஏற்றுவதில் பிழை.';
 
   @override
-  String get noPayoutsYet => 'अभी तक कोई भुगतान नहीं।';
+  String get noPayoutsYet => 'இன்னும் பேமெண்ட் வரவு வைக்கப்படவில்லை.';
 
   @override
-  String get payoutCredited => 'भुगतान जमा किया गया';
+  String get payoutCredited => 'பேமெண்ட் வரவு வைக்கப்பட்டது';
 
   @override
-  String get shieldCreditsStatus => 'शील्ड क्रेडिट स्थिति';
+  String get shieldCreditsStatus => 'ஷீல்ட் கிரெடிட் நிலை';
 
   @override
-  String get eligibleForDiscount => 'अगले प्रीमियम पर 50% छूट के लिए पात्र!';
+  String get eligibleForDiscount =>
+      'அடுத்த பிரீமியத்தில் 50% தள்ளுபடிக்கு தகுதியானவர்!';
 
   @override
   String weeksUntilDiscount(String weeks, String remaining) {
-    return '$weeks सप्ताह बनाए रखे। छूट मिलने में $remaining और बाकी।';
+    return '$weeks வாரங்கள் பராமரிக்கப்பட்டது. தள்ளுபடிக்கு $remaining மேலும் தேவை.';
   }
 
   @override
