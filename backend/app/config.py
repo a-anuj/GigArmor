@@ -32,6 +32,10 @@ class Settings(BaseSettings):
     UPI_WEBHOOK_URL: str = "https://mock-upi.example.com/payout"
     UPI_API_KEY: str = "mock-api-key-replace-in-production"
 
+    # Razorpay Payment Gateway (Option 1)
+    RAZORPAY_KEY_ID: str = ""
+    RAZORPAY_KEY_SECRET: str = ""
+
     # OpenWeatherMap — free tier (1000 calls/day), used for M_weather and real triggers
     OPENWEATHERMAP_API_KEY: str = ""
 
