@@ -45,6 +45,7 @@ dependencies:
   hive_flutter: ^1.1.0
   flutter_localizations:
     sdk: flutter
+  razorpay_flutter: ^1.4.4
 
 dev_dependencies:
   flutter_test:
