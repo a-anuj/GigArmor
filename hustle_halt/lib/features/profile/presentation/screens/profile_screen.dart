@@ -6,6 +6,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/custom_inputs.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../dashboard/domain/state/dashboard_state.dart';
+import '../../../dashboard/domain/state/activity_state.dart';
 import '../../../auth/domain/state/auth_state.dart';
 import 'package:hustle_halt/l10n/app_localizations.dart';
 import '../../../../core/widgets/language_selector.dart';
@@ -73,6 +74,9 @@ class ProfileScreen extends ConsumerWidget {
                 items: [
                   _buildMenuItem(LucideIcons.zap, l10n.triggerMockSimulation, () {
                     _showSimulationDialog(context, ref, l10n);
+                  }, isAccent: true),
+                  _buildMenuItem(LucideIcons.clipboardList, 'Log Delivery Session', () {
+                    _showLogSessionDialog(context, ref, worker?.id);
                   }, isAccent: true),
                 ],
               ),
@@ -278,7 +282,100 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
+  void _showLogSessionDialog(BuildContext context, WidgetRef ref, int? workerId) {
+    if (workerId == null) return;
+    final ordersCtrl = TextEditingController(text: '15');
+    final hoursCtrl  = TextEditingController(text: '4.0');
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppTheme.surface,
+        title: const Text('Log Delivery Session', style: TextStyle(color: AppTheme.textPrimary)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Record today\'s delivery session. In production this is auto-populated by the platform API.',
+              style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: ordersCtrl,
+              keyboardType: TextInputType.number,
+              style: const TextStyle(color: AppTheme.textPrimary),
+              decoration: InputDecoration(
+                labelText: 'Orders completed',
+                labelStyle: const TextStyle(color: AppTheme.textSecondary),
+                filled: true,
+                fillColor: AppTheme.background,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: hoursCtrl,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              style: const TextStyle(color: AppTheme.textPrimary),
+              decoration: InputDecoration(
+                labelText: 'Hours on road',
+                labelStyle: const TextStyle(color: AppTheme.textSecondary),
+                filled: true,
+                fillColor: AppTheme.background,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel', style: TextStyle(color: AppTheme.textSecondary)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accent),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              final orders = int.tryParse(ordersCtrl.text) ?? 0;
+              final hours  = double.tryParse(hoursCtrl.text) ?? 0.0;
+
+              try {
+                final request = LogSessionRequest(
+                  workerId:     workerId,
+                  ordersCount:  orders,
+                  sessionHours: hours,
+                );
+                await ref.read(logSessionProvider(request).future);
+                ref.invalidate(weeklyActivityProvider(workerId));
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Session logged: $orders orders · ${hours}h'),
+                      backgroundColor: AppTheme.success,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Failed to log session: $e'),
+                      backgroundColor: AppTheme.error,
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('Log Session', style: TextStyle(color: Colors.black)),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showSimulationDialog(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+
     showDialog(
       context: context,
       builder: (context) {
