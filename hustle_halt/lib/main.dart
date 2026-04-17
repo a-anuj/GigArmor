@@ -51,6 +51,9 @@ class HustleHaltApp extends ConsumerWidget {
           supportedLocales: const [
             Locale('en'), // English
             Locale('hi'), // Hindi
+            Locale('ta'), // Tamil
+            Locale('te'), // Telugu
+            Locale('mr'), // Marathi
           ],
         );
       },

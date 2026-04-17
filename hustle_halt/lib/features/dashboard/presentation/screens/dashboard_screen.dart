@@ -13,10 +13,11 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final worker = ref.watch(authProvider);
-    
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.appName),
+        title: Text(l10n.appName),
         actions: [
           const LanguageSelector(),
           const SizedBox(width: 8),
@@ -44,15 +45,15 @@ class DashboardScreen extends ConsumerWidget {
                 const SizedBox(height: 24),
                 _buildCoverageCard(context, ref),
                 const SizedBox(height: 24),
-                Text('Live Environment', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                Text(l10n.liveEnvironment, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
                 _buildEnvironmentGrid(context, ref),
                 const SizedBox(height: 32),
-                Text('Loyalty & Shield Credits', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                Text(l10n.loyaltyShieldCredits, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
                 _buildLoyaltyCard(context, ref),
                 const SizedBox(height: 32),
-                Text(AppLocalizations.of(context)!.recentActivity, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                Text(l10n.recentActivity, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
                 _buildLastPayout(context, ref),
                 const SizedBox(height: 48), // Padding for scroll
@@ -65,11 +66,12 @@ class DashboardScreen extends ConsumerWidget {
   }
 
   Widget _buildGreeting(BuildContext context, WorkerModel? worker) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Stay Safe, ${worker?.name.split(' ').first ?? 'Partner'}',
+          l10n.staySafe(worker?.name.split(' ').first ?? 'Partner'),
           style: Theme.of(context).textTheme.displaySmall?.copyWith(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -82,7 +84,7 @@ class DashboardScreen extends ConsumerWidget {
             const Icon(LucideIcons.mapPin, size: 14, color: AppTheme.textSecondary),
             const SizedBox(width: 4),
             Text(
-              worker?.zone?.name ?? 'Assigned Zone',
+              worker?.zone?.name ?? l10n.assignedZone,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontSize: 14,
               ),
@@ -91,7 +93,7 @@ class DashboardScreen extends ConsumerWidget {
             const Icon(LucideIcons.shoppingBag, size: 14, color: AppTheme.textSecondary),
             const SizedBox(width: 4),
             Text(
-              worker?.qCommercePlatform ?? 'Platform',
+              worker?.qCommercePlatform ?? l10n.platform,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontSize: 14,
               ),
@@ -105,7 +107,8 @@ class DashboardScreen extends ConsumerWidget {
 
   Widget _buildCoverageCard(BuildContext context, WidgetRef ref) {
     final asyncCoverage = ref.watch(activeCoverageProvider);
-    
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -122,14 +125,14 @@ class DashboardScreen extends ConsumerWidget {
       ),
       child: asyncCoverage.when(
         loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
-        error: (e, st) => Text('Failed to load active policy. Have you registered?'),
+        error: (e, st) => Text(l10n.failedToLoadPolicy),
         data: (coverage) => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(AppLocalizations.of(context)!.activeCoverage, style: Theme.of(context).textTheme.bodyMedium),
+                Text(l10n.activeCoverage, style: Theme.of(context).textTheme.bodyMedium),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
@@ -142,9 +145,9 @@ class DashboardScreen extends ConsumerWidget {
                       Icon(LucideIcons.alertTriangle, size: 12, color: coverage['zoneRiskColor']),
                       const SizedBox(width: 4),
                       Text(
-                        '${coverage['zoneRisk']} RISK', 
+                        l10n.risk(coverage['zoneRisk'] as String),
                         style: TextStyle(
-                          fontSize: 12, 
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: coverage['zoneRiskColor'],
                         ),
@@ -169,9 +172,9 @@ class DashboardScreen extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Weekly Premium:', style: Theme.of(context).textTheme.bodyMedium),
+                Text(l10n.weeklyPremium, style: Theme.of(context).textTheme.bodyMedium),
                 Text(
-                  '₹${coverage['premium']} / week', 
+                  l10n.perWeekLabel(coverage['premium'].toString()),
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: AppTheme.textPrimary,
@@ -187,16 +190,17 @@ class DashboardScreen extends ConsumerWidget {
 
   Widget _buildEnvironmentGrid(BuildContext context, WidgetRef ref) {
     final asyncEnv = ref.watch(environmentDataProvider);
-    
+    final l10n = AppLocalizations.of(context)!;
+
     return asyncEnv.when(
       loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
-      error: (e, st) => const Text('Error loading environment data', style: TextStyle(color: AppTheme.error)),
+      error: (e, st) => Text(l10n.errorLoadingEnvironment, style: const TextStyle(color: AppTheme.error)),
       data: (env) => Row(
         children: [
           Expanded(
             child: _buildEnvCard(
               context,
-              title: 'Rainfall',
+              title: l10n.rainfall,
               value: '${env['rainfall']}',
               unit: 'mm/hr',
               icon: LucideIcons.cloudRain,
@@ -207,7 +211,7 @@ class DashboardScreen extends ConsumerWidget {
           Expanded(
             child: _buildEnvCard(
               context,
-              title: 'AQI',
+              title: l10n.aqi,
               value: '${env['aqi']}',
               unit: 'Index',
               icon: LucideIcons.wind,
@@ -218,7 +222,7 @@ class DashboardScreen extends ConsumerWidget {
           Expanded(
             child: _buildEnvCard(
               context,
-              title: 'Temp',
+              title: l10n.temp,
               value: '${env['temp']}',
               unit: '°C',
               icon: LucideIcons.thermometer,
@@ -261,7 +265,8 @@ class DashboardScreen extends ConsumerWidget {
 
   Widget _buildLastPayout(BuildContext context, WidgetRef ref) {
     final asyncPayout = ref.watch(lastPayoutProvider);
-    
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -271,10 +276,10 @@ class DashboardScreen extends ConsumerWidget {
         ),
         child: asyncPayout.when(
             loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
-            error: (e, st) => const Text('Error loading payout history.'),
+            error: (e, st) => Text(l10n.errorLoadingPayout),
             data: (payout) {
               if (payout == null) {
-                return const Text('No payouts credited yet.', style: TextStyle(color: AppTheme.textSecondary));
+                return Text(l10n.noPayoutsYet, style: const TextStyle(color: AppTheme.textSecondary));
               }
 
               return Row(
@@ -292,7 +297,7 @@ class DashboardScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Payout Credited', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textPrimary)),
+                          Text(l10n.payoutCredited, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textPrimary)),
                           const SizedBox(height: 4),
                           Text(payout['reason'], style: Theme.of(context).textTheme.bodyMedium),
                           const SizedBox(height: 2),
@@ -318,15 +323,16 @@ class DashboardScreen extends ConsumerWidget {
 
   Widget _buildLoyaltyCard(BuildContext context, WidgetRef ref) {
     final asyncLoyalty = ref.watch(loyaltyProvider);
-    
+    final l10n = AppLocalizations.of(context)!;
+
     return asyncLoyalty.when(
       loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
-      error: (e, st) => const Text('Error loading loyalty data', style: TextStyle(color: AppTheme.error)),
+      error: (e, st) => Text(l10n.errorLoadingEnvironment, style: const TextStyle(color: AppTheme.error)),
       data: (loyalty) {
         if (loyalty == null) return const SizedBox.shrink();
-        
+
         final eligible = loyalty['shield_credits_eligible'] == true;
-        
+
         return Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -349,12 +355,18 @@ class DashboardScreen extends ConsumerWidget {
                  child: Column(
                    crossAxisAlignment: CrossAxisAlignment.start,
                    children: [
-                     const Text('Shield Credits Status', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textPrimary)),
+                     Text(l10n.shieldCreditsStatus, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textPrimary)),
                      const SizedBox(height: 4),
                      if (eligible)
-                        const Text('Eligible for 50% discount on next premium!', style: TextStyle(color: AppTheme.success, fontSize: 13, fontWeight: FontWeight.bold))
+                        Text(l10n.eligibleForDiscount, style: const TextStyle(color: AppTheme.success, fontSize: 13, fontWeight: FontWeight.bold))
                      else
-                        Text('${loyalty['consecutive_quiet_weeks']} weeks maintained. ${loyalty['weeks_until_eligible']} more until discount.', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+                        Text(
+                          l10n.weeksUntilDiscount(
+                            '${loyalty['consecutive_quiet_weeks']}',
+                            '${loyalty['weeks_until_eligible']}',
+                          ),
+                          style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+                        ),
                    ]
                  )
                )

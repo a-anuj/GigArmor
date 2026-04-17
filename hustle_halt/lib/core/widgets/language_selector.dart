@@ -30,6 +30,18 @@ class LanguageSelector extends ConsumerWidget {
             value: 'hi',
             child: Text('हिंदी'),
           ),
+          DropdownMenuItem(
+            value: 'ta',
+            child: Text('தமிழ்'),
+          ),
+          DropdownMenuItem(
+            value: 'te',
+            child: Text('తెలుగు'),
+          ),
+          DropdownMenuItem(
+            value: 'mr',
+            child: Text('मराठी'),
+          ),
         ],
       ),
     );
