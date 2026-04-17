@@ -1,0 +1,161 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Tamil (`ta`).
+class AppLocalizationsTa extends AppLocalizations {
+  AppLocalizationsTa([String locale = 'ta']) : super(locale);
+
+  @override
+  String get appName => 'HustleHalt';
+
+  @override
+  String get appDescription => 'நவீன டெலிவரி பார்ட்னருக்கான வருமான பாதுகாப்பு.';
+
+  @override
+  String get emailOrPhoneHint => 'மின்னஞ்சல் அல்லது மொபைல் எண்';
+
+  @override
+  String get passwordHint => 'கடவுச்சொல்';
+
+  @override
+  String get loginButton => 'உள்நுழைக';
+
+  @override
+  String get invalidCredentials => 'தவறான நற்சான்றிதழ்கள்.';
+
+  @override
+  String get registerPrompt => 'கணக்கு இல்லையா? பதிவு செய்க';
+
+  @override
+  String get completeProfile => 'சுயவிவரத்தை நிறைவு செய்க';
+
+  @override
+  String get registerDescription =>
+      'நீங்கள் புதியவர் போல் தெரிகிறது! உங்கள் பிரீமியம் பார்க்க பதிவு செய்க.';
+
+  @override
+  String get fullNameHint => 'முழு பெயர்';
+
+  @override
+  String get phoneHint => 'தொலைபேசி எண்';
+
+  @override
+  String get emailHint => 'மின்னஞ்சல் முகவரி';
+
+  @override
+  String get upiIdHint => 'UPI ஐடி';
+
+  @override
+  String get registerButton => 'பதிவு செய்து ஆபத்தை கணக்கிடுக';
+
+  @override
+  String coverageEstimatedFor(String name) {
+    return '$name க்கான மதிப்பிடப்பட்ட கவரேஜ்';
+  }
+
+  @override
+  String perWeek(String amount) {
+    return '₹$amount / வாரம்';
+  }
+
+  @override
+  String get startCoverageButton => 'கவரேஜ் தொடங்குக';
+
+  @override
+  String get maybeLaterButton => 'பிறகு பார்க்கலாம்';
+
+  @override
+  String get dashboardTitle => 'டாஷ்போர்டு';
+
+  @override
+  String get activeCoverage => 'செயலில் உள்ள கவரேஜ்';
+
+  @override
+  String get coverageStatusActive =>
+      'தற்போது உங்கள் வருமான இழப்பிலிருந்து பாதுகாக்கப்படுகிறீர்கள்.';
+
+  @override
+  String get coverageStatusInactive => 'தற்போது நீங்கள் கவர் செய்யப்படவில்லை.';
+
+  @override
+  String get fileClaimButton => 'கோரிக்கை தாக்கல் செய்க';
+
+  @override
+  String get recentActivity => 'சமீபத்திய செயல்பாடு';
+
+  @override
+  String get viewProfile => 'சுயவிவரம் காண்க';
+
+  @override
+  String get logout => 'வெளியேறு';
+
+  @override
+  String staySafe(String name) {
+    return 'பாதுகாப்பாக இருங்கள், $name';
+  }
+
+  @override
+  String get assignedZone => 'நியமிக்கப்பட்ட மண்டலம்';
+
+  @override
+  String get platform => 'தளம்';
+
+  @override
+  String get liveEnvironment => 'நேரடி சூழல்';
+
+  @override
+  String get loyaltyShieldCredits => 'லாயல்டி & ஷீல்ட் கிரெடிட்கள்';
+
+  @override
+  String get rainfall => 'மழை';
+
+  @override
+  String get aqi => 'காற்று தர குறியீடு';
+
+  @override
+  String get temp => 'வெப்பநிலை';
+
+  @override
+  String get weeklyPremium => 'வாராந்திர பிரீமியம்:';
+
+  @override
+  String perWeekLabel(String amount) {
+    return '₹$amount / வாரம்';
+  }
+
+  @override
+  String risk(String level) {
+    return '$level ஆபத்து';
+  }
+
+  @override
+  String get failedToLoadPolicy =>
+      'செயலில் உள்ள பாலிசி ஏற்ற முடியவில்லை. பதிவு செய்தீர்களா?';
+
+  @override
+  String get errorLoadingEnvironment => 'சூழல் தரவை ஏற்றுவதில் பிழை';
+
+  @override
+  String get errorLoadingPayout => 'பேஅவுட் வரலாற்றை ஏற்றுவதில் பிழை.';
+
+  @override
+  String get noPayoutsYet => 'இன்னும் பேமெண்ட் வரவு வைக்கப்படவில்லை.';
+
+  @override
+  String get payoutCredited => 'பேமெண்ட் வரவு வைக்கப்பட்டது';
+
+  @override
+  String get shieldCreditsStatus => 'ஷீல்ட் கிரெடிட் நிலை';
+
+  @override
+  String get eligibleForDiscount =>
+      'அடுத்த பிரீமியத்தில் 50% தள்ளுபடிக்கு தகுதியானவர்!';
+
+  @override
+  String weeksUntilDiscount(String weeks, String remaining) {
+    return '$weeks வாரங்கள் பராமரிக்கப்பட்டது. தள்ளுபடிக்கு $remaining மேலும் தேவை.';
+  }
+}

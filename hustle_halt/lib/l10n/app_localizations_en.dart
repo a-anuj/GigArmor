@@ -92,4 +92,71 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logout => 'Logout';
+
+  @override
+  String staySafe(String name) {
+    return 'Stay Safe, $name';
+  }
+
+  @override
+  String get assignedZone => 'Assigned Zone';
+
+  @override
+  String get platform => 'Platform';
+
+  @override
+  String get liveEnvironment => 'Live Environment';
+
+  @override
+  String get loyaltyShieldCredits => 'Loyalty & Shield Credits';
+
+  @override
+  String get rainfall => 'Rainfall';
+
+  @override
+  String get aqi => 'AQI';
+
+  @override
+  String get temp => 'Temp';
+
+  @override
+  String get weeklyPremium => 'Weekly Premium:';
+
+  @override
+  String perWeekLabel(String amount) {
+    return '₹$amount / week';
+  }
+
+  @override
+  String risk(String level) {
+    return '$level RISK';
+  }
+
+  @override
+  String get failedToLoadPolicy =>
+      'Failed to load active policy. Have you registered?';
+
+  @override
+  String get errorLoadingEnvironment => 'Error loading environment data';
+
+  @override
+  String get errorLoadingPayout => 'Error loading payout history.';
+
+  @override
+  String get noPayoutsYet => 'No payouts credited yet.';
+
+  @override
+  String get payoutCredited => 'Payout Credited';
+
+  @override
+  String get shieldCreditsStatus => 'Shield Credits Status';
+
+  @override
+  String get eligibleForDiscount =>
+      'Eligible for 50% discount on next premium!';
+
+  @override
+  String weeksUntilDiscount(String weeks, String remaining) {
+    return '$weeks weeks maintained. $remaining more until discount.';
+  }
 }

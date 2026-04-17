@@ -90,4 +90,70 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get logout => 'लॉग आउट';
+
+  @override
+  String staySafe(String name) {
+    return 'सुरक्षित रहें, $name';
+  }
+
+  @override
+  String get assignedZone => 'निर्धारित क्षेत्र';
+
+  @override
+  String get platform => 'प्लेटफ़ॉर्म';
+
+  @override
+  String get liveEnvironment => 'लाइव वातावरण';
+
+  @override
+  String get loyaltyShieldCredits => 'लॉयल्टी और शील्ड क्रेडिट';
+
+  @override
+  String get rainfall => 'वर्षा';
+
+  @override
+  String get aqi => 'वायु गुणवत्ता सूचकांक';
+
+  @override
+  String get temp => 'तापमान';
+
+  @override
+  String get weeklyPremium => 'साप्ताहिक प्रीमियम:';
+
+  @override
+  String perWeekLabel(String amount) {
+    return '₹$amount / सप्ताह';
+  }
+
+  @override
+  String risk(String level) {
+    return '$level जोखिम';
+  }
+
+  @override
+  String get failedToLoadPolicy =>
+      'सक्रिय नीति लोड करने में विफल। क्या आपने पंजीकरण किया है?';
+
+  @override
+  String get errorLoadingEnvironment => 'वातावरण डेटा लोड करने में त्रुटि';
+
+  @override
+  String get errorLoadingPayout => 'भुगतान इतिहास लोड करने में त्रुटि।';
+
+  @override
+  String get noPayoutsYet => 'अभी तक कोई भुगतान नहीं।';
+
+  @override
+  String get payoutCredited => 'भुगतान जमा किया गया';
+
+  @override
+  String get shieldCreditsStatus => 'शील्ड क्रेडिट स्थिति';
+
+  @override
+  String get eligibleForDiscount => 'अगले प्रीमियम पर 50% छूट के लिए पात्र!';
+
+  @override
+  String weeksUntilDiscount(String weeks, String remaining) {
+    return '$weeks सप्ताह बनाए रखे। छूट मिलने में $remaining और बाकी।';
+  }
 }

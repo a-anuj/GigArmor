@@ -7,6 +7,9 @@ import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
 import 'app_localizations_hi.dart';
+import 'app_localizations_mr.dart';
+import 'app_localizations_ta.dart';
+import 'app_localizations_te.dart';
 
 // ignore_for_file: type=lint
 
@@ -96,6 +99,9 @@ abstract class AppLocalizations {
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
     Locale('hi'),
+    Locale('mr'),
+    Locale('ta'),
+    Locale('te'),
   ];
 
   /// No description provided for @appName.
@@ -253,6 +259,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logout'**
   String get logout;
+
+  /// No description provided for @staySafe.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay Safe, {name}'**
+  String staySafe(String name);
+
+  /// No description provided for @assignedZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned Zone'**
+  String get assignedZone;
+
+  /// No description provided for @platform.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform'**
+  String get platform;
+
+  /// No description provided for @liveEnvironment.
+  ///
+  /// In en, this message translates to:
+  /// **'Live Environment'**
+  String get liveEnvironment;
+
+  /// No description provided for @loyaltyShieldCredits.
+  ///
+  /// In en, this message translates to:
+  /// **'Loyalty & Shield Credits'**
+  String get loyaltyShieldCredits;
+
+  /// No description provided for @rainfall.
+  ///
+  /// In en, this message translates to:
+  /// **'Rainfall'**
+  String get rainfall;
+
+  /// No description provided for @aqi.
+  ///
+  /// In en, this message translates to:
+  /// **'AQI'**
+  String get aqi;
+
+  /// No description provided for @temp.
+  ///
+  /// In en, this message translates to:
+  /// **'Temp'**
+  String get temp;
+
+  /// No description provided for @weeklyPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Premium:'**
+  String get weeklyPremium;
+
+  /// No description provided for @perWeekLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'₹{amount} / week'**
+  String perWeekLabel(String amount);
+
+  /// No description provided for @risk.
+  ///
+  /// In en, this message translates to:
+  /// **'{level} RISK'**
+  String risk(String level);
+
+  /// No description provided for @failedToLoadPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load active policy. Have you registered?'**
+  String get failedToLoadPolicy;
+
+  /// No description provided for @errorLoadingEnvironment.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading environment data'**
+  String get errorLoadingEnvironment;
+
+  /// No description provided for @errorLoadingPayout.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading payout history.'**
+  String get errorLoadingPayout;
+
+  /// No description provided for @noPayoutsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No payouts credited yet.'**
+  String get noPayoutsYet;
+
+  /// No description provided for @payoutCredited.
+  ///
+  /// In en, this message translates to:
+  /// **'Payout Credited'**
+  String get payoutCredited;
+
+  /// No description provided for @shieldCreditsStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Shield Credits Status'**
+  String get shieldCreditsStatus;
+
+  /// No description provided for @eligibleForDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Eligible for 50% discount on next premium!'**
+  String get eligibleForDiscount;
+
+  /// No description provided for @weeksUntilDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'{weeks} weeks maintained. {remaining} more until discount.'**
+  String weeksUntilDiscount(String weeks, String remaining);
 }
 
 class _AppLocalizationsDelegate
@@ -266,7 +386,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en', 'hi'].contains(locale.languageCode);
+      <String>['en', 'hi', 'mr', 'ta', 'te'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -279,6 +399,12 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsEn();
     case 'hi':
       return AppLocalizationsHi();
+    case 'mr':
+      return AppLocalizationsMr();
+    case 'ta':
+      return AppLocalizationsTa();
+    case 'te':
+      return AppLocalizationsTe();
   }
 
   throw FlutterError(

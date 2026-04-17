@@ -1,0 +1,100 @@
+{
+  "@@locale": "ta",
+  "appName": "HustleHalt",
+  "appDescription": "நவீன டெலிவரி பார்ட்னருக்கான வருமான பாதுகாப்பு.",
+  "emailOrPhoneHint": "மின்னஞ்சல் அல்லது மொபைல் எண்",
+  "passwordHint": "கடவுச்சொல்",
+  "loginButton": "உள்நுழைக",
+  "invalidCredentials": "தவறான நற்சான்றிதழ்கள்.",
+  "registerPrompt": "கணக்கு இல்லையா? பதிவு செய்க",
+  "completeProfile": "சுயவிவரத்தை நிறைவு செய்க",
+  "registerDescription": "நீங்கள் புதியவர் போல் தெரிகிறது! உங்கள் பிரீமியம் பார்க்க பதிவு செய்க.",
+  "fullNameHint": "முழு பெயர்",
+  "phoneHint": "தொலைபேசி எண்",
+  "emailHint": "மின்னஞ்சல் முகவரி",
+  "upiIdHint": "UPI ஐடி",
+  "registerButton": "பதிவு செய்து ஆபத்தை கணக்கிடுக",
+  "coverageEstimatedFor": "{name} க்கான மதிப்பிடப்பட்ட கவரேஜ்",
+  "@coverageEstimatedFor": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "John"
+      }
+    }
+  },
+  "perWeek": "₹{amount} / வாரம்",
+  "@perWeek": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "100"
+      }
+    }
+  },
+  "startCoverageButton": "கவரேஜ் தொடங்குக",
+  "maybeLaterButton": "பிறகு பார்க்கலாம்",
+  "dashboardTitle": "டாஷ்போர்டு",
+  "activeCoverage": "செயலில் உள்ள கவரேஜ்",
+  "coverageStatusActive": "தற்போது உங்கள் வருமான இழப்பிலிருந்து பாதுகாக்கப்படுகிறீர்கள்.",
+  "coverageStatusInactive": "தற்போது நீங்கள் கவர் செய்யப்படவில்லை.",
+  "fileClaimButton": "கோரிக்கை தாக்கல் செய்க",
+  "recentActivity": "சமீபத்திய செயல்பாடு",
+  "viewProfile": "சுயவிவரம் காண்க",
+  "logout": "வெளியேறு",
+  "staySafe": "பாதுகாப்பாக இருங்கள், {name}",
+  "@staySafe": {
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "ராஜேஷ்"
+      }
+    }
+  },
+  "assignedZone": "நியமிக்கப்பட்ட மண்டலம்",
+  "platform": "தளம்",
+  "liveEnvironment": "நேரடி சூழல்",
+  "loyaltyShieldCredits": "லாயல்டி & ஷீல்ட் கிரெடிட்கள்",
+  "rainfall": "மழை",
+  "aqi": "காற்று தர குறியீடு",
+  "temp": "வெப்பநிலை",
+  "weeklyPremium": "வாராந்திர பிரீமியம்:",
+  "perWeekLabel": "₹{amount} / வாரம்",
+  "@perWeekLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "100"
+      }
+    }
+  },
+  "risk": "{level} ஆபத்து",
+  "@risk": {
+    "placeholders": {
+      "level": {
+        "type": "String",
+        "example": "நடுத்தரம்"
+      }
+    }
+  },
+  "failedToLoadPolicy": "செயலில் உள்ள பாலிசி ஏற்ற முடியவில்லை. பதிவு செய்தீர்களா?",
+  "errorLoadingEnvironment": "சூழல் தரவை ஏற்றுவதில் பிழை",
+  "errorLoadingPayout": "பேஅவுட் வரலாற்றை ஏற்றுவதில் பிழை.",
+  "noPayoutsYet": "இன்னும் பேமெண்ட் வரவு வைக்கப்படவில்லை.",
+  "payoutCredited": "பேமெண்ட் வரவு வைக்கப்பட்டது",
+  "shieldCreditsStatus": "ஷீல்ட் கிரெடிட் நிலை",
+  "eligibleForDiscount": "அடுத்த பிரீமியத்தில் 50% தள்ளுபடிக்கு தகுதியானவர்!",
+  "weeksUntilDiscount": "{weeks} வாரங்கள் பராமரிக்கப்பட்டது. தள்ளுபடிக்கு {remaining} மேலும் தேவை.",
+  "@weeksUntilDiscount": {
+    "placeholders": {
+      "weeks": {
+        "type": "String",
+        "example": "3"
+      },
+      "remaining": {
+        "type": "String",
+        "example": "2"
+      }
+    }
+  }
+}
