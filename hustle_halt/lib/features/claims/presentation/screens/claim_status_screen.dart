@@ -164,7 +164,14 @@ class _ClaimCard extends ConsumerWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('CLM-${claim.id}', style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12, fontWeight: FontWeight.w600)),
+                Flexible(
+                  child: Text(
+                    'CLM-${claim.id}',
+                    style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12, fontWeight: FontWeight.w600),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: 8),
                 Text(
                   claim.createdAt.toLocal().toString().split(' ').first,
                   style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
@@ -194,7 +201,13 @@ class _ClaimCard extends ConsumerWidget {
                           children: [
                             const Icon(LucideIcons.mapPin, size: 12, color: AppTheme.textSecondary),
                             const SizedBox(width: 4),
-                            Text(claim.zoneName!, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+                            Flexible(
+                              child: Text(
+                                claim.zoneName!, 
+                                style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -215,7 +228,10 @@ class _ClaimCard extends ConsumerWidget {
           // ── Status & Payout % ────────────────────────────────────────
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-            child: Row(
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 // Status pill
                 Container(
@@ -234,7 +250,6 @@ class _ClaimCard extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
 
                 // Payout % pill
                 if (claim.payoutPercentage > 0 && claim.isAutoApproved)
@@ -252,8 +267,7 @@ class _ClaimCard extends ConsumerWidget {
                   ),
 
                 // Severity badge
-                if (claim.eventSeverity != null) ...[
-                  const SizedBox(width: 8),
+                if (claim.eventSeverity != null)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                     decoration: BoxDecoration(
@@ -266,7 +280,6 @@ class _ClaimCard extends ConsumerWidget {
                       style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11),
                     ),
                   ),
-                ],
               ],
             ),
           ),

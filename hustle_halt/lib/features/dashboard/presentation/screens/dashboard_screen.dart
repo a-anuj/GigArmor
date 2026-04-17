@@ -8,6 +8,7 @@ import '../../domain/state/dashboard_state.dart';
 import '../../domain/state/activity_state.dart';
 import '../../../../core/widgets/language_selector.dart';
 import '../../../../core/providers/locale_provider.dart';
+import '../../../zones/domain/state/zone_provider.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -75,6 +76,8 @@ class DashboardScreen extends ConsumerWidget {
 
   Widget _buildGreeting(BuildContext context, WorkerModel? worker, WidgetRef ref) {
     final l10n = ref.watch(appL10nProvider);
+    final selectedZone = ref.watch(selectedZoneProvider);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -87,26 +90,40 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Row(
-          children: [
-            const Icon(LucideIcons.mapPin, size: 14, color: AppTheme.textSecondary),
-            const SizedBox(width: 4),
-            Text(
-              worker?.zone?.name ?? l10n.assignedZone,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 14,
+        GestureDetector(
+          onTap: () => context.push('/zones'),
+          behavior: HitTestBehavior.opaque,
+          child: Row(
+            children: [
+              const Icon(LucideIcons.mapPin, size: 14, color: AppTheme.accent),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  selectedZone?.name ?? worker?.zone?.name ?? l10n.assignedZone,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontSize: 14,
+                    color: selectedZone != null ? AppTheme.accent : AppTheme.textSecondary,
+                    fontWeight: selectedZone != null ? FontWeight.bold : FontWeight.normal,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            const Icon(LucideIcons.shoppingBag, size: 14, color: AppTheme.textSecondary),
-            const SizedBox(width: 4),
-            Text(
-              worker?.qCommercePlatform ?? l10n.platform,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 14,
+              const SizedBox(width: 4),
+              const Icon(LucideIcons.chevronRight, size: 12, color: AppTheme.textSecondary),
+              const SizedBox(width: 12),
+              const Icon(LucideIcons.shoppingBag, size: 14, color: AppTheme.textSecondary),
+              const SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  worker?.qCommercePlatform ?? l10n.platform,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontSize: 14,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         )
       ],
     );

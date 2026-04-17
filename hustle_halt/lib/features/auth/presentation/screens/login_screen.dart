@@ -7,6 +7,11 @@ import '../../../../core/widgets/custom_inputs.dart';
 import '../../../../core/widgets/language_selector.dart';
 import 'package:hustle_halt/l10n/app_localizations.dart';
 import '../../domain/state/auth_state.dart';
+import '../../zones/domain/state/zone_provider.dart';
+import '../../zones/presentation/widgets/place_search_delegate.dart';
+import '../../zones/presentation/widgets/zone_card.dart';
+import '../../zones/domain/models/place_autocomplete_model.dart';
+import '../../zones/domain/models/zone_model.dart';
 
 class AuthStepNotifier extends Notifier<int> {
   @override
@@ -208,11 +213,9 @@ class _ProfileSetupStepState extends ConsumerState<_ProfileSetupStep> {
     if (_locationAttempted) return;
     _locationAttempted = true;
     ref.read(locationLoadingProvider.notifier).state = true;
-    await requestAndFetchLocation(ref);
+    await ref.read(zoneDiscoveryProvider.notifier).discoverZones();
     if (mounted) {
       ref.read(locationLoadingProvider.notifier).state = false;
-      // Refresh nearby zones now that we have a position
-      ref.invalidate(nearbyZonesProvider);
     }
   }
 
@@ -339,143 +342,133 @@ class _ProfileSetupStepState extends ConsumerState<_ProfileSetupStep> {
   }
 
   Widget _buildZoneHeader(BuildContext context, bool locationLoading, dynamic position) {
-    return Row(
+    return Column(
       children: [
-        Icon(
-          position != null ? LucideIcons.mapPin : LucideIcons.mapPinOff,
-          color: position != null ? AppTheme.success : AppTheme.textSecondary,
-          size: 16,
-        ),
-        const SizedBox(width: 8),
-        if (locationLoading)
-          const Text(
-            'Detecting your location…',
-            style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
-          )
-        else if (position != null)
-          Text(
-            'Nearby dark stores (ranked by distance)',
-            style: const TextStyle(color: AppTheme.success, fontSize: 13, fontWeight: FontWeight.w600),
-          )
-        else
-          GestureDetector(
-            onTap: () async {
-              ref.read(locationLoadingProvider.notifier).state = true;
-              await requestAndFetchLocation(ref);
-              if (mounted) {
-                ref.read(locationLoadingProvider.notifier).state = false;
-                ref.invalidate(nearbyZonesProvider);
-              }
-            },
-            child: const Text(
-              'Tap to detect your location',
-              style: TextStyle(
-                color: AppTheme.accent,
-                fontSize: 13,
-                decoration: TextDecoration.underline,
+        Row(
+          children: [
+            Icon(
+              position != null ? LucideIcons.mapPin : LucideIcons.mapPinOff,
+              color: position != null ? AppTheme.success : AppTheme.textSecondary,
+              size: 16,
+            ),
+            const SizedBox(width: 8),
+            if (locationLoading)
+              const Text(
+                'Detecting your location…',
+                style: TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+              )
+            else if (position != null)
+              Text(
+                'Nearby dark stores (ranked by distance)',
+                style: const TextStyle(color: AppTheme.success, fontSize: 13, fontWeight: FontWeight.w600),
+              )
+            else
+              GestureDetector(
+                onTap: () async {
+                  ref.read(locationLoadingProvider.notifier).state = true;
+                  await ref.read(zoneDiscoveryProvider.notifier).discoverZones();
+                  if (mounted) {
+                    ref.read(locationLoadingProvider.notifier).state = false;
+                  }
+                },
+                child: const Text(
+                  'Tap to detect your location',
+                  style: TextStyle(
+                    color: AppTheme.accent,
+                    fontSize: 13,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
               ),
+            if (locationLoading) ...[
+              const SizedBox(width: 8),
+              const SizedBox(
+                width: 12,
+                height: 12,
+                child: CircularProgressIndicator(color: AppTheme.accent, strokeWidth: 2),
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed: () => _openPlacePicker(context),
+            icon: const Icon(LucideIcons.search, size: 14),
+            label: const Text('Search Area Manually', style: TextStyle(fontSize: 12)),
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.zero,
+              visualDensity: VisualDensity.compact,
+              foregroundColor: AppTheme.accent,
             ),
           ),
-        if (locationLoading) ...[
-          const SizedBox(width: 8),
-          const SizedBox(
-            width: 12,
-            height: 12,
-            child: CircularProgressIndicator(color: AppTheme.accent, strokeWidth: 2),
-          ),
-        ],
+        ),
       ],
     );
   }
 
   Widget _buildZoneSelector(WidgetRef ref) {
-    return ref.watch(nearbyZonesProvider).when(
-      loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.accent)),
-      error: (e, st) => Text('Error loading zones: $e', style: const TextStyle(color: Colors.red, fontSize: 12)),
-      data: (zones) {
-        final selectedZoneId = ref.watch(zoneControllerProvider);
-        // Auto-select first zone if none selected or if current selection isn't in nearby list
-        final zoneIds = zones.map((z) => z.id).toList();
-        if (!zoneIds.contains(selectedZoneId) && zones.isNotEmpty) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            ref.read(zoneControllerProvider.notifier).state = zones.first.id;
-          });
-        }
+    final discoveryState = ref.watch(zoneDiscoveryProvider);
+    final selectedZoneId = ref.watch(zoneControllerProvider);
 
-        return Column(
-          children: zones.map((z) {
-            final isSelected = z.id == selectedZoneId;
-            return GestureDetector(
-              onTap: () => ref.read(zoneControllerProvider.notifier).state = z.id,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: isSelected ? AppTheme.accent.withOpacity(0.1) : AppTheme.surface,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isSelected ? AppTheme.accent : AppTheme.border,
-                    width: isSelected ? 1.5 : 1,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      LucideIcons.store,
-                      size: 20,
-                      color: isSelected ? AppTheme.accent : AppTheme.textSecondary,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            z.name,
-                            style: TextStyle(
-                              color: isSelected ? AppTheme.accent : AppTheme.textPrimary,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            'Pincode ${z.pincode}',
-                            style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Show distance badge if available
-                    if (z.distanceKm != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppTheme.background,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: AppTheme.border),
-                        ),
-                        child: Text(
-                          '${z.distanceKm!.toStringAsFixed(1)} km',
-                          style: const TextStyle(
-                            color: AppTheme.textSecondary,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    if (isSelected) ...[
-                      const SizedBox(width: 8),
-                      const Icon(LucideIcons.checkCircle2, color: AppTheme.success, size: 18),
-                    ],
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
+    if (discoveryState.status == DiscoveryStatus.searching) {
+      return const Center(child: Padding(
+        padding: EdgeInsets.all(20.0),
+        child: CircularProgressIndicator(color: AppTheme.accent),
+      ));
+    }
+
+    if (discoveryState.status == DiscoveryStatus.error) {
+      return Text('Error loading zones: ${discoveryState.errorMessage}', style: const TextStyle(color: Colors.red, fontSize: 12));
+    }
+
+    if (discoveryState.zones.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: Text('No hubs found nearby. Try searching manually.', style: TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+      );
+    }
+
+    // Auto-select first zone if none selected or if current selection isn't in nearby list
+    final zoneIds = discoveryState.zones.map((z) => z.backendZoneId).toList();
+    if (!zoneIds.contains(selectedZoneId) && discoveryState.zones.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final firstValidId = discoveryState.zones.first.backendZoneId;
+        if (firstValidId != null) {
+          ref.read(zoneControllerProvider.notifier).state = firstValidId;
+        }
+      });
+    }
+
+    return Column(
+      children: discoveryState.zones.map((z) {
+        final isSelected = z.backendZoneId == selectedZoneId;
+        return ZoneCard(
+          zone: z,
+          isSelected: isSelected,
+          onTap: () {
+            if (z.backendZoneId != null) {
+              ref.read(zoneControllerProvider.notifier).state = z.backendZoneId!;
+            }
+          },
         );
-      },
+      }).toList(),
     );
+  }
+
+  Future<void> _openPlacePicker(BuildContext context) async {
+    final PlaceDetails? result = await showSearch<PlaceDetails?>(
+      context: context,
+      delegate: PlaceSearchDelegate(ref),
+    );
+
+    if (result != null) {
+      ref.read(zoneDiscoveryProvider.notifier).discoverZonesFromPosition(
+        result.latitude,
+        result.longitude,
+      );
+    }
   }
 }
 

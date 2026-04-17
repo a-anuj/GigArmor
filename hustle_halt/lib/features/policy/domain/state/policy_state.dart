@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../auth/domain/state/auth_state.dart';
+import '../../../zones/domain/models/zone_model.dart';
+import '../../../zones/domain/state/zone_provider.dart';
 import '../models/policy_model.dart';
 
 // ── Policy Service ─────────────────────────────────────────────────────────
@@ -12,8 +14,54 @@ final premiumQuoteProvider = FutureProvider<PremiumQuoteModel>((ref) async {
   final worker = ref.watch(authProvider);
   if (worker == null) throw Exception('Not authenticated');
 
+  final selectedZone = ref.watch(selectedZoneProvider);
+
   final response = await ApiClient.instance.get('/api/v1/policies/quote/${worker.id}');
-  return PremiumQuoteModel.fromJson(response.data as Map<String, dynamic>);
+  var quote = PremiumQuoteModel.fromJson(response.data as Map<String, dynamic>);
+
+  // SIMULATION: Recalculate based on dynamic zone selection
+  if (selectedZone != null) {
+    double multiplier = switch (selectedZone.riskLevel) {
+      RiskLevel.low => 0.8,
+      RiskLevel.medium => 1.0,
+      RiskLevel.high => 1.5,
+    };
+
+    // Calculate new premium and coverage
+    double newPremium = (quote.rawPremium * multiplier).clamp(19.0, 149.0);
+    double newCoverage = selectedZone.riskLevel == RiskLevel.high ? 2500.0 : 1200.0;
+
+    // Return a modified quote object (using mock data for simulation)
+    // Note: In real production, this logic would happen on the backend.
+    return PremiumQuoteModel(
+      workerId: quote.workerId,
+      workerName: quote.workerName,
+      zoneId: int.tryParse(selectedZone.id.split('-').last) ?? quote.zoneId,
+      zoneName: selectedZone.name,
+      rBase: quote.rBase,
+      mWeather: quote.mWeather,
+      mSocial: quote.mSocial,
+      mColdstart: quote.mColdstart,
+      hExpected: quote.hExpected,
+      baseRiskMultiplier: multiplier,
+      rawPremium: quote.rawPremium,
+      premiumBeforeDiscount: newPremium,
+      premium: newPremium,
+      weatherCondition: quote.weatherCondition,
+      socialCondition: quote.socialCondition,
+      coldStartActive: quote.coldStartActive,
+      consecutiveQuietWeeks: quote.consecutiveQuietWeeks,
+      shieldCreditsApplied: quote.shieldCreditsApplied,
+      discountAmount: quote.discountAmount,
+      coverageAmount: newCoverage,
+      message: 'Zone Adjusted Premium (${selectedZone.riskLevel.label} Risk)',
+      liveRainfallMmHr: quote.liveRainfallMmHr,
+      liveTemperatureC: quote.liveTemperatureC,
+      liveHumidityPct: quote.liveHumidityPct,
+    );
+  }
+
+  return quote;
 });
 
 /// Fetches full policy history for the authenticated worker.

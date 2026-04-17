@@ -9,6 +9,7 @@ import '../../features/claims/presentation/screens/claim_status_screen.dart';
 import '../../features/policy/presentation/screens/policy_history_screen.dart';
 import '../../features/policy/presentation/screens/premium_quote_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/zones/presentation/screens/zone_discovery_screen.dart';
 import '../theme/app_theme.dart';
 import '../providers/locale_provider.dart';
 import 'package:hustle_halt/l10n/app_localizations.dart';
@@ -23,6 +24,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/login',
       builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: '/zones',
+      builder: (context, state) => const ZoneDiscoveryScreen(),
     ),
     ShellRoute(
       navigatorKey: shellNavigatorKey,
