@@ -198,6 +198,17 @@ def process_trigger_event(
         trust_score = calculate_trust_score(worker.id, worker.trust_baseline_score)
         status = get_claim_status(trust_score)
 
+        # Activity Check: Zero activity means blocked
+        completed = getattr(policy, "completed_deliveries", 0)
+        if completed == 0:
+            status = "Blocked"
+            payout = 0.0
+        else:
+            # Scale payout up to 20% bonus for high activity
+            activity_bonus = min(1.2, 1.0 + (completed * 0.02))
+            payout = payout * activity_bonus
+            payout = min(payout, remaining)
+
         # Blocked claims don't pay out
         if status == "Blocked":
             payout = 0.0

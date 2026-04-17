@@ -133,3 +133,68 @@ def fetch_zone_weather(lat: float, lon: float, zone_id: int) -> dict:
             "weather_condition": condition,
             "source": "mock_fallback",
         }
+
+OWM_FORECAST_BASE = "https://api.openweathermap.org/data/2.5/forecast"
+
+def fetch_zone_weekly_forecast(lat: float, lon: float, zone_id: int) -> dict:
+    """
+    Calls OWM 5-day / 3-hour forecast API for a zone.
+    Returns the maximum expected rain intensity (mm/hr) to compute predictive M_weather.
+    """
+    if not settings.USE_REAL_WEATHER_API or not settings.OPENWEATHERMAP_API_KEY:
+        data = _MOCK_WEATHER.get(zone_id, _DEFAULT_MOCK)
+        # Add 10% to current mock rainfall to simulate "prediction"
+        predicted_rainfall = data["rainfall_mm_hr"] * 1.1 
+        m_weather, condition = _rainfall_to_multiplier(predicted_rainfall)
+        return {
+            "predicted_rainfall_mm_hr": predicted_rainfall,
+            "m_weather_predict": m_weather,
+            "predicted_condition": f"Predicted {condition}",
+        }
+
+    try:
+        resp = httpx.get(
+            OWM_FORECAST_BASE,
+            params={
+                "lat": lat,
+                "lon": lon,
+                "appid": settings.OPENWEATHERMAP_API_KEY,
+                "units": "metric",
+            },
+            timeout=5.0,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+
+        # Find the maximum rain.3h block over the next 5 days
+        max_rain_3h = 0.0
+        max_condition = "Clear"
+        
+        for item in data.get("list", []):
+            rain_vol = item.get("rain", {}).get("3h", 0.0)
+            if rain_vol > max_rain_3h:
+                max_rain_3h = rain_vol
+                weather_arr = item.get("weather", [])
+                if weather_arr:
+                    max_condition = weather_arr[0].get("description", "").title()
+                    
+        # Divide by 3 to get mm/hr equivalent
+        predicted_rainfall_mm_hr = max_rain_3h / 3.0
+        m_weather, condition = _rainfall_to_multiplier(predicted_rainfall_mm_hr)
+        
+        return {
+            "predicted_rainfall_mm_hr": predicted_rainfall_mm_hr,
+            "m_weather_predict": m_weather,
+            "predicted_condition": max_condition if predicted_rainfall_mm_hr > 0 else condition,
+        }
+    except Exception as exc:
+        logger.warning(f"Zone {zone_id} OWM Forecast call failed ({exc}), falling back to mock predictions")
+        # Use fallback mock
+        data = _MOCK_WEATHER.get(zone_id, _DEFAULT_MOCK)
+        predicted_rainfall = data["rainfall_mm_hr"] * 1.1 
+        m_weather, condition = _rainfall_to_multiplier(predicted_rainfall)
+        return {
+            "predicted_rainfall_mm_hr": predicted_rainfall,
+            "m_weather_predict": m_weather,
+            "predicted_condition": condition,
+        }

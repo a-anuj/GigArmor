@@ -14,6 +14,9 @@ class PolicyEnroll(BaseModel):
     razorpay_order_id: Optional[str] = None
     razorpay_signature: Optional[str] = None
 
+class PolicyActivityUpdate(BaseModel):
+    completed_deliveries: int = Field(..., ge=0, description="Log the amount of completed deliveries")
+
 
 # ── Response: Premium Quote ───────────────────────────────────────────────────
 class PremiumQuote(BaseModel):
@@ -67,6 +70,7 @@ class PolicyOut(BaseModel):
     end_date: datetime
     premium_amount: float
     coverage_amount: float
+    completed_deliveries: int
     status: str
 
     model_config = {"from_attributes": True}

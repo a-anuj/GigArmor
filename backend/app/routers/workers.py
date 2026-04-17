@@ -30,11 +30,35 @@ router = APIRouter(prefix="/api/v1/workers", tags=["Workers"])
 zone_router = APIRouter(prefix="/api/v1/zones", tags=["Zones"])
 
 
+import math
+from fastapi import Query
+
 @zone_router.get("", response_model=list[ZoneOut], summary="List all dark store zones")
 def list_zones(db: Session = Depends(get_db)):
     """Returns all available zones a worker can register with — used on the onboarding screen."""
     return db.query(Zone).all()
 
+@zone_router.get("/nearby", response_model=list[ZoneOut], summary="List dark store zones ranked by proximity")
+def list_nearby_zones(
+    lat: float = Query(..., description="Worker's current latitude"),
+    lon: float = Query(..., description="Worker's current longitude"),
+    db: Session = Depends(get_db)
+):
+    """Returns available zones sorted by distance from the provided lat/lon coordinate."""
+    zones = db.query(Zone).all()
+    
+    def haversine_distance(z: Zone) -> float:
+        if z.latitude is None or z.longitude is None:
+            return float('inf')
+        R = 6371.0 # Earth radius in kilometers
+        dlat = math.radians(z.latitude - lat)
+        dlon = math.radians(z.longitude - lon)
+        a = math.sin(dlat/2)**2 + math.cos(math.radians(lat)) * math.cos(math.radians(z.latitude)) * math.sin(dlon/2)**2
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+        return R * c
+
+    zones.sort(key=haversine_distance)
+    return zones
 
 # ── Worker Registration (Legacy — use /auth/register for proper accounts) ─────
 @router.post(
