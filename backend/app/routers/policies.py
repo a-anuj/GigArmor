@@ -20,6 +20,7 @@ from app.schemas.policy import (
     PolicyEnrollOut,
     PolicyListOut,
     PremiumQuote,
+    PolicyActivityUpdate,
 )
 from app.services.premium_engine import (
     calculate_premium,
@@ -220,6 +221,24 @@ def list_worker_policies(worker_id: int, db: Session = Depends(get_db)):
     )
     return {"total": len(policies), "policies": policies}
 
+@router.patch(
+    "/{policy_id}/activity",
+    response_model=PolicyOut,
+    summary="Update activity log (completed_deliveries) for a policy",
+)
+def update_policy_activity(policy_id: int, data: PolicyActivityUpdate, db: Session = Depends(get_db)):
+    """Logs completed deliveries to track activity, required to process payouts properly."""
+    policy = db.query(Policy).filter(Policy.id == policy_id).first()
+    if not policy:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Policy {policy_id} not found."
+        )
+    
+    policy.completed_deliveries = data.completed_deliveries
+    db.commit()
+    db.refresh(policy)
+    return policy
 
 # ── Razorpay Integration ──────────────────────────────────────────────────────
 @router.post(

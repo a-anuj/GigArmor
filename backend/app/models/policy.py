@@ -26,6 +26,9 @@ class Policy(Base):
     # Fixed parametric coverage ceiling (₹1,200)
     coverage_amount = Column(Float, default=1200.0, nullable=False)
 
+    # Activity tracking for dynamic payouts
+    completed_deliveries = Column(Integer, default=0, nullable=False)
+
     # Active | Expired
     status = Column(String(20), default="Active", nullable=False)
 

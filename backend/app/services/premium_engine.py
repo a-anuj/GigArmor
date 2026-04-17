@@ -11,7 +11,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 
-from app.services.weather_service import fetch_zone_weather
+from app.services.weather_service import fetch_zone_weather, fetch_zone_weekly_forecast
 
 # Constants — hard-coded as per README, do not change without product sign-off
 R_BASE: float = 5.0
@@ -96,8 +96,14 @@ def calculate_premium(
     """
     # Live weather call — this is what makes the premium actually responsive to real conditions
     weather = fetch_zone_weather(lat or 12.9716, lon or 77.5946, zone_id)
-    m_weather = weather["m_weather"]
-    weather_condition = weather["weather_condition"]
+    weather_predict = fetch_zone_weekly_forecast(lat or 12.9716, lon or 77.5946, zone_id)
+    
+    m_weather_current = weather["m_weather"]
+    m_weather_predict = weather_predict["m_weather_predict"]
+    m_weather = max(m_weather_current, m_weather_predict)
+    
+    condition_to_use = weather_predict["predicted_condition"] if m_weather_predict > m_weather_current else weather["weather_condition"]
+    weather_condition = condition_to_use
     weather_source = weather.get("source", "mock")
 
     m_social, social_condition = get_social_multiplier(zone_id)
