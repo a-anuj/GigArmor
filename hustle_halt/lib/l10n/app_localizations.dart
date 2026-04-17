@@ -373,6 +373,354 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{weeks} weeks maintained. {remaining} more until discount.'**
   String weeksUntilDiscount(String weeks, String remaining);
+
+  /// No description provided for @navHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get navHome;
+
+  /// No description provided for @navHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get navHistory;
+
+  /// No description provided for @navClaims.
+  ///
+  /// In en, this message translates to:
+  /// **'Claims'**
+  String get navClaims;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get navProfile;
+
+  /// No description provided for @claimsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Claims'**
+  String get claimsTitle;
+
+  /// No description provided for @failedToLoadClaims.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load claims: {error}'**
+  String failedToLoadClaims(String error);
+
+  /// No description provided for @noClaimsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No claims found.'**
+  String get noClaimsFound;
+
+  /// No description provided for @statusAutoApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-Approved'**
+  String get statusAutoApproved;
+
+  /// No description provided for @statusProcessingSoftHold.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing Soft Hold'**
+  String get statusProcessingSoftHold;
+
+  /// No description provided for @systemEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'System Event'**
+  String get systemEvent;
+
+  /// No description provided for @autoProcessedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-processed based on zonal risk data.'**
+  String get autoProcessedNote;
+
+  /// No description provided for @expectedCreditUPI.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected to credit via UPI soon.'**
+  String get expectedCreditUPI;
+
+  /// No description provided for @resolutionPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolution pending.'**
+  String get resolutionPending;
+
+  /// No description provided for @policyHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Policy History'**
+  String get policyHistoryTitle;
+
+  /// No description provided for @failedToLoadPolicies.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load policies: {error}'**
+  String failedToLoadPolicies(String error);
+
+  /// No description provided for @noPoliciesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no active or past policies.'**
+  String get noPoliciesFound;
+
+  /// No description provided for @statusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'ACTIVE'**
+  String get statusActive;
+
+  /// No description provided for @weekOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Week of {date}'**
+  String weekOf(String date);
+
+  /// No description provided for @validThrough.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid through {date}'**
+  String validThrough(String date);
+
+  /// No description provided for @coverageAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Coverage Amount'**
+  String get coverageAmount;
+
+  /// No description provided for @coverageAmountValue.
+  ///
+  /// In en, this message translates to:
+  /// **'₹{amount} / day max limit'**
+  String coverageAmountValue(String amount);
+
+  /// No description provided for @policyType.
+  ///
+  /// In en, this message translates to:
+  /// **'Policy Type'**
+  String get policyType;
+
+  /// No description provided for @parametricIncomeProtection.
+  ///
+  /// In en, this message translates to:
+  /// **'Parametric Income Protection'**
+  String get parametricIncomeProtection;
+
+  /// No description provided for @claimsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Claims Count'**
+  String get claimsCount;
+
+  /// No description provided for @notAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available'**
+  String get notAvailable;
+
+  /// No description provided for @downloadPolicyDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'Download Policy Document'**
+  String get downloadPolicyDocument;
+
+  /// No description provided for @baseRiskMultiplier.
+  ///
+  /// In en, this message translates to:
+  /// **'{multiplier}x Base Risk'**
+  String baseRiskMultiplier(String multiplier);
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileTitle;
+
+  /// No description provided for @accountSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Settings'**
+  String get accountSettings;
+
+  /// No description provided for @personalInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Information'**
+  String get personalInformation;
+
+  /// No description provided for @workZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Work Zone ({zone})'**
+  String workZone(String zone);
+
+  /// No description provided for @languageMenuItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageMenuItem;
+
+  /// No description provided for @payoutsBilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Payouts & Billing'**
+  String get payoutsBilling;
+
+  /// No description provided for @paymentMethods.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Methods (UPI)'**
+  String get paymentMethods;
+
+  /// No description provided for @taxDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax Details'**
+  String get taxDetails;
+
+  /// No description provided for @developerTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer Tools'**
+  String get developerTools;
+
+  /// No description provided for @triggerMockSimulation.
+  ///
+  /// In en, this message translates to:
+  /// **'Trigger Mock Simulation'**
+  String get triggerMockSimulation;
+
+  /// No description provided for @logOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out'**
+  String get logOut;
+
+  /// No description provided for @loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading...'**
+  String get loading;
+
+  /// No description provided for @workerStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status: {status}'**
+  String workerStatus(String status);
+
+  /// No description provided for @identityNotVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity Not Verified'**
+  String get identityNotVerified;
+
+  /// No description provided for @guestWorker.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest Worker'**
+  String get guestWorker;
+
+  /// No description provided for @switchWorkZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch Work Zone'**
+  String get switchWorkZone;
+
+  /// No description provided for @errorLoadingZones.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading zones: {error}'**
+  String errorLoadingZones(String error);
+
+  /// No description provided for @zoneSwitched.
+  ///
+  /// In en, this message translates to:
+  /// **'Zone switched to {zone}'**
+  String zoneSwitched(String zone);
+
+  /// No description provided for @failedGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed: {error}'**
+  String failedGeneric(String error);
+
+  /// No description provided for @runSimulation.
+  ///
+  /// In en, this message translates to:
+  /// **'Run Simulation'**
+  String get runSimulation;
+
+  /// No description provided for @simulationDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'This will trigger a mock heavy rainfall event. The dashboard environmental stats will update and an auto-payout notification will appear.'**
+  String get simulationDescription;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @triggerEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Trigger Event'**
+  String get triggerEvent;
+
+  /// No description provided for @failedSimulation.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed simulation: {error}'**
+  String failedSimulation(String error);
+
+  /// No description provided for @enterYourName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name'**
+  String get enterYourName;
+
+  /// No description provided for @notProvided.
+  ///
+  /// In en, this message translates to:
+  /// **'Not provided'**
+  String get notProvided;
+
+  /// No description provided for @qCommercePlatform.
+  ///
+  /// In en, this message translates to:
+  /// **'Q-Commerce Platform'**
+  String get qCommercePlatform;
+
+  /// No description provided for @upiIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI ID'**
+  String get upiIdLabel;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get saveChanges;
+
+  /// No description provided for @profileUpdatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated successfully!'**
+  String get profileUpdatedSuccess;
+
+  /// No description provided for @failedToUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update: {error}'**
+  String failedToUpdate(String error);
 }
 
 class _AppLocalizationsDelegate
